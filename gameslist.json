@@ -1,0 +1,14 @@
+{
+  "apps": [
+    {
+      "id": 1,
+      "name": "مار",
+      "description": "یک بازی ساده مار که شما را ،کمی سرگرم کند 🌹.  ",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/AddText_01-05-04.29.21.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/snakzip.zip",
+      "size": 5200000,
+      "type": "web"
+    },
+   
+  ]
+}
