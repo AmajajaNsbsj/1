@@ -7,6 +7,7 @@
       "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/AddText_01-05-04.29.21.png",
       "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/snakzip.zip",
       "size": 5200000,
+      "packageName": "ir.mar.io",
       "type": "web"
     },
     {
@@ -16,24 +17,7 @@
       "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/AddText_01-05-04.29.21.png",
       "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/snakzip.zip",
       "size": 5200000,
-      "type": "web"
-    },
-    {
-      "id": 3,
-      "name": "مار",
-      "description": "یک بازی ساده مار که شما را ،کمی سرگرم کند 🌹.",
-      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/AddText_01-05-04.29.21.png",
-      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/snakzip.zip",
-      "size": 5200000,
-      "type": "web"
-    },
-    {
-      "id": 4,
-      "name": "مار",
-      "description": "یک بازی ساده مار که شما را ،کمی سرگرم کند 🌹.",
-      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/AddText_01-05-04.29.21.png",
-      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/snakzip.zip",
-      "size": 5200000,
+      "packageName": "ir.mar.i6o",
       "type": "web"
     }
   ]
