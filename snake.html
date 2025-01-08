@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Creative Snake Game</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+            background: #000;
+            touch-action: none;
+        }
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        class CreativeSnake {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.snake = [{ x: 10, y: 10 }];
+                this.direction = { x: 0, y: 0 };
+                this.score = 0;
+                this.colors = {
+                    snake: ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#8b00ff'],
+                    food: 'rgba(255,0,0,0.798)'
+                };
+
+                this.adjustCanvasSize();
+                this.initializeGame();
+
+                document.addEventListener('keydown', this.handleKey.bind(this));
+                canvas.addEventListener('touchstart', this.handleTouchStart.bind(this));
+                canvas.addEventListener('touchmove', this.handleTouchMove.bind(this));
+                window.addEventListener('resize', this.adjustCanvasSize.bind(this));
+
+                this.gameLoop = this.gameLoop.bind(this);
+                requestAnimationFrame(this.gameLoop);
+            }
+
+            initializeGame() {
+                navigator.vibrate([200, 100, 200]);
+                this.gridSize = Math.min(this.width, this.height) / 20;
+                this.food = this.randomPosition();
+                this.speed = this.getRandomSpeed();
+                this.lastUpdateTime = 0;
+            }
+
+            adjustCanvasSize() {
+                this.width = this.canvas.width = window.innerWidth;
+                this.height = this.canvas.height = window.innerHeight;
+                this.initializeGame();
+            }
+
+            randomPosition() {
+                return {
+                    x: Math.floor(Math.random() * Math.floor(this.width / this.gridSize)),
+                    y: Math.floor(Math.random() * Math.floor(this.height / this.gridSize))
+                };
+            }
+
+            getRandomSpeed() {
+                return Math.max(30, Math.random() * 30 + 40);
+            }
+
+            handleKey(event) {
+                switch (event.key) {
+                    case 'ArrowUp':
+                        if (this.direction.y === 0) this.direction = { x: 0, y: -1 };
+                        break;
+                    case 'ArrowDown':
+                        if (this.direction.y === 0) this.direction = { x: 0, y: 1 };
+                        break;
+                    case 'ArrowLeft':
+                        if (this.direction.x === 0) this.direction = { x: -1, y: 0 };
+                        break;
+                    case 'ArrowRight':
+                        if (this.direction.x === 0) this.direction = { x: 1, y: 0 };
+                        break;
+                }
+            }
+
+            handleTouchStart(event) {
+                this.lastTouchX = event.touches[0].clientX;
+                this.lastTouchY = event.touches[0].clientY;
+            }
+
+            handleTouchMove(event) {
+                event.preventDefault();
+                const touch = event.touches[0];
+                const deltaX = touch.clientX - this.lastTouchX;
+                const deltaY = touch.clientY - this.lastTouchY;
+
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                    if (deltaX > 0 && this.direction.x === 0) {
+                        this.direction = { x: 1, y: 0 };
+                    } else if (deltaX < 0 && this.direction.x === 0) {
+                        this.direction = { x: -1, y: 0 };
+                    }
+                } else {
+                    if (deltaY > 0 && this.direction.y === 0) {
+                        this.direction = { x: 0, y: 1 };
+                    } else if (deltaY < 0 && this.direction.y === 0) {
+                        this.direction = { x: 0, y: -1 };
+                    }
+                }
+
+                this.lastTouchX = touch.clientX;
+                this.lastTouchY = touch.clientY;
+            }
+
+            update(timestamp) {
+                if (timestamp - this.lastUpdateTime < this.speed) return;
+                this.lastUpdateTime = timestamp;
+
+                const gridWidth = Math.floor(this.width / this.gridSize);
+                const gridHeight = Math.floor(this.height / this.gridSize);
+
+                const newHead = {
+                    x: (this.snake[0].x + this.direction.x + gridWidth) % gridWidth,
+                    y: (this.snake[0].y + this.direction.y + gridHeight) % gridHeight
+                };
+
+                // Check self-collision
+                if (this.snake.some((segment, index) => index !== 0 && segment.x === newHead.x && segment.y === newHead.y)) {
+                    this.reset();
+                    return;
+                }
+
+                this.snake.unshift(newHead);
+
+                // Check food collision
+                if (newHead.x === this.food.x && newHead.y === this.food.y) {
+                    this.score++;
+                    this.food = this.randomPosition();
+                    while (this.snake.some(segment => segment.x === this.food.x && segment.y === this.food.y)) {
+                        this.food = this.randomPosition();
+                    }
+                    this.speed = Math.max(40, this.speed - 5);
+                } else {
+                    this.snake.pop();
+                }
+
+                this.draw();
+            }
+
+            draw() {
+                this.ctx.fillStyle = '#000';
+                this.ctx.fillRect(0, 0, this.width, this.height);
+
+                this.snake.forEach((segment, index) => {
+                    const colorIndex = index % this.colors.snake.length;
+                    this.ctx.fillStyle = this.colors.snake[colorIndex];
+                    this.ctx.fillRect(
+                        segment.x * this.gridSize,
+                        segment.y * this.gridSize,
+                        this.gridSize - 2,
+                        this.gridSize - 2
+                    );
+                });
+
+                const foodPulse = Math.sin(Date.now() * 0.01) * 3;
+                this.ctx.fillStyle = this.colors.food;
+                this.ctx.fillRect(
+                    this.food.x * this.gridSize - foodPulse / 2,
+                    this.food.y * this.gridSize - foodPulse / 2,
+                    this.gridSize - 2 + foodPulse,
+                    this.gridSize - 2 + foodPulse
+                );
+
+                this.ctx.fillStyle = 'white';
+                this.ctx.font = '20px Arial';
+                this.ctx.fillText(`Score: ${this.score}`, 10, 30);
+            }
+
+            reset() {
+                this.snake = [{ x: 10, y: 10 }];
+                this.direction = { x: 0, y: 0 };
+                this.food = this.randomPosition();
+                while (this.snake.some(seg => seg.x === this.food.x && seg.y === this.food.y)) {
+                    this.food = this.randomPosition();
+                }
+                this.score = 0;
+                this.speed = this.getRandomSpeed();
+                this.lastUpdateTime = 0;
+            }
+
+            gameLoop(timestamp) {
+                this.update(timestamp);
+                requestAnimationFrame(this.gameLoop);
+            }
+        }
+
+        const canvas = document.getElementById('gameCanvas');
+        const game = new CreativeSnake(canvas);
+    </script>
+</body>
+</html>
