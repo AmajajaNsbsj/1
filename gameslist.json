@@ -3,7 +3,7 @@
     {
       "id": 1,
       "name": "مار",
-      "description": "یک بازی ساده مار که شما را ،کمی سرگرم کند 🌹.",
+      "description": "یک بازی ساده مار که شما را کمی سرگرم کند 🌹.",
       "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/AddText_01-05-04.29.21.png",
       "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/snake.html",
       "size": 5200000,
@@ -13,47 +13,47 @@
     {
       "id": 2,
       "name": "مار",
-      "description": "یک بازی ساده مار که شما را ،کمی سرگرم کند 🌹.",
+      "description": "یک بازی ساده مار که شما را کمی سرگرم کند 🌹.",
       "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/AddText_01-05-04.29.21.png",
       "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/snake.html",
       "size": 5200000,
       "packageName": "ir.mar.i6o",
       "type": "web"
-    }
-        {
+    },
+    {
       "id": 3,
       "name": "دوز",
-      "description" :" "
+      "description": "",
       "iconUrl": "https://github.com/AmajajaNsbsj/1/blob/main/AddText_01-09-01.54.03.png",
       "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/2.html",
       "size": 110,
       "packageName": "ir.mar.i60o",
       "type": "web"
-    }
+    },
     {
       "id": 4,
-      "name": "ماشین ساده"
-      "description" :" "
+      "name": "ماشین ساده",
+      "description": "",
       "iconUrl": "https://github.com/AmajajaNsbsj/1/blob/main/AddText_01-09-04.29.21.png",
       "downloadUrl": "https://raw.githubusercontent.com/TechGeekUnited/Offline-HTML-Games/refs/heads/main/Games/mini_car_game.html",
       "size": 110,
       "packageName": "ir.upp.i690o",
       "type": "web"
-    }
+    },
     {
       "id": 5,
-      "name": "Tic Tok To"
-      "description" :" "
+      "name": "Tic Tok To",
+      "description": "",
       "iconUrl": "https://github.com/AmajajaNsbsj/1/blob/main/AddText_01-09-04.29.21.png",
       "downloadUrl": "https://raw.githubusercontent.com/TechGeekUnited/Offline-HTML-Games/refs/heads/main/Games/tic-tac-toe.html",
       "size": 110,
       "packageName": "ir.upp.i600o",
       "type": "web"
-    }
-        {
+    },
+    {
       "id": 6,
-      "name": "سرنوشت دایره ای"
-      "description" :" "
+      "name": "سرنوشت دایره ای",
+      "description": "",
       "iconUrl": "https://github.com/AmajajaNsbsj/1/blob/main/AddText_01-09-06.39.30.png",
       "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/4.html",
       "size": 110,
