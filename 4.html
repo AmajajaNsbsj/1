@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بازی با رنگ‌های پویا</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: black;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // تنظیمات صفحه
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const colors = ['#FF0000', '#FF00FF', '#0000FF', '#00FFFF', '#00FF00', '#FFFF00'];
+        let player = { x: canvas.width / 2, y: canvas.height - 100, radius: 20, colorIndex: 0 };
+        let obstacles = [];
+        let score = 0;
+        let gameOver = false;
+
+        // تغییر رنگ پویا
+        const calculateWaveColor = (baseColor, fraction) => {
+            const colorValue = Math.round((1 - fraction) * 255);
+            return `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
+        };
+
+        const getDynamicColor = (index, fraction) => {
+            const baseColor = colors[index % colors.length];
+            const rgbValues = baseColor.match(/\w\w/g).map(hex => parseInt(hex, 16));
+            return `rgb(${rgbValues.map(value => Math.round(value * fraction)).join(',')})`;
+        };
+
+        // ایجاد مانع
+        const createObstacle = () => {
+            const x = Math.random() * canvas.width;
+            const speed = 3 + Math.random() * 5; // سرعت موانع
+            obstacles.push({ x, y: 0, radius: 20, speed, colorIndex: Math.floor(Math.random() * colors.length) });
+        };
+
+        // رسم بازیکن
+        const drawPlayer = () => {
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+            ctx.fillStyle = getDynamicColor(player.colorIndex, 0.5 + Math.sin(Date.now() / 500) / 2); // تغییر رنگ پویا
+            ctx.fill();
+        };
+
+        // رسم موانع
+        const drawObstacles = () => {
+            obstacles.forEach(obstacle => {
+                ctx.beginPath();
+                ctx.arc(obstacle.x, obstacle.y, obstacle.radius, 0, Math.PI * 2);
+                ctx.fillStyle = getDynamicColor(obstacle.colorIndex, 0.5 + Math.sin(Date.now() / 300) / 2);
+                ctx.fill();
+                obstacle.y += obstacle.speed; // حرکت مانع
+            });
+        };
+
+        // بررسی برخورد
+        const checkCollision = () => {
+            obstacles.forEach((obstacle, index) => {
+                const dx = obstacle.x - player.x;
+                const dy = obstacle.y - player.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < obstacle.radius + player.radius) {
+                    gameOver = true;
+                    obstacles.splice(index, 1);
+                }
+
+                if (obstacle.y > canvas.height) obstacles.splice(index, 1);
+            });
+        };
+
+        // آپدیت بازی
+        const updateGame = () => {
+            if (gameOver) {
+                ctx.fillStyle = 'red';
+                ctx.font = '40px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Game Over!', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawPlayer();
+            drawObstacles();
+            checkCollision();
+
+            // نمایش امتیاز
+            score++;
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.fillText(`Score: ${score}`, 20, 40);
+
+            requestAnimationFrame(updateGame);
+        };
+
+        // کنترل بازیکن با لمس صفحه
+        canvas.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            player.x = touch.clientX;
+        });
+
+        // اضافه کردن مانع جدید
+        setInterval(createObstacle, 1000);
+        updateGame();
+    </script>
+</body>
+</html>
