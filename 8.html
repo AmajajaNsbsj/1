@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صلوات شمار</title>
+    <style>
+        body {
+            font-family: 'Tahoma', sans-serif;
+            background: linear-gradient(to right, #ffffff, #b2f5e9);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .hadith-box {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1s;
+        }
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+        }
+        .container:hover {
+            transform: scale(1.05);
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+            color: #2e8b57;
+        }
+        .counter {
+            font-size: 56px;
+            margin-bottom: 20px;
+            color: #2e8b57;
+            animation: fadeIn 1s;
+        }
+        button {
+            font-size: 20px;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 15px;
+            background-color: #2e8b57;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        button:hover {
+            background-color: #3a9d71;
+            transform: translateY(-5px);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hadith-box" id="hadithBox"></div>
+    <div class="container">
+        <h1>صلوات شمار</h1>
+        <div class="counter" id="counter">0</div>
+        <button onclick="incrementCounter()">صلوات</button>
+    </div>
+
+    <script>
+const hadithsArabic = [
+    "قَالَ رَسُولُ اللَّهِ صَلَّى اللَّهُ عَلَيْهِ وَآلِهِ وَسَلَّمَ: إِنَّمَا الْأَعْمَالُ بِالنِّيَّاتِ.",
+    "قال رسول الله ﷺ: مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الْآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ.",
+    "قال رسول الله ﷺ: لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ.",
+    "قال رسول الله ﷺ: اتَّقُوا النَّارَ وَلَوْ بِشِقِّ تَمْرَةٍ.",
+    "قال الإمام علي عليه السلام: النَّاسُ أَعْدَاءُ مَا جَهِلُوا.",
+    "قال الإمام علي عليه السلام: قِيمَةُ كُلِّ امْرِئٍ مَا يُحْسِنُهُ.",
+    "قال الإمام الحسين عليه السلام: إِنَّمَا خَرَجْتُ لِطَلَبِ الْإِصْلَاحِ فِي أُمَّةِ جَدِّي.",
+    "قال الإمام زين العابدين عليه السلام: رَأْسُ كُلِّ خَيْرٍ قِلَّةُ الطَّمَعِ.",
+    "قال الإمام الباقر عليه السلام: الْعِلْمُ حَيَاةُ الْقُلُوبِ وَنُورُ الْأَبْصَارِ.",
+    "قال الإمام الصادق عليه السلام: الصَّبْرُ زِينَةُ الْإِيمَانِ.",
+    "قَالَ النَّبِيُّ صَلَّى اللهُ عَلَيْهِ وَآلِهِ وَسَلَّمَ: 'خَيْرُ النَّاسِ أَنْفَعُهُمْ لِلنَّاسِ'.",
+    "قَالَ الإمام الحسن عليه السلام: 'الْعَدْلُ أَحْلَى مِنَ الْعَسَلِ'.",
+    "قَالَ الإمام الجواد عليه السلام: 'ثَلَاثٌ يُرْفَعُ بِهِنَّ الْعَبْدُ: الْعِلْمُ وَالْحِلْمُ وَالصَّبْرُ'.",
+    "قَالَ الإمام الكاظم عليه السلام: 'إِنَّ اللَّهَ يُحِبُّ الْعَبْدَ الَّذِي يَتَفَكَّرُ فِي مَصْنُوعَاتِهِ'.",
+    "قَالَ الإمام الرضا عليه السلام: 'الرِّضَا بِقَضَاءِ اللَّهِ رَأْسُ الإِيمَانِ'.",
+    "قَالَ الإمام الجواد عليه السلام: 'مِنْ عَرَفَ اللَّهَ وَقَدَّرَ أَنْعُمَهُ عَلَيْهِ لَمْ يَتَزَيَّنْ بِالظُّنُونِ'.",
+    "قَالَ الإمام الهادي عليه السلام: 'الْمُؤْمِنُ مَنْ إِذَا غَضِبَ لَمْ يُخْرِجْهُ غَضَبُهُ عَنْ حَقٍّ، وَإِذَا رَضِيَ لَمْ يُدْخِلْهُ رِضَاهُ فِي بَاطِلٍ'."
+];
+const hadithsFarsi = [
+    "همانا اعمال به نیت‌ها بستگی دارد.",
+    "هرکس به خدا و روز قیامت ایمان دارد، باید سخن خیر بگوید یا سکوت کند.",
+    "هیچ‌یک از شما ایمان ندارد تا زمانی که آنچه را برای خود می‌پسندد، برای برادرش نیز بپسندد.",
+    "از آتش بپرهیزید، حتی با بخشیدن نصف خرما.",
+    "مردم دشمن چیزی هستند که نمی‌دانند.",
+    "ارزش هر فرد به اندازه چیزی است که خوب انجام می‌دهد.",
+    "من تنها برای اصلاح امت جدم قیام کردم.",
+    "سرآغاز هر خیر، کم‌طمعی است.",
+    "دانش، حیات دل‌ها و روشنایی چشم‌ها است.",
+    "صبر زینت ایمان است.",
+    "بهترین مردم کسی است که نفعش به مردم بیشتر برسد.",
+    "عدل شیرین‌تر از عسل است.",
+    "سه چیز است که بنده را بالاتر می‌برد: علم، حلم و صبر.",
+    "خداوند بنده‌ای را که در مخلوقاتش تفکر می‌کند دوست دارد.",
+    "رضایت به قضای خداوند، سرآغاز ایمان است.",
+    "کسی که خداوند را شناخت و نعمت‌های او را قدردانست، به افکار ظنی زینت نمی‌یابد.",
+    "مؤمن کسی است که وقتی عصبانی می‌شود، غضب او را از حق خارج نکند و زمانی که راضی می‌شود، رضایت او را به باطل وارد نکند."
+];
+
+        function displayRandomHadith() {
+            const index = Math.floor(Math.random() * hadithsArabic.length);
+            document.getElementById('hadithBox').innerHTML = `
+                <p><strong></strong> ${hadithsArabic[index]}</p>
+                <p><strong></strong> ${hadithsFarsi[index]}</p>
+            `;
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            if (localStorage.getItem('salavatCount')) {
+                document.getElementById('counter').innerText = localStorage.getItem('salavatCount');
+            }
+            displayRandomHadith();
+        });
+
+        function incrementCounter() {
+            let count = parseInt(document.getElementById('counter').innerText);
+            count += 1;
+            document.getElementById('counter').innerText = count;
+            localStorage.setItem('salavatCount', count);
+        }
+    </script>
+</body>
+</html>
