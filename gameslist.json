@@ -62,10 +62,10 @@
     },
      {
       "id": 6,
-      "name": "سرنوشت دایره ای",
+      "name": "2048",
       "description": "",
-      "iconUrl": "https://github.com/AmajajaNsbsj/1/blob/main/AddText_01-09-06.39.30.png",
-      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/4.html",
+      "iconUrl": "https://github.com/AmajajaNsbsj/1/blob/main/AddText_01-09-06.13.46.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/5.html",
       "size": 110,
       "packageName": "ir.upp.5i60o",
       "type": "web"
