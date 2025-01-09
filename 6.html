@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ماشین حساب زیبا</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .calculator {
+      width: 90%;
+      height: 90%;
+      max-width: 500px;
+      max-height: 700px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      padding: 20px;
+    }
+
+    .display {
+      width: 100%;
+      height: 100px;
+      border-radius: 10px;
+      text-align: right;
+      padding: 15px;
+      font-size: 36px;
+      font-weight: bold;
+      overflow-x: auto;
+      border: 2px solid #333;
+      font-family: 'Digital-7 Mono', sans-serif;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+      height: calc(100% - 140px);
+    }
+
+    .button {
+      border: none;
+      border-radius: 10px;
+      font-size: 24px;
+      font-weight: bold;
+      padding: 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .button:hover {
+      background: #555;
+    }
+
+    .button.operator {
+      background: #e74c3c;
+    }
+
+    .button.operator:hover {
+      background: #c0392b;
+    }
+
+    .button.clear {
+      background: #f39c12;
+    }
+
+    .button.clear:hover {
+      background: #e67e22;
+    }
+
+    .button.backspace {
+      background: #3498db;
+    }
+
+    .button.backspace:hover {
+      background: #2980b9;
+    }
+
+    .button.equals {
+      background: #1abc9c;
+      grid-column: span 2;
+    }
+
+    .button.equals:hover {
+      background: #16a085;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="display" id="display">0</div>
+    <div class="buttons">
+      <button class="button clear" onclick="clearDisplay()">C</button>
+      <button class="button backspace" onclick="backspace()">←</button> <!-- دکمه بک -->
+      <button class="button" onclick="appendValue('(')">(</button>
+      <button class="button operator" onclick="appendValue('/')">÷</button>
+      <button class="button" onclick="appendValue('7')">7</button>
+      <button class="button" onclick="appendValue('8')">8</button>
+      <button class="button" onclick="appendValue('9')">9</button>
+      <button class="button operator" onclick="appendValue('*')">×</button>
+      <button class="button" onclick="appendValue('4')">4</button>
+      <button class="button" onclick="appendValue('5')">5</button>
+      <button class="button" onclick="appendValue('6')">6</button>
+      <button class="button operator" onclick="appendValue('-')">−</button>
+      <button class="button" onclick="appendValue('1')">1</button>
+      <button class="button" onclick="appendValue('2')">2</button>
+      <button class="button" onclick="appendValue('3')">3</button>
+      <button class="button operator" onclick="appendValue('+')">+</button>
+      <button class="button" onclick="appendValue('0')">0</button>
+      <button class="button" onclick="appendValue('.')">.</button>
+      <button class="button equals" onclick="calculate()">=</button>
+    </div>
+  </div>
+
+  <script>
+    const display = document.getElementById("display");
+
+    function clearDisplay() {
+      display.textContent = "0";
+    }
+
+    function backspace() {
+      if (display.textContent.length > 1) {
+        display.textContent = display.textContent.slice(0, -1);
+      } else {
+        display.textContent = "0";
+      }
+    }
+
+    function appendValue(value) {
+      if (display.textContent === "0") {
+        display.textContent = value;
+      } else {
+        display.textContent += value;
+      }
+    }
+
+    function calculate() {
+      try {
+        display.textContent = eval(display.textContent);
+      } catch (error) {
+        display.textContent = "خطا";
+        setTimeout(() => display.textContent = "0", 1500);
+      }
+    }
+
+    // Function to generate color themes
+    function getColorThemes() {
+      return [
+        {
+          background: '#1abc9c', // Teal
+          calculatorBg: '#16a085', // Dark teal
+          displayBg: '#ecf0f1', // Light grey
+          displayText: '#2c3e50', // Dark blue-grey
+          buttonBg: '#bdc3c7', // Light grey buttons
+          buttonText: '#2c3e50', // Dark blue-grey text
+          operatorBg: '#e74c3c', // Red for operators
+          clearBg: '#e67e22', // Orange for clear
+          backspaceBg: '#f39c12', // Yellow for backspace
+          equalsBg: '#27ae60' // Green for equals
+        },
+        {
+          background: '#2c3e50', // Dark blue-grey
+          calculatorBg: '#34495e', // Darker blue-grey
+          displayBg: '#ecf0f1', // Light grey
+          displayText: '#ecf0f1', // Light grey text
+          buttonBg: '#bdc3c7', // Light grey buttons
+          buttonText: '#2c3e50', // Dark blue-grey text
+          operatorBg: '#e74c3c', // Red for operators
+          clearBg: '#e67e22', // Orange for clear
+          backspaceBg: '#f39c12', // Yellow for backspace
+          equalsBg: '#27ae60' // Green for equals
+        },
+        {
+          background: '#9b59b6', // Purple
+          calculatorBg: '#8e44ad', // Dark purple
+          displayBg: '#ecf0f1', // Light grey
+          displayText: '#2c3e50', // Dark blue-grey
+          buttonBg: '#bdc3c7', // Light grey buttons
+          buttonText: '#2c3e50', // Dark blue-grey text
+          operatorBg: '#e74c3c', // Red for operators
+          clearBg: '#e67e22', // Orange for clear
+          backspaceBg: '#f39c12', // Yellow for backspace
+          equalsBg: '#27ae60' // Green for equals
+        }
+      ];
+    }
+
+    // Apply random color theme on page load
+    function applyRandomTheme() {
+      const themes = getColorThemes();
+      const theme = themes[Math.floor(Math.random() * themes.length)];
+
+      document.body.style.backgroundColor = theme.background;
+      const calculator = document.querySelector('.calculator');
+      const display = document.querySelector('.display');
+      const buttons = document.querySelectorAll('.button');
+      const operators = document.querySelectorAll('.button.operator');
+      const clear = document.querySelector('.button.clear');
+      const backspace = document.querySelector('.button.backspace');
+      const equals = document.querySelector('.button.equals');
+
+      calculator.style.backgroundColor = theme.calculatorBg;
+      display.style.backgroundColor = theme.displayBg;
+      display.style.color = theme.displayText;
+
+      buttons.forEach(button => {
+        button.style.backgroundColor = theme.buttonBg;
+        button.style.color = theme.buttonText;
+      });
+
+      operators.forEach(button => {
+        button.style.backgroundColor = theme.operatorBg;
+      });
+
+      clear.style.backgroundColor = theme.clearBg;
+      backspace.style.backgroundColor = theme.backspaceBg;
+      equals.style.backgroundColor = theme.equalsBg;
+    }
+
+    window.onload = applyRandomTheme;
+  </script>
+</body>
+</html>
