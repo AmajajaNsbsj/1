@@ -1,4 +1,4 @@
-{
+ت{
   "apps": [
     
     {
@@ -77,6 +77,16 @@
       "description": "",
       "iconUrl": "https://github.com/AmajajaNsbsj/1/blob/main/AddText_01-09-11.53.05.png",
       "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/7.html",
+      "size": 110,
+      "packageName": "ir.upp.5i60ho",
+      "type": "web"
+    }
+    {
+      "id": 7,
+      "name": "صلوات شمار",
+      "description": "",
+      "iconUrl": "https://github.com/AmajajaNsbsj/1/blob/main/AddText_01-10-12.15.37.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/8.html",
       "size": 110,
       "packageName": "ir.upp.5i60ho",
       "type": "web"
