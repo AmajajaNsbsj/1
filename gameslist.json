@@ -58,7 +58,7 @@
       "iconUrl": "https://github.com/AmajajaNsbsj/1/blob/main/AddText_01-09-10.45.44.jpg",
       "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/5.html",
       "size": 110,
-      "packageName": "ir.upp.5i60o",
+      "packageName": "ir.tupp.5i60o",
       "type": "web"
      },
     {
@@ -68,7 +68,17 @@
       "iconUrl": "https://github.com/AmajajaNsbsj/1/blob/main/AddText_01-09-06.13.46.png",
       "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/6.html",
       "size": 110,
-      "packageName": "ir.upp.5i60o",
+      "packageName": "ir.upp.5li60o",
+      "type": "web"
+    }
+    {
+      "id": 7,
+      "name": "ذخیره یادداشت",
+      "description": "",
+      "iconUrl": "https://github.com/AmajajaNsbsj/1/blob/main/AddText_01-09-11.53.05.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/7.html",
+      "size": 110,
+      "packageName": "ir.upp.5i60ho",
       "type": "web"
     }
   ]
