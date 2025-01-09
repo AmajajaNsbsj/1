@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اپلیکیشن یادداشت‌ها</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden; /* Prevent page scroll */
+        }
+        .app-container {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 1200px;
+            padding: 20px;
+            transition: box-shadow 0.3s ease;
+            overflow-y: auto; /* Allow internal scrolling */
+            max-height: 90vh; /* Limit height to avoid overflow */
+        }
+        .app-container:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .app-container h1 {
+            text-align: center;
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 20px;
+            animation: fadeIn 1s ease;
+        }
+        .note-input-container {
+            display: flex;
+            margin-bottom: 20px;
+            animation: fadeIn 1s ease;
+        }
+        .note-input {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            margin-right: 10px;
+            font-size: 18px;
+            transition: border-color 0.3s ease;
+        }
+        .note-input:focus {
+            border-color: #007BFF;
+            outline: none;
+        }
+        .add-note-btn {
+            padding: 15px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease, transform 0.3s;
+        }
+        .add-note-btn:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+        .notes-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 0;
+            margin: 0;
+            animation: fadeIn 1s ease;
+        }
+        .note-item {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s;
+            animation: fadeIn 0.5s ease;
+        }
+        .note-item:hover {
+            background-color: #e9ecef;
+            transform: translateY(-5px);
+        }
+        .note-text {
+            flex: 1;
+            margin-bottom: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .note-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+        .delete-btn, .copy-btn {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease, transform 0.3s;
+        }
+        .delete-btn:hover, .copy-btn:hover {
+            background-color: #c82333;
+            transform: scale(1.05);
+        }
+        .copy-btn {
+            background-color: #28a745;
+        }
+        .copy-btn:hover {
+            background-color: #218838;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .note-page, .add-note-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
+            animation: fadeIn 0.5s ease;
+        }
+        .note-page h2, .add-note-page h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .add-note-page textarea.note-input {
+            width: 100%;
+            height: calc(100vh - 400px); 
+            resize: none;
+            box-sizing: border-box;
+        }
+        .note-page p, .add-note-page p {
+            font-size: 21px;
+            line-height: 1.6;
+        }
+        .close-btn {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.3s;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .close-btn:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+        .save-note-btn {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.3s;
+            margin-top: 20px;
+            display: block;
+        }
+        .save-note-btn:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1>اپلیکیشن یادداشت‌ها</h1>
+        <div class="note-input-container">
+            <input type="text" id="note-input" class="note-input" placeholder="یادداشت جدید">
+            <button class="add-note-btn" onclick="handleAddNote()">افزودن</button>
+        </div>
+        <ul id="notes-list" class="notes-list"></ul>
+    </div>
+
+    <!-- Add Note Page -->
+    <div id="addNotePage" class="add-note-page">
+        <button class="close-btn" onclick="closeAddNotePage()">بستن</button>
+        <h2>یادداشت جدید</h2>
+        <textarea id="new-note-content" class="note-input" rows="10" placeholder="متن یادداشت را اینجا وارد کنید..."></textarea>
+        <button class="save-note-btn" onclick="saveNote()">ذخیره</button>
+    </div>
+
+    <!-- Note Page -->
+    <div id="notePage" class="note-page">
+        <button class="close-btn" onclick="closeNotePage()">بستن</button>
+        <h2 id="notePageTitle">یادداشت</h2>
+        <textarea id="edit-note-content" class="note-input" rows="10"></textarea>
+        <button class="save-note-btn" onclick="updateNote()">ذخیره</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', loadNotes);
+
+        function loadNotes() {
+            const notes = JSON.parse(localStorage.getItem('notes')) || [];
+            const notesList = document.getElementById('notes-list');
+            notesList.innerHTML = '';
+            notes.forEach((note, index) => {
+                const noteItem = document.createElement('li');
+                noteItem.className = 'note-item';
+                noteItem.setAttribute('onclick', `showNotePage(${index})`);
+                noteItem.innerHTML = `
+                    <span class="note-text">${note.substring(0, 20)}...</span>
+                    <div class="note-actions">
+                        <button class="copy-btn" onclick="event.stopPropagation(); copyNoteText('${note}')">کپی</button>
+                        <button class="delete-btn" onclick="event.stopPropagation(); deleteNote(${index})">حذف</button>
+                    </div>
+                `;
+                notesList.appendChild(noteItem);
+            });
+        }
+
+        function handleAddNote() {
+            const noteInput = document.getElementById('note-input').value.trim();
+            if (noteInput !== '') {
+                addNoteFromInput();
+            } else {
+                showAddNotePage();
+            }
+        }
+
+        function addNoteFromInput() {
+            const noteInput = document.getElementById('note-input').value.trim();
+            if (noteInput !== '') {
+                const notes = JSON.parse(localStorage.getItem('notes')) || [];
+                notes.push(noteInput);
+                localStorage.setItem('notes', JSON.stringify(notes));
+                document.getElementById('note-input').value = '';
+                loadNotes();
+            }
+        }
+
+        function showAddNotePage() {
+            document.getElementById('addNotePage').style.display = 'block';
+            document.getElementById('notePage').style.display = 'none';
+        }
+
+        function closeAddNotePage() {
+            document.getElementById('addNotePage').style.display = 'none';
+        }
+
+        function saveNote() {
+            const noteContent = document.getElementById('new-note-content').value.trim();
+            if (noteContent !== '') {
+                const notes = JSON.parse(localStorage.getItem('notes')) || [];
+                notes.push(noteContent);
+                localStorage.setItem('notes', JSON.stringify(notes));
+                document.getElementById('new-note-content').value = '';
+                closeAddNotePage();
+                loadNotes();
+            }
+        }
+
+        function deleteNote(index) {
+            const notes = JSON.parse(localStorage.getItem('notes')) || [];
+            notes.splice(index, 1);
+            localStorage.setItem('notes', JSON.stringify(notes));
+            loadNotes();
+        }
+
+        function showNotePage(index) {
+            closeAddNotePage();
+            const notes = JSON.parse(localStorage.getItem('notes')) || [];
+            const note = notes[index];
+            const notePage = document.getElementById('notePage');
+            const notePageContent = document.getElementById('edit-note-content');
+            notePageContent.value = note;
+            notePage.style.display = 'block';
+            notePageContent.setAttribute('data-index', index);
+        }
+
+        function closeNotePage() {
+            const notePage = document.getElementById('notePage');
+            notePage.style.display = 'none';
+        }
+
+        function updateNote() {
+            const index = document.getElementById('edit-note-content').getAttribute('data-index');
+            const notes = JSON.parse(localStorage.getItem('notes')) || [];
+            notes[index] = document.getElementById('edit-note-content').value.trim();
+            localStorage.setItem('notes', JSON.stringify(notes));
+            closeNotePage();
+            loadNotes();
+        }
+
+        function copyNoteText(note) {
+            navigator.clipboard.writeText(note).then(() => {
+                // Successful copy
+            }).catch(err => {
+                alert('خطا در کپی کردن متن:', err);
+            });
+        }
+    </script>
+</body>
+</html>
