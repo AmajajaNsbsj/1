@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>برنامه با UI خلاقانه برای C++</title>
+    
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+        background-color: #fff;
+        backdrop-filter: blur(5px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+        color: #333;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    .scroll-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .container {
+        display: flex;
+        flex-wrap: nowrap;
+        scroll-snap-type: x mandatory;
+        width: 100%;
+        height: 100%;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        gap: 20px;
+    }
+
+    .page {
+        flex-shrink: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 30px;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+        scroll-snap-align: center;
+        position: relative;
+        transform: scale(0.98);
+        opacity: 0;
+        animation: fadeIn 0.5s ease-out forwards;
+        padding: 10px;
+    }
+
+    .page-text {
+        text-align: center;
+        font-size: calc(16px + 1.5vw);
+        line-height: 1.8;
+        max-width: 80%;
+        max-height: 80%;
+        overflow-y: auto;
+        opacity: 0;
+        animation: fadeInUp 0.5s 0.25s forwards;
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+
+    .highlight {
+        font-size: calc(18px + 1.5vw);
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.1s ease, color 0.1s ease;
+    }
+
+    .highlight:hover {
+        color: #007aff;
+        transform: scale(1.05);
+    }
+
+    .page-footer {
+        position: absolute;
+        bottom: 20px;
+        font-size: 18px;
+        font-weight: 500;
+        width: 100%;
+        text-align: center;
+        letter-spacing: 2px;
+        transform: scale(0.6);
+        animation: fadeInFooter 0.5s 0.25s forwards;
+    }
+
+    .style-btn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        width: 40px;
+        height: 40px;
+        background: #007a80;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .style-btn:hover {
+        background: #0051a8;
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .style-btn .icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .copy-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 40px;
+        height: 40px;
+        background: #ff9800;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .copy-btn:hover {
+        background: #ff5733;
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .copy-btn .icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        100% {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes fadeInUp {
+        0% {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInFooter {
+        0% {
+            opacity: 0;
+            transform: scale(0.5);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .container::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Base Colors for Clean UI */
+    :root {
+        --primary-bg: #f5f5f7;
+        --primary-text: #333;
+        --highlight-color: #007aff;
+        --btn-bg: #007aff;
+        --btn-bg-hover: #0051a8;
+        --card-bg: white;
+        --border-radius: 30px;
+        --shadow-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .style1 {
+        background: var(--primary-bg);
+        color: var(--primary-text);
+    }
+
+    .style1 .highlight {
+        color: var(--highlight-color);
+    }
+
+    .style1 .style-btn {
+        background: var(--btn-bg);
+    }
+
+    .style1 .style-btn:hover {
+        background: var(--btn-bg-hover);
+    }
+
+    .style2 {
+        background: #000;
+        color: #fff;
+    }
+
+    .style2 .highlight {
+        color: #ff9800;
+    }
+
+    .style2 .style-btn {
+        background: #ff4081;
+    }
+
+    .style2 .style-btn:hover {
+        background: #ff61a6;
+    }
+
+    /* Style3: Elegant Light */
+    .style3 {
+        background: #f9f9f9;
+        color: #333;
+    }
+
+    .style3 .highlight {
+        color: #007aff;
+    }
+
+    .style3 .style-btn {
+        background: #007aff;
+    }
+
+    .style3 .style-btn:hover {
+        background: #0051a8;
+    }
+
+    /* Style4: Soft Pastel */
+    .style4 {
+        background: #f8f9fa;
+        color: #6c757d;
+    }
+
+    .style4 .highlight {
+        color: #ff4081;
+    }
+
+    .style4 .style-btn {
+        background: #2ecc71;
+    }
+
+    .style4 .style-btn:hover {
+        background: #27ae60;
+    }
+
+    /* Style5: Elegant Gradient */
+    .style5 {
+        background: linear-gradient(135deg, #00c6ff, #0072ff);
+        color: #fff;
+    }
+
+    .style5 .highlight {
+        color: #ffcc00;
+    }
+
+    .style5 .style-btn {
+        background: #ff9800;
+    }
+
+    .style5 .style-btn:hover {
+        background: #ff5733;
+    }
+</style>
+    
+</head>
+<body onfocus="window.scrollTo(0, 0); setTimeout(() => window.scrollTo(0, 0), 100);">
+
+<div class="scroll-container">
+    <div class="container" id="container">
+    </div>
+</div>
+
+<script>
+    const pages = [
+  "﷼ تاریخچه C++ ﷼\nC++ در سال 1983 توسط بیارنه استراستروپ به‌عنوان توسعه‌ای بر زبان C ایجاد شد. هدف این بود که ویژگی‌های شی‌گرایی را به زبان C اضافه کند. C++ به سرعت به زبان محبوبی در توسعه نرم‌افزارهای پیچیده تبدیل شد.",
+  
+  "﷼ قدرت پردازش پایین سطح ﷼\nC++ این امکان را می‌دهد که مستقیماً به حافظه و سخت‌افزار دسترسی داشته باشید. این زبان برای ساخت سیستم‌عامل‌ها، درایورها و بازی‌های با گرافیک بالا ایده‌آل است.",
+  
+  "﷼ پیچیدگی در مدیریت حافظه ﷼\nیکی از ویژگی‌های طاقت‌فرسای C++ این است که حافظه به‌طور دستی مدیریت می‌شود. استفاده نادرست از `new` و `delete` می‌تواند منجر به نشت حافظه شود.",
+  
+  "﷼ وراثت و چندریختی ﷼\nC++ از وراثت و پلی‌مورفیسم (چندریختی) به‌طور کامل پشتیبانی می‌کند. شما می‌توانید کلاس‌های پایه و مشتق‌شده را ایجاد کرده و از توابع مجازی استفاده کنید.",
+  
+  "﷼ سرعت بالا و کارایی ﷼\nC++ به دلیل اینکه مستقیماً به زبان ماشین ترجمه می‌شود، به‌طور کلی از زبان‌های تفسیرشده مانند پایتون یا جاوا سریع‌تر است.",
+  
+  "﷼ استفاده از عملگرهای پیچیده ﷼\nدر C++ می‌توانید عملگرها را برای انواع داده‌های خود بارگذاری مجدد کنید. این قابلیت به‌ویژه در نوشتن کدهای تمیز و خوانا مفید است.",
+  
+  "﷼ پشتیبانی از برنامه‌نویسی شی‌گرا و ساختاری ﷼\nC++ هم از برنامه‌نویسی شی‌گرا و هم ساختاری پشتیبانی می‌کند. این زبان به شما امکان می‌دهد که در پروژه‌های پیچیده از شی‌گرایی استفاده کنید، در حالی که در پروژه‌های کوچک می‌توانید از ساختارهای ساده‌تر بهره ببرید.",
+  
+  "﷼ سازگاری با C ﷼\nC++ به‌طور کامل با C سازگار است. شما می‌توانید کدهای C را در پروژه‌های C++ استفاده کنید و از مزایای شی‌گرایی بهره‌برداری کنید.",
+  
+  "﷼ قابلیت پردازش موازی ﷼\nC++ امکانات خوبی برای برنامه‌نویسی همزمان و چندرشته‌ای دارد. با استفاده از کتابخانه‌هایی مانند `std::thread` می‌توانید پردازش‌های موازی را پیاده‌سازی کنید.",
+  
+  "﷼ کتابخانه استاندارد C++ (STL) ﷼\nC++ دارای مجموعه‌ای از کتابخانه‌های استاندارد است که به شما این امکان را می‌دهد که از انواع مختلف داده‌ها مانند `vector`, `map` و `set` استفاده کنید.",
+  
+  "﷼ پشتیبانی از Template‌ها ﷼\nیکی از ویژگی‌های برجسته C++ استفاده از Template‌ها است. این ویژگی به شما این امکان را می‌دهد که توابع و کلاس‌هایی با انواع داده‌های مختلف بسازید، بدون اینکه مجبور باشید کد تکراری بنویسید.",
+  
+  "﷼ زبان پیچیده برای مبتدیان ﷼\nC++ یکی از زبان‌هایی است که یادگیری آن برای مبتدیان دشوار است. مفاهیم پیشرفته‌ای مانند اشاره‌گرها، تخصیص حافظه دستی و کلاس‌های پیچیده ممکن است برای کسانی که تجربه کمی دارند، گیج‌کننده باشد.",
+  
+  "﷼ عدم وجود جمع‌آوری زباله ﷼\nC++ برخلاف زبان‌هایی مانند جاوا یا پایتون هیچ سیستم جمع‌آوری زباله ندارد. این یعنی برنامه‌نویس باید به‌طور دستی حافظه را مدیریت کند.",
+  
+  "﷼ قابلیت استفاده در بازی‌سازی ﷼\nC++ یکی از زبان‌های اصلی برای توسعه بازی‌های ویدیویی است. بسیاری از موتورهای بازی معروف مانند Unreal Engine با استفاده از C++ ساخته شده‌اند.",
+  
+  "﷼ امنیت کمتر در مدیریت حافظه ﷼\nمدیریت دستی حافظه در C++ می‌تواند باعث بروز خطاهایی مانند دسترسی به حافظه آزاد یا نشت حافظه شود. این یکی از ضعف‌های بزرگ C++ است.",
+  
+  "﷼ پشتیبانی از چندگانه وراثت ﷼\nدر C++ شما می‌توانید از چندگانه وراثت (Multiple Inheritance) استفاده کنید، که این به شما امکان می‌دهد یک کلاس از چند کلاس دیگر ارث ببرد. این ویژگی به‌ویژه برای طراحی سیستم‌های پیچیده مفید است.",
+  
+  "﷼ کدهای سبک و بهینه‌سازی‌شده ﷼\nC++ به شما این امکان را می‌دهد که کدهایی بسیار بهینه بنویسید که سریع و کم‌حجم باشند. این ویژگی به‌ویژه در پروژه‌هایی با منابع محدود اهمیت دارد.",
+  
+  "﷼ کتابخانه‌های پیچیده ﷼\nکتابخانه‌های استاندارد C++ در ابتدا ممکن است پیچیده به‌نظر برسند. این زبان دارای ویژگی‌های پیشرفته‌ای مانند `namespace`, `static` و `const` است که به شما این امکان را می‌دهد که کدهای خود را سازمان‌دهی کنید.",
+  
+  "﷼ نیاز به دقت بالا در کدنویسی ﷼\nC++ برای نوشتن برنامه‌های موفق و بدون خطا نیازمند دقت و توجه زیادی است. خطاهایی مانند استفاده از اشاره‌گرهای نادرست یا اشتباهات در تخصیص حافظه می‌تواند به‌راحتی به مشکلات جدی منجر شود.",
+  
+  "﷼ انتقادات و مشکلات رایج C++ ﷼\nC++ با وجود ویژگی‌های فراوان، انتقاداتی هم دارد. برخی از مشکلات رایج این زبان شامل پیچیدگی سینتکس، مدیریت حافظه دستی و عدم وجود جمع‌آوری زباله است.",
+  
+  "﷼ استفاده از C++ در برنامه‌نویسی سیستم ﷼\nC++ به‌طور گسترده‌ای در برنامه‌نویسی سیستم و توسعه نرم‌افزارهای با عملکرد بالا مورد استفاده قرار می‌گیرد. این زبان برای ساخت سیستم‌عامل‌ها، پایگاه‌های داده و نرم‌افزارهای شبکه‌ای انتخابی عالی است.",
+  
+  "﷼ اشتباهات رایج در C++ ﷼\nاستفاده نادرست از اشاره‌گرها، مدیریت نادرست حافظه و عدم استفاده صحیح از استانداردهای کتابخانه C++ از جمله اشتباهات رایج در این زبان هستند.",
+  
+  "﷼ C++ و پشتیبانی از چندنخی ﷼\nC++ از ویژگی‌های چندنخی و همزمانی با استفاده از کتابخانه‌هایی مانند `std::thread` پشتیبانی می‌کند. با این حال، نیاز به دقت و توجه بالایی در برنامه‌نویسی همزمانی دارد.",
+  
+  "﷼ قدرت ابزارهای دیباگ C++ ﷼\nC++ ابزارهای قدرتمندی برای اشکال‌زدایی دارد که به شما امکان می‌دهد خطاها را در برنامه‌های پیچیده شناسایی کنید. ابزارهایی مانند gdb برای اشکال‌زدایی کدهای C++ بسیار مفید هستند.",
+  
+  "﷼ پردازش موازی با OpenMP ﷼\nOpenMP یکی از ابزارهای مفید برای پردازش موازی در C++ است که به شما این امکان را می‌دهد که کد خود را به‌طور موازی اجرا کنید. این ابزار به‌ویژه در پروژه‌های علمی و مهندسی که نیاز به پردازش‌های موازی دارند مفید است.",
+  
+  "﷼ C++ و انتقال داده‌ها در شبکه ﷼\nC++ می‌تواند به‌طور مؤثر برای انتقال داده‌ها در شبکه‌های بزرگ استفاده شود. کتابخانه‌هایی مانند Boost.Asio به‌طور خاص برای شبکه‌سازی و پردازش ورودی/خروجی همزمان طراحی شده‌اند.",
+  
+  "﷼ ویژگی‌های جالب C++: تخصیص حافظه استاتیک و داینامیک ﷼\nیکی از ویژگی‌های جالب C++ این است که شما می‌توانید از تخصیص حافظه استاتیک و داینامیک در کنار هم استفاده کنید. این ویژگی به شما کنترل کامل بر نحوه مدیریت حافظه را می‌دهد، اما نیازمند دقت بالایی است.",
+  
+  "﷼ نقل‌قولی از بیارنه استراستروپ ﷼\nبیارنه استراستروپ، سازنده C++، گفته است: 'C++ یک زبان انعطاف‌پذیر است که به شما این امکان را می‌دهد که از شی‌گرایی گرفته تا برنامه‌نویسی تابعی استفاده کنید. این زبان برای کارهایی است که نیاز به کارایی بالای سیستم دارند.'"
+];
+    
+    const styles = ['style1', 'style2', 'style3', 'style4', 'style5'];
+    let currentStyle = localStorage.getItem('currentStyle') || 'style1';
+    let currentPage = parseInt(localStorage.getItem('currentPage')) || 0;
+
+    function processText(text) {
+        return text.replace(/﷼(.*?)﷼/g, '<span class="highlight">$1</span>');
+    }
+
+    const container = document.getElementById('container');
+
+    function renderPages(start) {
+        container.innerHTML = '';
+        for (let i = start - 30; i <= start + 30; i++) {
+            if (i >= 0 && i < pages.length) {
+                const pageDiv = document.createElement('div');
+                pageDiv.classList.add('page', currentStyle);
+                const pageContent = `
+                    <button class="style-btn" onclick="changeStyle()">
+                        <img src="https://img.icons8.com/ios-glyphs/30/ffffff/paint-palette.png" class="icon" />
+                    </button>
+                    <button class="copy-btn" onclick="copyText(${i})">
+                        <img src="https://img.icons8.com/ios-glyphs/30/ffffff/copy.png" class="icon" />
+                    </button>
+                    <div class="page-text">
+                        ${processText(pages[i])}
+                    </div>
+                    <div class="page-footer">${i + 1}</div>
+                `;
+                pageDiv.innerHTML = pageContent;
+                container.appendChild(pageDiv);
+            }
+        }
+    }
+
+    function changeStyle() {
+        currentStyle = styles[(styles.indexOf(currentStyle) + 1) % styles.length];
+        localStorage.setItem('currentStyle', currentStyle);
+        const pageDivs = container.querySelectorAll('.page');
+        pageDivs.forEach(pageDiv => pageDiv.classList.remove(...styles));
+        pageDivs.forEach(pageDiv => pageDiv.classList.add(currentStyle));
+    }
+
+    function copyText(index) {
+        const textToCopy = pages[index].replace(/﷼/g, '');
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            
+        });
+    }
+
+    window.addEventListener('load', () => {
+        renderPages(currentPage);
+        setTimeout(() => {
+            container.scrollLeft = currentPage * window.innerWidth;
+        }, 0); 
+    });
+
+    container.addEventListener('scroll', () => {
+        const newPage = Math.round(container.scrollLeft / window.innerWidth);
+        if (newPage !== currentPage) {
+            currentPage = newPage;
+            localStorage.setItem('currentPage', currentPage);
+        }
+    });
+</script>
+
+</body>
+</html>

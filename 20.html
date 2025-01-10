@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>برنامه با UI خلاقانه برای Kotlin</title>
+    
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Roboto', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background-color: #FAFAFA;
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    color: #2D2D2D;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.scroll-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    flex-wrap: nowrap;
+    scroll-snap-type: x mandatory;
+    width: 100%;
+    height: 100%;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 20px;
+}
+
+.page {
+    flex-shrink: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 30px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    scroll-snap-align: center;
+    position: relative;
+    transform: scale(0.98);
+    opacity: 0;
+    animation: fadeIn 0.5s ease-out forwards;
+    padding: 20px;
+    background-color: #FFFFFF;
+}
+
+.page-text {
+    text-align: center;
+    font-size: calc(16px + 1.5vw);
+    line-height: 1.8;
+    max-width: 80%;
+    max-height: 80%;
+    overflow-y: auto;
+    opacity: 0;
+    animation: fadeInUp 0.5s 0.25s forwards;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.highlight {
+    font-size: calc(18px + 1.5vw);
+    font-weight: 600;
+    color: #6200EE;
+    cursor: pointer;
+    transition: transform 0.1s ease, color 0.1s ease;
+}
+
+.highlight:hover {
+    color: #3700B3;
+    transform: scale(1.05);
+}
+
+.page-footer {
+    position: absolute;
+    bottom: 20px;
+    font-size: 18px;
+    font-weight: 500;
+    width: 100%;
+    text-align: center;
+    letter-spacing: 2px;
+    transform: scale(0.6);
+    animation: fadeInFooter 0.5s 0.25s forwards;
+}
+
+.style-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 40px;
+    height: 40px;
+    background: #6200EE;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.style-btn:hover {
+    background: #3700B3;
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.style-btn .icon {
+    width: 20px;
+    height: 20px;
+}
+
+.copy-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: #03DAC6;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.copy-btn:hover {
+    background: #018786;
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.copy-btn .icon {
+    width: 20px;
+    height: 20px;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInFooter {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.container::-webkit-scrollbar {
+    display: none;
+}
+
+/* Base Colors for Kotlin inspired UI */
+:root {
+    --primary-bg: #FAFAFA;
+    --primary-text: #2D2D2D;
+    --highlight-color: #6200EE;
+    --btn-bg: #6200EE;
+    --btn-bg-hover: #3700B3;
+    --card-bg: #FFFFFF;
+    --border-radius: 30px;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+.style1 {
+    background: var(--primary-bg);
+    color: var(--primary-text);
+}
+
+.style1 .highlight {
+    color: var(--highlight-color);
+}
+
+.style1 .style-btn {
+    background: var(--btn-bg);
+}
+
+.style1 .style-btn:hover {
+    background: var(--btn-bg-hover);
+}
+
+.style2 {
+    background: #000;
+    color: #fff;
+}
+
+.style2 .highlight {
+    color: #03DAC6;
+}
+
+.style2 .style-btn {
+    background: #BB86FC;
+}
+
+.style2 .style-btn:hover {
+    background: #3700B3;
+}
+
+/* Style3: Elegant Light */
+.style3 {
+    background: #f9f9f9;
+    color: #333;
+}
+
+.style3 .highlight {
+    color: #03DAC6;
+}
+
+.style3 .style-btn {
+    background: #03DAC6;
+}
+
+.style3 .style-btn:hover {
+    background: #018786;
+}
+
+/* Style4: Soft Pastel */
+.style4 {
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+.style4 .highlight {
+    color: #BB86FC;
+}
+
+.style4 .style-btn {
+    background: #03DAC6;
+}
+
+.style4 .style-btn:hover {
+    background: #018786;
+}
+
+/* Style5: Elegant Gradient */
+.style5 {
+    background: linear-gradient(135deg, #6200EE, #03DAC6);
+    color: #fff;
+}
+
+.style5 .highlight {
+    color: #ffcc00;
+}
+
+.style5 .style-btn {
+    background: #03DAC6;
+}
+
+.style5 .style-btn:hover {
+    background: #018786;
+}
+</style>
+    
+</head>
+<body onfocus="window.scrollTo(0, 0); setTimeout(() => window.scrollTo(0, 0), 100);">
+
+<div class="scroll-container">
+    <div class="container" id="container">
+    </div>
+</div>
+
+<script>
+    const pages = [
+  "﷼ قدمت ﷼\nکاتلین یک زبان برنامه‌نویسی مدرن است که در سال 2011 توسط JetBrains معرفی شد. هدف اصلی این زبان، تسهیل برنامه‌نویسی برای ساخت برنامه‌های سریع و قابل نگهداری است. در حالی که این زبان تازه‌وارد است، به سرعت محبوبیت پیدا کرده است و توسط بسیاری از توسعه‌دهندگان مورد استفاده قرار می‌گیرد.",
+  
+  "﷼ سادگی و قدرت ﷼\nکاتلین به‌طور خاص برای کاهش پیچیدگی و کدهای تکراری طراحی شده است. با اینکه زبان ساده‌ای است، بسیار قدرتمند است و می‌تواند برای توسعه برنامه‌های پیچیده نیز استفاده شود.",
+  
+  "﷼ نوع داده‌های ایمن و Null Safety ﷼\nکاتلین به شما اجازه می‌دهد از NullPointerExceptions جلوگیری کنید. این زبان به‌طور پیش‌فرض متغیرهایی که ممکن است null شوند را به‌طور واضح از متغیرهای دیگر جدا می‌کند.",
+  
+  "﷼ پشتیبانی از برنامه‌نویسی شی‌گرا و تابعی ﷼\nکاتلین هم از برنامه‌نویسی شی‌گرا و هم از برنامه‌نویسی تابعی پشتیبانی می‌کند. این به این معناست که می‌توانید از ویژگی‌های قدرت‌مند کلاس‌ها و اشیاء، همچنین توابع با پارامترهای مختلف استفاده کنید.",
+  
+  "﷼ سینتکس ساده و خوانا ﷼\nکاتلین سینتکسی ساده و خوانا دارد که برای مبتدیان نیز قابل فهم است. شما می‌توانید به‌راحتی کدهای خود را بنویسید و آن‌ها را به‌سادگی درک کنید.",
+  
+  "﷼ سازگاری با جاوا ﷼\nکاتلین به‌طور کامل با زبان جاوا سازگار است. این یعنی شما می‌توانید کدهای جاوا را در پروژه‌های کاتلین استفاده کنید و بالعکس، بدون اینکه مشکلی پیش بیاید.",
+  
+  "﷼ پشتیبانی از کد کوتاه‌تر ﷼\nکاتلین به شما امکان می‌دهد که کدهای خود را کوتاه‌تر و بهینه‌تر بنویسید. شما می‌توانید از ویژگی‌هایی مانند توابع لامبدا، نوع‌های داده‌ای مرجع و سایر امکانات برای کاهش کدها استفاده کنید.",
+  
+  "﷼ ابزارهای توسعه ﷼\nکاتلین دارای ابزارهای قدرتمند برای توسعه برنامه است. از جمله این ابزارها می‌توان به Android Studio و IntelliJ IDEA اشاره کرد که به‌طور کامل از کاتلین پشتیبانی می‌کنند.",
+  
+  "﷼ پشتیبانی از Android ﷼\nکاتلین به‌طور رسمی توسط گوگل برای توسعه اپلیکیشن‌های اندروید پذیرفته شده است. این به این معناست که شما می‌توانید برنامه‌های اندرویدی را به راحتی با استفاده از کاتلین توسعه دهید.",
+  
+  "﷼ همکاری با سایر زبان‌ها ﷼\nکاتلین می‌تواند به راحتی با زبان‌های دیگر مانند C++ و JavaScript ادغام شود. این ویژگی باعث می‌شود تا کاتلین در پروژه‌های مختلف با زبان‌های مختلف استفاده شود.",
+  
+  "﷼ توابع Lambda ﷼\nکاتلین از توابع Lambda پشتیبانی می‌کند که به شما اجازه می‌دهد کدهای خود را به‌طور تمیزتر و ساده‌تر بنویسید. این ویژگی مخصوصاً در پروژه‌های پیچیده و با تعداد زیادی عملیات مشابه مفید است.",
+  
+  "﷼ داده‌های متغیر (Variables) ﷼\nدر کاتلین، متغیرها با استفاده از `val` و `var` تعریف می‌شوند. `val` برای متغیرهای غیرقابل تغییر (immutable) و `var` برای متغیرهای قابل تغییر (mutable) استفاده می‌شود.",
+  
+  "﷼ عدم نیاز به شبه‌کلاس‌ها ﷼\nکاتلین از کلاس‌های تو در تو (Nested Classes) به‌طور مستقیم پشتیبانی نمی‌کند و به جای آن شما می‌توانید از توابع لامبدا و متدهای خاص استفاده کنید که امکان نوشتن کد تمیزتر را فراهم می‌آورد.",
+  
+  "﷼ پشتیبانی از داده‌های ناشناخته (Unknown Data) ﷼\nکاتلین از ویژگی `Any` پشتیبانی می‌کند که می‌توانید داده‌های مختلف را در آن ذخیره کنید و سپس آن‌ها را به‌طور دینامیک مدیریت کنید.",
+  
+  "﷼ پردازش خطا (Exception Handling) ﷼\nکاتلین ابزارهای مناسبی برای پردازش خطاها و استثناها دارد. شما می‌توانید به‌راحتی استثناها را مدیریت کرده و به‌طور مؤثر از آن‌ها استفاده کنید.",
+  
+  "﷼ پشتیبانی از داده‌های ناشناخته (Unknown Data) ﷼\nکاتلین از ویژگی `Any` پشتیبانی می‌کند که می‌توانید داده‌های مختلف را در آن ذخیره کنید و سپس آن‌ها را به‌طور دینامیک مدیریت کنید.",
+  
+  "﷼ داده‌های ناشناخته (Unknown Data) ﷼\nکاتلین از ویژگی `Any` پشتیبانی می‌کند که می‌توانید داده‌های مختلف را در آن ذخیره کنید و سپس آن‌ها را به‌طور دینامیک مدیریت کنید.",
+  
+  "﷼ استفاده از String Interpolation ﷼\nکاتلین از ویژگی String Interpolation پشتیبانی می‌کند، به‌این‌معنا که شما می‌توانید به راحتی متغیرها را در داخل رشته‌ها (strings) قرار دهید.",
+  
+  "﷼ دقت بیشتر در مدیریت منابع ﷼\nکاتلین با استفاده از ابزارهای مدیریت منابع مانند `try-with-resources`، باعث می‌شود که مدیریت منابع در برنامه‌های شما ساده‌تر و ایمن‌تر شود.",
+  
+  "﷼ پشتیبانی از ویژگی‌های مدرن ﷼\nکاتلین دارای ویژگی‌های مدرنی مانند Data Classes، Sealed Classes، Extension Functions و Type Aliases است که باعث می‌شود برنامه‌نویسی با آن سریع‌تر و مؤثرتر باشد.",
+  
+  "﷼ توسعه وب ﷼\nکاتلین به‌طور گسترده‌ای برای توسعه برنامه‌های وب با فریم‌ورک‌هایی مانند Ktor و Spring Boot استفاده می‌شود. این ویژگی به شما امکان می‌دهد وب‌سایت‌ها و اپلیکیشن‌های وب قدرتمند بسازید.",
+  
+  "﷼ استفاده از کدهای امن و تست‌پذیر ﷼\nکاتلین به شما کمک می‌کند کدهای امن بنویسید. این ویژگی برای تیم‌های توسعه که به‌دنبال کدهای قابل تست و مقیاس‌پذیر هستند، مناسب است.",
+  
+  "﷼ پشتیبانی از توسعه اپلیکیشن‌های دسکتاپ ﷼\nکاتلین علاوه بر توسعه اپلیکیشن‌های اندروید، از توسعه اپلیکیشن‌های دسکتاپ نیز پشتیبانی می‌کند. با استفاده از ابزارهایی مانند TornadoFX می‌توانید اپلیکیشن‌های دسکتاپ زیبا بسازید.",
+  
+  "﷼ راحتی در یادگیری ﷼\nکاتلین به‌عنوان یک زبان ساده و مدرن، از یادگیری آسانی برخوردار است. حتی اگر شما از برنامه‌نویسی آشنایی نداشته باشید، می‌توانید به‌سرعت با آن آشنا شوید.",
+  
+  "﷼ پشتیبانی از برنامه‌نویسی چندپارادایمی ﷼\nکاتلین از برنامه‌نویسی چندپارادایمی پشتیبانی می‌کند که به شما این امکان را می‌دهد از برنامه‌نویسی شی‌گرا، تابعی، و داده‌محور استفاده کنید.",
+  
+  "﷼ سرعت بالاتر نسبت به جاوا ﷼\nدر بسیاری از موارد، کاتلین نسبت به جاوا سرعت بهتری دارد. این باعث می‌شود که برنامه‌های کاتلین سریع‌تر اجرا شوند و منابع کمتری مصرف کنند.",
+  
+  "﷼ قابلیت‌های Cloud-Ready ﷼\nکاتلین به‌خوبی با سیستم‌های ابری و سرویس‌های اینترنتی مانند AWS و Google Cloud سازگار است. این ویژگی باعث می‌شود که برنامه‌ها به‌راحتی قابل مقیاس‌گذاری و مستقر در ابر باشند."
+];
+
+    const styles = ['style1', 'style2', 'style3', 'style4', 'style5'];
+    let currentStyle = localStorage.getItem('currentStyle') || 'style1';
+    let currentPage = parseInt(localStorage.getItem('currentPage')) || 0;
+
+    function processText(text) {
+        return text.replace(/﷼(.*?)﷼/g, '<span class="highlight">$1</span>');
+    }
+
+    const container = document.getElementById('container');
+
+    function renderPages(start) {
+        container.innerHTML = '';
+        for (let i = start - 30; i <= start + 30; i++) {
+            if (i >= 0 && i < pages.length) {
+                const pageDiv = document.createElement('div');
+                pageDiv.classList.add('page', currentStyle);
+                const pageContent = `
+                    <button class="style-btn" onclick="changeStyle()">
+                        <img src="https://img.icons8.com/ios-glyphs/30/ffffff/paint-palette.png" class="icon" />
+                    </button>
+                    <button class="copy-btn" onclick="copyText(${i})">
+                        <img src="https://img.icons8.com/ios-glyphs/30/ffffff/copy.png" class="icon" />
+                    </button>
+                    <div class="page-text">
+                        ${processText(pages[i])}
+                    </div>
+                    <div class="page-footer">${i + 1}</div>
+                `;
+                pageDiv.innerHTML = pageContent;
+                container.appendChild(pageDiv);
+            }
+        }
+    }
+
+    function changeStyle() {
+        currentStyle = styles[(styles.indexOf(currentStyle) + 1) % styles.length];
+        localStorage.setItem('currentStyle', currentStyle);
+        const pageDivs = container.querySelectorAll('.page');
+        pageDivs.forEach(pageDiv => pageDiv.classList.remove(...styles));
+        pageDivs.forEach(pageDiv => pageDiv.classList.add(currentStyle));
+    }
+
+    function copyText(index) {
+        const textToCopy = pages[index].replace(/﷼/g, '');
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            // متن کپی شد
+        });
+    }
+
+    window.addEventListener('load', () => {
+        renderPages(currentPage);
+        setTimeout(() => {
+            container.scrollLeft = currentPage * window.innerWidth;
+        }, 0); 
+    });
+
+    container.addEventListener('scroll', () => {
+        const newPage = Math.round(container.scrollLeft / window.innerWidth);
+        if (newPage !== currentPage) {
+            currentPage = newPage;
+            localStorage.setItem('currentPage', currentPage);
+        }
+    });
+</script>
+
+</body>
+</html>

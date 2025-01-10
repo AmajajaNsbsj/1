@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>برنامه با UI خلاقانه</title>
+    
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+        background-color: #fff;
+        backdrop-filter: blur(5px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+        color: #333;
+        -webkit-user-select: none; /* Safari */
+        -moz-user-select: none;    /* Firefox */
+        -ms-user-select: none;     /* Internet Explorer/Edge */
+        user-select: none;         /* Standard syntax */
+    }
+
+    .scroll-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .container {
+        display: flex;
+        flex-wrap: nowrap;
+        scroll-snap-type: x mandatory;
+        width: 100%;
+        height: 100%;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        gap: 20px;
+    }
+
+    .page {
+        flex-shrink: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 30px;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+        scroll-snap-align: center;
+        position: relative;
+        transform: scale(0.98);
+        opacity: 0;
+        animation: fadeIn 0.5s ease-out forwards;
+        padding: 10px; /* تغییر padding به 10 پیکسل */
+    }
+
+    .page-text {
+        text-align: center;
+        font-size: calc(16px + 1.5vw); /* Responsive font size */
+        line-height: 1.8;
+        max-width: 80%;
+        max-height: 80%; /* Limit height to avoid overflow */
+        overflow-y: auto;
+        opacity: 0;
+        animation: fadeInUp 0.5s 0.25s forwards;
+        overflow-wrap: break-word; /* جلوگیری از بیرون زدن متن */
+        word-break: break-word; /* جلوگیری از بیرون زدن متن */
+    }
+
+    .highlight {
+        font-size: calc(18px + 1.5vw); /* Responsive font size */
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.1s ease, color 0.1s ease;
+    }
+
+    .highlight:hover {
+        color: #007aff;
+        transform: scale(1.05);
+    }
+
+    .page-footer {
+        position: absolute;
+        bottom: 20px;
+        font-size: 18px;
+        font-weight: 500;
+        width: 100%;
+        text-align: center;
+        letter-spacing: 2px;
+        transform: scale(0.6);
+        animation: fadeInFooter 0.5s 0.25s forwards;
+    }
+
+    .style-btn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        width: 40px;
+        height: 40px;
+        background: #007a80;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .style-btn:hover {
+        background: #0051a8;
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .style-btn .icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .copy-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 40px;
+        height: 40px;
+        background: #ff9800;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .copy-btn:hover {
+        background: #ff5733;
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .copy-btn .icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        100% {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes fadeInUp {
+        0% {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInFooter {
+        0% {
+            opacity: 0;
+            transform: scale(0.5);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .container::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Base Colors for Clean UI */
+    :root {
+        --primary-bg: #f5f5f7;
+        --primary-text: #333;
+        --highlight-color: #007aff;
+        --btn-bg: #007aff;
+        --btn-bg-hover: #0051a8;
+        --card-bg: white;
+        --border-radius: 30px;
+        --shadow-color: rgba(0, 0, 0, 0.05);
+    }
+
+
+    .style1 {
+        background: var(--primary-bg);
+        color: var(--primary-text);
+    }
+
+    .style1 .highlight {
+        color: var(--highlight-color);
+    }
+
+    .style1 .style-btn {
+        background: var(--btn-bg);
+    }
+
+    .style1 .style-btn:hover {
+        background: var(--btn-bg-hover);
+    }
+
+    
+    .style2 {
+        background: #000;
+        color: #fff;
+    }
+
+    .style2 .highlight {
+        color: #ff9800;
+    }
+
+    .style2 .style-btn {
+        background: #ff4081;
+    }
+
+    .style2 .style-btn:hover {
+        background: #ff61a6;
+    }
+
+    /* Style3: Elegant Light */
+    .style3 {
+        background: #f9f9f9;
+        color: #333;
+    }
+
+    .style3 .highlight {
+        color: #007aff;
+    }
+
+    .style3 .style-btn {
+        background: #007aff;
+    }
+
+    .style3 .style-btn:hover {
+        background: #0051a8;
+    }
+
+    /* Style4: Soft Pastel */
+    .style4 {
+        background: #f8f9fa;
+        color: #6c757d;
+    }
+
+    .style4 .highlight {
+        color: #ff4081;
+    }
+
+    .style4 .style-btn {
+        background: #2ecc71;
+    }
+
+    .style4 .style-btn:hover {
+        background: #27ae60;
+    }
+
+    /* Style5: Elegant Gradient */
+    .style5 {
+        background: linear-gradient(135deg, #00c6ff, #0072ff);
+        color: #fff;
+    }
+
+    .style5 .highlight {
+        color: #ffcc00;
+    }
+
+    .style5 .style-btn {
+        background: #ff9800;
+    }
+
+    .style5 .style-btn:hover {
+        background: #ff5733;
+    }
+</style>
+    
+</head>
+<body onfocus="window.scrollTo(0, 0); setTimeout(() => window.scrollTo(0, 0), 100);">
+
+<div class="scroll-container">
+    <div class="container" id="container">
+    </div>
+</div>
+
+<script>
+    const pages = [
+  "﷼ قدمت ﷼\nزبان C یکی از قدیمی‌ترین زبان‌های برنامه‌نویسی است که از اواخر دهه 1970 پدید آمد. همچنان که دیگر زبان‌ها به سادگی و خودکار بودن معروف هستند، C با امکان دسترسی مستقیم به حافظه، پا به عرصه گذاشته و همچنان قدرتمند باقی مانده است.",
+  
+  "﷼ همه چیز در مشت تو ﷼\nدر زبان C، همه چیز به دستان برنامه‌نویس است. مدیریت حافظه به‌طور کامل به عهده اوست، از تخصیص تا آزادسازی آن. این کنترل دقیق به توسعه‌دهنده این امکان را می‌دهد که منابع را بهینه‌سازی کند، اما در عین حال خطرات نشت حافظه نیز در کمین است.",
+  
+  "﷼ پیچیدگی اشاره‌گرها ﷼\nدر C، اشاره‌گرها ابزارهایی قدرتمند اما خطرناک هستند. با استفاده از آنها می‌توان به هر بخش از حافظه دسترسی پیدا کرد، اما همین قدرت باعث می‌شود که اشتباهات به‌راحتی رخ دهند و مشکلاتی مانند خرابی حافظه و حتی کرش شدن برنامه ایجاد شود.",
+  
+  "﷼ زبان بدون پرده ﷼\nبرخلاف زبان‌های سطح بالاتر که به‌طور خودکار مدیریت حافظه را انجام می‌دهند، زبان C به برنامه‌نویس این امکان را می‌دهد که مستقیماً حافظه را تخصیص دهد یا آزاد کند، این امر هم می‌تواند یک امتیاز باشد و هم یک چالش.",
+  
+  "﷼ نمایش داده‌ها ﷼\nدر C، با استفاده از انواع مختلف داده‌ها و آرایه‌ها، می‌توانید هر نوع داده‌ای را که نیاز دارید نمایش دهید. اما هیچ‌گونه اطمینانی از ایمنی در نحوه دسترسی به این داده‌ها وجود ندارد. مدیریت حافظه به عهده شماست و این می‌تواند منجر به اشتباهات فاجعه‌بار شود.",
+  
+  "﷼ وقتی حافظه دست‌خالی است ﷼\nدر زبان C هیچ سیستم خودکار برای مدیریت حافظه وجود ندارد. این یعنی اینکه اگر شما فراموش کنید حافظه‌ای را که تخصیص داده‌اید آزاد کنید، حافظه برنامه شما به آرامی شروع به نشت می‌کند.",
+  
+  "﷼ اشاره‌گرهای کارا و خطرناک ﷼\nیکی از عجیب‌ترین ویژگی‌های زبان C توانایی انجام عملیات ریاضی روی اشاره‌گرها است. این امکان به شما این قدرت را می‌دهد که به بخش‌های مختلف حافظه دسترسی پیدا کنید، اما از طرفی خطرات زیادی از جمله دسترسی غیرمجاز به حافظه را به همراه دارد.",
+  
+  "﷼ قدرت دسترسی به پایین‌ترین سطح ﷼\nبا استفاده از پوانترها، زبان C به برنامه‌نویس این امکان را می‌دهد که مستقیماً با سخت‌افزار ارتباط برقرار کند. این ویژگی در دیگر زبان‌ها به ندرت پیدا می‌شود و به C این قابلیت را می‌دهد که برای برنامه‌های سیستمی و کدهای سطح پایین ایده‌آل باشد.",
+  
+  "﷼ فریب حافظه ﷼\nدر زبان C هیچ اطمینانی از مدیریت خودکار حافظه وجود ندارد. این یعنی شما ممکن است حافظه‌ای را که دیگر نیازی به آن ندارید، بدون اینکه آزاد کنید، رها کنید. این ویژگی می‌تواند مشکلات جدی در کارکرد برنامه‌ها ایجاد کند.",
+  
+  "﷼ سختی درک انواع داده‌ای ﷼\nدر C، گاهی اوقات کار با انواع داده‌ها و چگونگی تخصیص حافظه به آنها می‌تواند بسیار گیج‌کننده باشد. به‌ویژه زمانی که شما بخواهید از داده‌هایی با سایز متفاوت در کنار هم استفاده کنید، کار پیچیده‌تر می‌شود.",
+  
+  "﷼ تنها در یک لحظه ﷼\nدر C، دسترسی به حافظه فقط با استفاده از اشاره‌گرها امکان‌پذیر است. با انجام عملیات‌های ریاضی بر روی اشاره‌گرها می‌توان به بخش‌های مختلف حافظه دسترسی پیدا کرد، اما این فرآیند می‌تواند به اشتباهات عجیب و پیچیده منتهی شود.",
+  
+  "﷼ ترکیب قوی با ضعف ﷼\nدر زبان C، قدرت واقعی در ترکیب داده‌ها و عملیات‌های آن است. اما این قدرت نیازمند دقت و توجه بسیاری است. کوچک‌ترین اشتباه در تخصیص یا دسترسی به حافظه می‌تواند به راحتی کد را غیرقابل استفاده کند.",
+  
+  "﷼ وقتی خطاها در جایی پنهان می‌شوند ﷼\nدر زبان C، برخلاف زبان‌های دیگر، خطاها به‌طور خودکار شناسایی نمی‌شوند. این یعنی اگر شما فراموش کنید که یک متغیر را به‌درستی مقداردهی کنید، برنامه شما به احتمال زیاد کرش خواهد کرد، بدون اینکه علت آن مشخص باشد.",
+  
+  "﷼ امنیت پایین‌تر ﷼\nبرخلاف زبان‌های دیگر که ایمنی حافظه را در نظر می‌گیرند، زبان C امنیت کمتری دارد. با استفاده از اشاره‌گرها و دیگر قابلیت‌های سطح پایین، شما می‌توانید به حافظه‌های غیرمجاز دسترسی پیدا کنید و مشکلات جدی امنیتی ایجاد کنید.",
+  
+  "﷼ انعطاف‌پذیری بیش از حد ﷼\nزبان C این امکان را به برنامه‌نویسان می‌دهد که مستقیماً به سخت‌افزار دسترسی پیدا کنند و عملیات پیچیده‌ای را انجام دهند. اما این انعطاف‌پذیری به معنای بیشتر بودن اشتباهات احتمالی است.",
+  
+  "﷼ پایان‌ناپذیر با مشکلات ﷼\nیکی از ویژگی‌های عجیبی که در زبان C مشاهده می‌شود، نداشتن هیچ نوع سیستم حفاظتی در مقابل اشتباهات رایج است. از حافظه تا اشاره‌گرها، هر چیزی می‌تواند به راحتی به مشکلی بزرگ تبدیل شود.",
+  
+  "﷼ هیچ چیز از پیش برنامه‌ریزی شده نیست ﷼\nدر C، هیچ‌چیز از قبل پیش‌بینی نشده است. شما باید تمام جزئیات را کنترل کنید، از حافظه گرفته تا دسترسی‌ها. این یعنی حتی کوچک‌ترین اشتباه می‌تواند باعث ایجاد مشکلات بزرگ شود.",
+  
+  "﷼ زمانی که به جلو نگاه نمی‌کنی ﷼\nدر زبان C، بسیاری از اشتباهات در برنامه‌نویسی به دلیل عدم توجه به جزئیات، مانند تخصیص نادرست حافظه یا استفاده نادرست از اشاره‌گرها، اتفاق می‌افتد. این مشکلات به‌سرعت از کنترل خارج می‌شوند.",
+  
+  "﷼ دنیای خام و بدون فیلتر ﷼\nزبان C به شما این امکان را می‌دهد که هر چیزی را در سطح پایین سیستم کنترل کنید، از جمله دسترسی مستقیم به حافظه و سیستم. اما این قدرت می‌تواند به راحتی به یک مشکل بزرگ تبدیل شود.",
+  
+  "﷼ عجیب‌ترین ارثیه‌ها ﷼\nزبان C به ارث‌برداری از کدهای قدیمی در سیستم‌های امروزی معروف است. بسیاری از سیستم‌های عامل و نرم‌افزارها هنوز به‌طور گسترده از C استفاده می‌کنند، حتی اگر زبان‌های مدرن‌تر انتخاب‌های بهتری باشند.",
+  
+  "﷼ پیچیدگی در سادگی ﷼\nاگرچه زبان C به ظاهر ساده است، اما مشکلات آن وقتی نمایان می‌شوند که بخواهید کنترل دقیقی روی حافظه و منابع دیگر سیستم داشته باشید. به همین دلیل زبان C به یکی از پیچیده‌ترین و در عین حال قدرتمندترین زبان‌ها تبدیل می‌شود.",
+  
+  "﷼ بازگشت به گذشته ﷼\nزبان C به برنامه‌نویسان این امکان را می‌دهد که به گذشته نگاه کنند و از آن به‌عنوان ابزاری برای نوشتن برنامه‌های جدید استفاده کنند. این زبان با وجود سادگی و قدرتش، همچنان در دنیای فناوری مدرن کاربرد دارد.",
+  
+  "﷼ خطاهای غیرقابل پیش‌بینی ﷼\nدر زبان C، حتی یک اشتباه کوچک در تخصیص حافظه می‌تواند منجر به خطاهایی غیرقابل پیش‌بینی شود. همین ویژگی باعث می‌شود که C برای توسعه‌دهندگان بسیار چالش‌برانگیز باشد.",
+  
+  "﷼ یادگیری پیچیده ﷼\nزبان C برای مبتدیان معمولاً به‌عنوان یک زبان پیچیده به شمار می‌آید. برنامه‌نویسان باید یاد بگیرند که چطور به‌طور مؤثر با حافظه و پوانترها کار کنند تا از مشکلات اجتناب کنند.",
+  
+  "﷼ شکاف‌های فنی در زبان ﷼\nC با وجود قدرت زیادش، دارای شکاف‌های تکنیکی زیادی است. مانند کار با انواع داده‌های بزرگ یا پردازش داده‌ها، که به راحتی می‌تواند منجر به مشکلات پیچیده شود.",
+  
+  "﷼ ترکیب ایمنی و خطر ﷼\nبرخلاف زبان‌هایی مثل جاوا که ایمنی بالاتری دارند، C ترکیبی از قدرت و خطر است. این زبان به برنامه‌نویس اجازه می‌دهد که به‌طور کامل سیستم را کنترل کند، اما همین قدرت می‌تواند منجر به خطرات جدی شود.",
+  
+  "﷼ زبان برای معماران ﷼\nC به نوعی برای معماران سخت‌افزار طراحی شده است. وقتی بخواهید در پایین‌ترین سطح سیستم با سخت‌افزار کار کنید، C همچنان بهترین ابزار است."
+];
+
+    const styles = ['style1', 'style2', 'style3', 'style4', 'style5'];
+    let currentStyle = localStorage.getItem('currentStyle') || 'style1';
+    let currentPage = parseInt(localStorage.getItem('currentPage')) || 0;
+
+    function processText(text) {
+        return text.replace(/﷼(.*?)﷼/g, '<span class="highlight">$1</span>');
+    }
+
+    const container = document.getElementById('container');
+
+    function renderPages(start) {
+        container.innerHTML = '';
+        for (let i = start - 30; i <= start + 30; i++) {
+            if (i >= 0 && i < pages.length) {
+                const pageDiv = document.createElement('div');
+                pageDiv.classList.add('page', currentStyle);
+                const pageContent = `
+                    <button class="style-btn" onclick="changeStyle()">
+                        <img src="https://img.icons8.com/ios-glyphs/30/ffffff/paint-palette.png" class="icon" />
+                    </button>
+                    <button class="copy-btn" onclick="copyText(${i})">
+                        <img src="https://img.icons8.com/ios-glyphs/30/ffffff/copy.png" class="icon" />
+                    </button>
+                    <div class="page-text">
+                        ${processText(pages[i])}
+                    </div>
+                    <div class="page-footer">${i + 1}</div>
+                `;
+                pageDiv.innerHTML = pageContent;
+                container.appendChild(pageDiv);
+            }
+        }
+    }
+
+    function changeStyle() {
+        currentStyle = styles[(styles.indexOf(currentStyle) + 1) % styles.length];
+        localStorage.setItem('currentStyle', currentStyle);
+        const pageDivs = container.querySelectorAll('.page');
+        pageDivs.forEach(pageDiv => pageDiv.classList.remove(...styles));
+        pageDivs.forEach(pageDiv => pageDiv.classList.add(currentStyle));
+    }
+
+    function copyText(index) {
+        const textToCopy = pages[index].replace(/﷼/g, '');
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            
+        });
+    }
+
+    window.addEventListener('load', () => {
+        renderPages(currentPage);
+        setTimeout(() => {
+            container.scrollLeft = currentPage * window.innerWidth;
+        }, 0); 
+    });
+
+    
+    container.addEventListener('scroll', () => {
+        const newPage = Math.round(container.scrollLeft / window.innerWidth);
+        if (newPage !== currentPage) {
+            currentPage = newPage;
+            localStorage.setItem('currentPage', currentPage);
+        }
+    });
+</script>
+
+</body>
+</html>

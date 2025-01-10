@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>برنامه با UI خلاقانه - جاوا</title>
+    
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Courier New', Courier, monospace; /* فونت مناسب برای کد */
+    background-color: #f0f0f0; /* پس‌زمینه روشن */
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    color: #000000; /* رنگ متن متناسب با جاوا */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.scroll-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    flex-wrap: nowrap;
+    scroll-snap-type: x mandatory;
+    width: 100%;
+    height: 100%;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 20px;
+}
+
+.page {
+    flex-shrink: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 30px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+    scroll-snap-align: center;
+    position: relative;
+    transform: scale(0.98);
+    opacity: 0;
+    animation: fadeIn 0.5s ease-out forwards;
+    padding: 10px;
+}
+
+.page-text {
+    text-align: center;
+    font-size: calc(16px + 1.5vw);
+    line-height: 1.8;
+    max-width: 80%;
+    max-height: 80%;
+    overflow-y: auto;
+    opacity: 0;
+    animation: fadeInUp 0.5s 0.25s forwards;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.highlight {
+    font-size: calc(18px + 1.5vw);
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s ease, color 0.1s ease;
+}
+
+.highlight:hover {
+    color: #ff6600; /* رنگ جاوا */
+    transform: scale(1.05);
+}
+
+.page-footer {
+    position: absolute;
+    bottom: 20px;
+    font-size: 18px;
+    font-weight: 500;
+    width: 100%;
+    text-align: center;
+    letter-spacing: 2px;
+    transform: scale(0.6);
+    animation: fadeInFooter 0.5s 0.25s forwards;
+}
+
+.style-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 40px;
+    height: 40px;
+    background: #ff6600; /* رنگ جاوا */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.style-btn:hover {
+    background: #8b0000; /* رنگ تیره جاوا */
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.style-btn .icon {
+    width: 20px;
+    height: 20px;
+}
+
+.copy-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: #8b0000; /* رنگ قرمز تیره جاوا */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.copy-btn:hover {
+    background: #ff6600; /* رنگ جاوا */
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.copy-btn .icon {
+    width: 20px;
+    height: 20px;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInFooter {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.container::-webkit-scrollbar {
+    display: none;
+}
+
+:root {
+    --primary-bg: #f0f0f0; /* پس‌زمینه روشن */
+    --primary-text: #000000; /* رنگ متن جاوا */
+    --highlight-color: #ff6600; /* رنگ اصلی جاوا */
+    --btn-bg: #ff6600; /* رنگ دکمه‌ها */
+    --btn-bg-hover: #8b0000; /* رنگ پس‌زمینه دکمه در حالت hover */
+    --footer-bg: #f0f0f0; /* پس‌زمینه فوتر */
+    --footer-text: #000000; /* رنگ متن فوتر */
+}
+
+.style1 {
+    background: var(--primary-bg);
+    color: var(--primary-text);
+}
+
+.style1 .highlight {
+    color: var(--highlight-color);
+}
+
+.style1 .style-btn {
+    background: var(--btn-bg);
+}
+
+.style1 .style-btn:hover {
+    background: var(--btn-bg-hover);
+}
+
+.style2 {
+    background: #ff6600; /* رنگ جاوا */
+    color: #fff;
+}
+
+.style2 .highlight {
+    color: #8b0000; /* رنگ تیره جاوا */
+}
+
+.style2 .style-btn {
+    background: #8b0000;
+}
+
+.style2 .style-btn:hover {
+    background: #ff6600;
+}
+
+.style3 {
+    background: #f9f9f9;
+    color: #333;
+}
+
+.style3 .highlight {
+    color: #007aff;
+}
+
+.style3 .style-btn {
+    background: #007aff;
+}
+
+.style3 .style-btn:hover {
+    background: #0051a8;
+}
+</style>
+    
+</head>
+<body onfocus="window.scrollTo(0, 0); setTimeout(() => window.scrollTo(0, 0), 100);">
+
+<div class="scroll-container">
+    <div class="container" id="container">
+    </div>
+</div>
+
+<script>
+    const pages = [
+        "جاوا یک زبان برنامه‌نویسی شی‌گرا و کلاس‌محور است که برای ایجاد برنامه‌های نرم‌افزاری قابل حمل و کارآمد طراحی شده است. جاوا به‌طور گسترده در اپلیکیشن‌های موبایل، وب و دسکتاپ استفاده می‌شود.",
+        "جاوا یکی از پرکاربردترین زبان‌ها در دنیای امروز است. این زبان به‌دلیل قابلیت‌های فراوان خود، به یکی از اصلی‌ترین زبان‌ها برای توسعه نرم‌افزار تبدیل شده است.",
+        "یکی از ویژگی‌های مهم جاوا، قابلیت حمل آن است. برنامه‌های نوشته‌شده در جاوا می‌توانند به‌راحتی روی پلتفرم‌های مختلف اجرا شوند بدون اینکه تغییرات عمده‌ای در کد ایجاد شود.",
+        "جاوا به‌دلیل پشتیبانی از برنامه‌نویسی شی‌گرا، انعطاف‌پذیری بالایی دارد. شما می‌توانید کلاس‌ها و شی‌ها را تعریف کرده و از ویژگی‌هایی مانند وراثت و پلی‌مورفیسم استفاده کنید.",
+        "از ویژگی‌های برجسته جاوا، امنیت بالای آن است. جاوا به‌طور پیش‌فرض از سیستم‌های امنیتی محافظت می‌کند و به برنامه‌نویسان این امکان را می‌دهد که برنامه‌های امنی بنویسند.",
+        "جاوا همچنین به‌طور گسترده در توسعه نرم‌افزارهای بزرگ و پیچیده استفاده می‌شود. بسیاری از سیستم‌های سازمانی، بانک‌ها و شرکت‌ها از جاوا به‌عنوان زبان اصلی برای توسعه اپلیکیشن‌ها استفاده می‌کنند.",
+        "جاوا به‌طور گسترده در سیستم‌های توزیع‌شده و پردازش‌های موازی استفاده می‌شود. این زبان از threading پشتیبانی می‌کند که اجازه می‌دهد چندین عملیات به‌طور همزمان انجام شوند.",
+        "جاوا از ابزارهایی مانند Spring و Hibernate برای توسعه اپلیکیشن‌های وب استفاده می‌کند. این فریم‌ورک‌ها کمک می‌کنند تا فرآیند توسعه سریع‌تر و کارآمدتر انجام شود.",
+        "جاوا به‌عنوان یک زبان کامپایل‌شده، سرعت بالایی دارد. کدهای جاوا به بایت‌کد تبدیل شده و توسط ماشین مجازی جاوا (JVM) اجرا می‌شوند.",
+        "جاوا از نوع داده‌های متعددی مانند رشته‌ها، آرایه‌ها و مجموعه‌ها پشتیبانی می‌کند. این ویژگی‌ها کمک می‌کنند تا داده‌ها را به‌طور سازمان‌یافته و کارآمد ذخیره کنید."
+    ];
+
+    const styles = ['style1', 'style2', 'style3'];
+    let currentStyle = localStorage.getItem('currentStyle') || 'style1';
+    let currentPage = parseInt(localStorage.getItem('currentPage')) || 0;
+
+    function processText(text) {
+        return text.replace(/﷼(.*?)﷼/g, '<span class="highlight">$1</span>');
+    }
+
+    const container = document.getElementById('container');
+
+    function renderPages(start) {
+        container.innerHTML = '';
+        for (let i = start - 50; i <= start + 50; i++) {
+            if (i >= 0 && i < pages.length) {
+                const pageDiv = document.createElement('div');
+                pageDiv.classList.add('page', currentStyle);
+                const pageContent = `
+                    <button class="style-btn" onclick="changeStyle()">
+                        <img src="https://img.icons8.com/ios-glyphs/30/ffff00/paint-palette.png" class="icon" />
+                    </button>
+                    <button class="copy-btn" onclick="copyText(${i})">
+                        <img src="https://img.icons8.com/ios-glyphs/30/ffff00/copy.png" class="icon" />
+                    </button>
+                    <div class="page-text">
+                        ${processText(pages[i])}
+                    </div>
+                    <div class="page-footer">${i + 1}</div>
+                `;
+                pageDiv.innerHTML = pageContent;
+                container.appendChild(pageDiv);
+            }
+        }
+    }
+
+    function changeStyle() {
+        currentStyle = styles[(styles.indexOf(currentStyle) + 1) % styles.length];
+        localStorage.setItem('currentStyle', currentStyle);
+        const pageDivs = container.querySelectorAll('.page');
+        pageDivs.forEach(pageDiv => pageDiv.classList.remove(...styles));
+        pageDivs.forEach(pageDiv => pageDiv.classList.add(currentStyle));
+    }
+
+    function copyText(index) {
+        const textToCopy = pages[index].replace(/﷼/g, '');
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            
+        });
+    }
+
+    window.addEventListener('load', () => {
+        renderPages(currentPage);
+        setTimeout(() => {
+            container.scrollLeft = currentPage * window.innerWidth;
+        }, 0); 
+    });
+
+    
+    container.addEventListener('scroll', () => {
+        const newPage = Math.round(container.scrollLeft / window.innerWidth);
+        if (newPage !== currentPage) {
+            currentPage = newPage;
+            localStorage.setItem('currentPage', currentPage);
+        }
+    });
+</script>
+
+</body>
+</html>

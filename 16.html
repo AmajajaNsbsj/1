@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>برنامه با UI خلاقانه</title>
+    
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Courier New', Courier, monospace; /* فونت مناسب برای کد */
+    background-color: #f0f0f0; /* پس‌زمینه روشن */
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    color: #3c3c3c; /* رنگ متن متناسب با پایتون */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.scroll-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    flex-wrap: nowrap;
+    scroll-snap-type: x mandatory;
+    width: 100%;
+    height: 100%;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 20px;
+}
+
+.page {
+    flex-shrink: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 30px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+    scroll-snap-align: center;
+    position: relative;
+    transform: scale(0.98);
+    opacity: 0;
+    animation: fadeIn 0.5s ease-out forwards;
+    padding: 10px;
+}
+
+.page-text {
+    text-align: center;
+    font-size: calc(16px + 1.5vw);
+    line-height: 1.8;
+    max-width: 80%;
+    max-height: 80%;
+    overflow-y: auto;
+    opacity: 0;
+    animation: fadeInUp 0.5s 0.25s forwards;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.highlight {
+    font-size: calc(18px + 1.5vw);
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s ease, color 0.1s ease;
+}
+
+.highlight:hover {
+    color: #306998; /* رنگ پایتون */
+    transform: scale(1.05);
+}
+
+.page-footer {
+    position: absolute;
+    bottom: 20px;
+    font-size: 18px;
+    font-weight: 500;
+    width: 100%;
+    text-align: center;
+    letter-spacing: 2px;
+    transform: scale(0.6);
+    animation: fadeInFooter 0.5s 0.25s forwards;
+}
+
+.style-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 40px;
+    height: 40px;
+    background: #306998; /* رنگ پایتون */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.style-btn:hover {
+    background: #FFD43B; /* رنگ زرد لوگوی پایتون */
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.style-btn .icon {
+    width: 20px;
+    height: 20px;
+}
+
+.copy-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: #FFD43B; /* رنگ زرد لوگوی پایتون */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.copy-btn:hover {
+    background: #306998; /* رنگ آبی پایتون */
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.copy-btn .icon {
+    width: 20px;
+    height: 20px;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInFooter {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.container::-webkit-scrollbar {
+    display: none;
+}
+
+:root {
+    --primary-bg: #f0f0f0; /* پس‌زمینه روشن */
+    --primary-text: #3c3c3c; /* رنگ متن پایتون */
+    --highlight-color: #306998; /* رنگ اصلی پایتون */
+    --btn-bg: #306998; /* رنگ دکمه‌ها */
+    --btn-bg-hover: #FFD43B; /* رنگ پس‌زمینه دکمه در حالت hover */
+    --footer-bg: #f0f0f0; /* پس‌زمینه فوتر */
+    --footer-text: #3c3c3c; /* رنگ متن فوتر */
+}
+
+.style1 {
+    background: var(--primary-bg);
+    color: var(--primary-text);
+}
+
+.style1 .highlight {
+    color: var(--highlight-color);
+}
+
+.style1 .style-btn {
+    background: var(--btn-bg);
+}
+
+.style1 .style-btn:hover {
+    background: var(--btn-bg-hover);
+}
+
+.style2 {
+    background: #306998; /* رنگ آبی پایتون */
+    color: #fff;
+}
+
+.style2 .highlight {
+    color: #FFD43B; /* رنگ زرد */
+}
+
+.style2 .style-btn {
+    background: #FFD43B;
+}
+
+.style2 .style-btn:hover {
+    background: #306998;
+}
+
+.style3 {
+    background: #f9f9f9;
+    color: #333;
+}
+
+.style3 .highlight {
+    color: #007aff;
+}
+
+.style3 .style-btn {
+    background: #007aff;
+}
+
+.style3 .style-btn:hover {
+    background: #0051a8;
+}
+</style>
+    
+</head>
+<body onfocus="window.scrollTo(0, 0); setTimeout(() => window.scrollTo(0, 0), 100);">
+
+<div class="scroll-container">
+    <div class="container" id="container">
+    </div>
+</div>
+
+<script>
+    const pages = [
+  "﷼ قدمت ﷼\nزبان پایتون در سال 1991 توسط گیدو ون روسوم ایجاد شد. هدف از ایجاد این زبان، نوشتن برنامه‌هایی ساده و خوانا بود که قابلیت گسترش به پروژه‌های بزرگ را داشته باشند. با وجود تاریخچه‌ای کوتاه‌تر نسبت به برخی دیگر از زبان‌ها، پایتون به یکی از پرکاربردترین زبان‌ها در دنیای امروز تبدیل شده است.",
+  
+  "﷼ سادگی و قدرت ﷼\nپایتون یکی از ساده‌ترین زبان‌ها برای یادگیری است، اما این سادگی به معنای ضعف آن نیست. پایتون بسیار قدرتمند است و با استفاده از کتابخانه‌ها و فریم‌ورک‌های مختلف می‌توان برنامه‌های پیچیده‌ای را در زمینه‌های مختلف توسعه داد.",
+  
+  "﷼ تایپ داینامیک ﷼\nدر پایتون، نیازی به تعیین نوع متغیرها در هنگام تعریف آن‌ها نیست. این زبان از تایپ داینامیک پشتیبانی می‌کند، به این معنی که شما می‌توانید یک متغیر را به‌طور مستقیم به یک نوع دیگر تغییر دهید بدون اینکه مشکلی ایجاد شود. این ویژگی برای مبتدیان بسیار مفید است.",
+  
+  "﷼ کتابخانه‌های غنی ﷼\nپایتون دارای هزاران کتابخانه است که برای انواع مختلف کاربردها طراحی شده‌اند. از علم داده و یادگیری ماشین گرفته تا توسعه وب و بازی‌سازی، شما می‌توانید برای هر نیاز خود کتابخانه‌ای آماده پیدا کنید.",
+  
+  "﷼ سینتکس خوانا ﷼\nیکی از ویژگی‌های برجسته پایتون، سینتکس بسیار ساده و خوانای آن است. شما می‌توانید کدهای پایتون را مانند زبان‌های طبیعی بخوانید، این ویژگی به‌ویژه در پروژه‌های تیمی و همکاری‌های بزرگ کمک می‌کند.",
+  
+  "﷼ پردازش موازی ﷼\nپایتون به‌طور ذاتی از پردازش موازی و چندنخی پشتیبانی نمی‌کند به دلیل Global Interpreter Lock (GIL)، اما با استفاده از کتابخانه‌هایی مانند `multiprocessing` می‌توان پردازش‌های موازی را انجام داد.",
+  
+  "﷼ اجرای سریع کدها ﷼\nپایتون به دلیل استفاده از مفسر، معمولاً کندتر از زبان‌های کامپایل شده است. با این حال، استفاده از ابزارهایی مانند PyPy یا Cython می‌تواند سرعت اجرای برنامه‌ها را تا حد زیادی افزایش دهد.",
+  
+  "﷼ انعطاف‌پذیری در توسعه ﷼\nپایتون به دلیل کتابخانه‌ها و فریم‌ورک‌های متعدد، در هر نوع پروژه‌ای قابل استفاده است. از توسعه وب (با Django و Flask) گرفته تا برنامه‌های دسکتاپ و پردازش داده‌های حجیم، پایتون انتخابی عالی است.",
+  
+  "﷼ سیستم جمع‌آوری زباله ﷼\nپایتون سیستم جمع‌آوری زباله (Garbage Collection) دارد که به‌طور خودکار حافظه‌ای را که دیگر استفاده نمی‌شود، آزاد می‌کند. این ویژگی به‌ویژه در پروژه‌های بزرگ و پیچیده بسیار مفید است.",
+  
+  "﷼ پشتیبانی از شی‌گرایی ﷼\nپایتون از برنامه‌نویسی شی‌گرا به‌طور کامل پشتیبانی می‌کند. شما می‌توانید کلاس‌ها و شی‌ها را تعریف کرده و از ویژگی‌های آن‌ها مانند وراثت و پلی‌مورفیسم بهره ببرید.",
+  
+  "﷼ عدم نیاز به کامپایل ﷼\nپایتون به عنوان یک زبان تفسیر شده، نیازی به کامپایل کردن کد ندارد و همین ویژگی باعث می‌شود تا فرایند توسعه سریع‌تر و ساده‌تر باشد. کافی است که کد را مستقیماً اجرا کنید.",
+  
+  "﷼ خوانایی کدها ﷼\nدر پایتون، خواندن و درک کدها بسیار آسان است. این ویژگی به برنامه‌نویسان کمک می‌کند تا کدهای خود را به‌راحتی مدیریت کنند و به‌سرعت آن‌ها را اشکال‌زدایی و بهبود بخشند.",
+  
+  "﷼ جامعه فعال ﷼\nپایتون دارای یک جامعه فعال و بزرگ از توسعه‌دهندگان است که همیشه به‌دنبال بهبود این زبان هستند. این جامعه عظیم باعث شده است که منابع یادگیری، کتابخانه‌ها و ابزارهای مختلف به راحتی در دسترس باشند.",
+  
+  "﷼ پشتیبانی از انواع مختلف داده‌ها ﷼\nپایتون از انواع داده‌ای مختلف مانند لیست‌ها، دیکشنری‌ها، مجموعه‌ها و تاپل‌ها پشتیبانی می‌کند. این ویژگی به برنامه‌نویسان این امکان را می‌دهد که داده‌ها را به روشی ساختارمند ذخیره کنند.",
+  
+  "﷼ پشتیبانی از اسکریپت‌نویسی ﷼\nپایتون به دلیل سادگی سینتکس و قدرت انعطاف‌پذیری، برای نوشتن اسکریپت‌ها و برنامه‌های کوچک بسیار مناسب است. این زبان به‌ویژه در زمینه‌های اتوماسیون، پردازش داده و تحلیل داده کاربرد دارد.",
+  
+  "﷼ یادگیری ماشین و هوش مصنوعی ﷼\nپایتون یکی از محبوب‌ترین زبان‌ها برای توسعه مدل‌های یادگیری ماشین و هوش مصنوعی است. کتابخانه‌هایی مانند TensorFlow، Keras، و Scikit-learn به برنامه‌نویسان کمک می‌کنند تا مدل‌های پیچیده را به‌راحتی پیاده‌سازی کنند.",
+  
+  "﷼ توسعه وب ﷼\nپایتون ابزارهای قدرتمندی برای توسعه وب دارد. فریم‌ورک‌هایی مانند Django و Flask امکانات متنوعی برای ساخت وب‌سایت‌ها و اپلیکیشن‌های وب فراهم می‌آورند.",
+  
+  "﷼ اشکال‌زدایی آسان ﷼\nپایتون به دلیل داشتن ابزارهای قدرتمند برای اشکال‌زدایی مانند pdb، بسیار راحت‌تر از بسیاری از زبان‌های دیگر در این زمینه عمل می‌کند. شما می‌توانید به‌راحتی برنامه خود را تست کرده و خطاها را پیدا کنید.",
+  
+  "﷼ تسلط به سیستم‌های مختلف ﷼\nپایتون به‌طور کامل بر روی سیستم‌های مختلف از جمله ویندوز، لینوکس و مک اجرا می‌شود. این ویژگی باعث شده است که پایتون به‌عنوان ابزاری قابل حمل برای پروژه‌های مختلف در نظر گرفته شود.",
+  
+  "﷼ کدهای مختصر و مؤثر ﷼\nیکی از ویژگی‌های بارز پایتون، توانایی نوشتن کدهای کوتاه و مؤثر است. این زبان به‌خاطر قابلیت‌هایی مثل لیست کامپرهنشن‌ها و توابع لامبدا، امکان نوشتن کدهایی با تعداد خطوط کمتر را فراهم می‌آورد.",
+  
+  "﷼ خواندن و نوشتن فایل‌ها ﷼\nپایتون امکانات قدرتمندی برای کار با فایل‌ها دارد. شما می‌توانید به‌راحتی فایل‌های متنی، CSV، JSON و سایر فرمت‌های رایج را بخوانید و بنویسید.",
+  
+  "﷼ سازگاری با زبان‌های دیگر ﷼\nپایتون می‌تواند با زبان‌های دیگر مانند C و C++ ادغام شود. به‌طور مثال، شما می‌توانید توابع نوشته شده در C را در پایتون فراخوانی کنید تا کارایی برنامه را افزایش دهید.",
+  
+  "﷼ استفاده از الگوریتم‌ها و ساختارهای داده‌ای ﷼\nپایتون به‌راحتی از انواع مختلف الگوریتم‌ها و ساختارهای داده‌ای مانند درخت‌ها، گراف‌ها، و جداول هش پشتیبانی می‌کند که باعث می‌شود برای حل مسائل پیچیده مفید باشد.",
+  
+  "﷼ اسناد خودکار ﷼\nپایتون امکان تولید مستندات خودکار را از طریق ابزارهایی مانند Sphinx فراهم می‌آورد. این ویژگی به‌ویژه در پروژه‌های بزرگ که نیاز به مستندسازی دارند، مفید است.",
+  
+  "﷼ مدیریت وابستگی‌ها ﷼\nپایتون ابزارهایی مانند pip و virtualenv برای مدیریت وابستگی‌ها و ایجاد محیط‌های مجزا برای پروژه‌ها فراهم می‌آورد. این ویژگی باعث می‌شود تا پروژه‌ها به‌راحتی قابل مدیریت باشند.",
+  
+  "﷼ توسعه بازی‌ها ﷼\nپایتون با استفاده از کتابخانه‌هایی مانند Pygame، امکانات لازم برای توسعه بازی‌ها را فراهم می‌آورد. این ویژگی به‌ویژه برای ساخت بازی‌های دو بعدی و کوچک کاربرد دارد.",
+  
+  "﷼ ترکیب ایمنی و خطر ﷼\nدر پایتون، برنامه‌نویس کنترل زیادی روی جزئیات سیستم ندارد. به همین دلیل، اگرچه بسیار راحت است، اما از لحاظ ایمنی، نیاز به دقت بالا در برخی از بخش‌ها دارد.",
+  
+  "﷼ برنامه‌نویسی دنباله‌ای ﷼\nپایتون از برنامه‌نویسی دنباله‌ای یا Functional Programming نیز پشتیبانی می‌کند. این زبان امکان نوشتن توابع پاک و استفاده از متغیرهای محلی و بدون تغییر را فراهم می‌آورد.",
+  
+  "﷼ پردازش متن ﷼\nپایتون از امکانات بسیار خوبی برای پردازش متن دارد. با استفاده از کتابخانه‌هایی مانند re، شما می‌توانید عملیات جستجو و جایگزینی را به‌راحتی انجام دهید.",
+  
+  "﷼ استفاده از پردازش موازی در شبکه ﷼\nبا استفاده از کتابخانه‌هایی مانند `asyncio` و `concurrent.futures`، می‌توان در پایتون پردازش‌های موازی را برای تسریع عملیات‌هایی مانند درخواست‌های HTTP یا پردازش داده‌ها انجام داد.",
+  
+  "﷼ مدیریت استثناها ﷼\nپایتون دارای یک سیستم مدیریت استثنا است که به شما امکان می‌دهد تا خطاها را به‌راحتی شناسایی کرده و به‌طور مؤثر مدیریت کنید."
+];
+
+    const styles = ['style1', 'style2', 'style3', 'style4', 'style5'];
+    let currentStyle = localStorage.getItem('currentStyle') || 'style1';
+    let currentPage = parseInt(localStorage.getItem('currentPage')) || 0;
+
+    function processText(text) {
+        return text.replace(/﷼(.*?)﷼/g, '<span class="highlight">$1</span>');
+    }
+
+    const container = document.getElementById('container');
+
+    function renderPages(start) {
+        container.innerHTML = '';
+        for (let i = start - 50; i <= start + 50; i++) {
+            if (i >= 0 && i < pages.length) {
+                const pageDiv = document.createElement('div');
+                pageDiv.classList.add('page', currentStyle);
+                const pageContent = `
+                    <button class="style-btn" onclick="changeStyle()">
+                        <img src="https://img.icons8.com/ios-glyphs/30/ffff00/paint-palette.png" class="icon" />
+                    </button>
+                    <button class="copy-btn" onclick="copyText(${i})">
+                        <img src="https://img.icons8.com/ios-glyphs/30/ffff00/copy.png" class="icon" />
+                    </button>
+                    <div class="page-text">
+                        ${processText(pages[i])}
+                    </div>
+                    <div class="page-footer">${i + 1}</div>
+                `;
+                pageDiv.innerHTML = pageContent;
+                container.appendChild(pageDiv);
+            }
+        }
+    }
+
+    function changeStyle() {
+        currentStyle = styles[(styles.indexOf(currentStyle) + 1) % styles.length];
+        localStorage.setItem('currentStyle', currentStyle);
+        const pageDivs = container.querySelectorAll('.page');
+        pageDivs.forEach(pageDiv => pageDiv.classList.remove(...styles));
+        pageDivs.forEach(pageDiv => pageDiv.classList.add(currentStyle));
+    }
+
+    function copyText(index) {
+        const textToCopy = pages[index].replace(/﷼/g, '');
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            
+        });
+    }
+
+    window.addEventListener('load', () => {
+        renderPages(currentPage);
+        setTimeout(() => {
+            container.scrollLeft = currentPage * window.innerWidth;
+        }, 0); 
+    });
+
+    
+    container.addEventListener('scroll', () => {
+        const newPage = Math.round(container.scrollLeft / window.innerWidth);
+        if (newPage !== currentPage) {
+            currentPage = newPage;
+            localStorage.setItem('currentPage', currentPage);
+        }
+    });
+</script>
+
+</body>
+</html>
