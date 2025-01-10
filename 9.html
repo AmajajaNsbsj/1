@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    
+    <title>بازی سودوکو حرفه‌ای</title>
+    
+      <script>
+      function showInfo() {
+    document.getElementById('info-modal').style.display = 'block';
+}
+
+function closeInfo() {
+    document.getElementById('info-modal').style.display = 'none';
+}
+      </script>
+     <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow : hidden;
+            font-family: Arial, sans-serif;
+        }
+        #info-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #007bff;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+#info-btn:hover {
+    background-color: #0056b3;
+    transform: scale(1.1);
+}
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .actions button {
+            padding: 10px 20px;
+            font-size: 1em;
+            border: 1px solid #007bff;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .actions button:hover {
+            background-color: #0056b3;
+            transform: scale(1.1);
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(9, 99fr);
+            grid-gap: 2px;
+            width: 100%;
+            aspect-ratio: 1;
+            border: 2px solid #000;
+            box-sizing: border-box;
+        }
+.cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    box-shadow : 0 0 1px black;
+    border: 1px solid black; /* نوار مشکی */
+    background-color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    padding: 10px; /* فاصله برای متن داخل */
+    box-sizing: border-box;   
+}
+        .modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+    padding-top: 60px;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 10px;
+}
+
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+        .cell.border-right {
+            border-right: 2px solid #000;
+        }
+        .cell.border-bottom {
+            border-bottom: 2px solid #000;
+        }
+        .cell.selected {
+            background-color: #d1e7dd;
+            transform: scale(1.1);
+        }
+        .cell.fixed {
+            background-color: #e9ecef;
+            cursor: default;
+        }
+        .numbers {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .numbers button {
+            margin: 0 5px;
+            padding: 10px;
+            font-size: 1.2em;
+            border: 1px solid #007bff;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .numbers button.active {
+            background-color: #0056b3;
+        }
+        .numbers button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .numbers button:hover:not(:disabled) {
+            background-color: #0056b3;
+            transform: scale(1.1);
+        }
+        .message {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+        .cell.invalid {
+            background-color: #f8d7da;
+        }
+        #erase-btn {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #dc3545;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        #erase-btn:hover {
+            background-color: #c82333;
+            transform: scale(1.1);
+        }
+        /* استایل‌های مختلف */
+        .style1 {
+            background-color: #f9f9f9;
+            border: 2px dashed #000;
+        }
+        .style2 {
+            background-color: #e0f7fa;
+            border: 2px solid #00796b;
+        }
+        .style3 {
+            background-color: #fce4ec;
+            border: 2px solid #d81b60;
+        }
+        .style4 {
+            background-color: #f3e5f5;
+            border: 2px solid #6a1b9a;
+        }
+        .style5 {
+            background-color: #e8f5e9;
+            border: 2px solid #388e3c;
+        }
+        .style6 {
+            background-color: #fff3e0;
+            border: 2px solid #f57c00;
+        }
+        .style7 {
+            background-color: #e1f5fe;
+            border: 2px solid #0277bd;
+        }
+    </style>
+</head>
+<body>
+<button id="info-btn" onclick="showInfo()">✉️</button>
+    <div class="container">
+        <h1>بازی سودوکو حرفه‌ای</h1>
+        <div class="actions">
+            <button onclick="setDifficulty('easy')">آسان</button>
+            <button onclick="setDifficulty('medium')">متوسط</button>
+            <button onclick="setDifficulty('hard')">سخت</button>
+        </div>
+        <div class="board" id="board"></div>
+        <div class="numbers">
+            <button onclick="selectNumber(1)">1</button>
+            <button onclick="selectNumber(2)">2</button>
+            <button onclick="selectNumber(3)">3</button>
+            <button onclick="selectNumber(4)">4</button>
+            <button onclick="selectNumber(5)">5</button>
+            <button onclick="selectNumber(6)">6</button>
+            <button onclick="selectNumber(7)">7</button>
+            <button onclick="selectNumber(8)">8</button>
+            <button onclick="selectNumber(9)">9</button>
+        </div>
+        <button id="erase-btn" onclick="eraseNumber()" style="display: none;">پاک کردن</button>
+        <div class="message" id="message"></div>
+    </div>
+    <div id="info-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeInfo()">&times;</span>
+        <h2>توضیحات جالب بازی سودوکو</h2>
+        <p>
+        
+سودوکو، این معمای ریاضی جذاب، دنیایی از رمز و راز و چالش است که مغز را به رقص درمی‌آورد! تصور کنید جدولی ۹×۹ که در آن باید اعداد ۱ تا ۹ را طوری بچینید که در هر سطر، ستون و مربع ۳×۳ تکرار نشوند. این بازی ساده اما پیچیده، مانند یک نبرد مغزی هیجان‌انگیز است که هر بار حل کردنش، احساس پیروزی شگفت‌انگیزی به شما می‌دهد. سودوکو، ورزش ذهنی است که شما را از دنیای پیرامون جدا می‌کند و در دنیایی از منطق و خلاقیت غرق می‌سازد!
+        </p>
+    </div>
+</div>
+    <script>
+        const board = document.getElementById('board');
+        const message = document.getElementById('message');
+        const eraseBtn = document.getElementById('erase-btn');
+        let selectedNumber = null;
+        let selectedCell = null;
+        let initialBoard = [];
+        let currentBoard = [];
+
+        function setDifficulty(difficulty) {
+            localStorage.setItem('sudokuDifficulty', difficulty);
+            resetGame();
+        }
+
+        function getSavedDifficulty() {
+            return localStorage.getItem('sudokuDifficulty') || 'medium';
+        }
+
+        function generateRandomBoard(difficulty = 'medium') {
+            const boards = {
+                easy: [
+                    [5, 3, null, null, 7, null, null, null, null],
+                    [6, null, null, 1, 9, 5, null, null, null],
+                    [null, 9, 8, null, null, null, null, 6, null],
+                    [8, null, null, null, 6, null, null, null, 3],
+                    [4, null, null, 8, null, 3, null, null, 1],
+                    [7, null, null, null, 2, null, null, null, 6],
+                    [null, 6, null, null, null, null, 2, 8, null],
+                    [null, null, null, 4, 1, 9, null, null, 5],
+                    [null, null, null, null, 8, null, null, 7, 9]
+                ],
+                medium: [
+                    [5, null, null, null, null, null, null, null, null],
+                    [null, null, null, null, 3, null, null, 8, 5],
+                    [null, 8, 9, null, null, null, null, null, null],
+                    [1, null, null, null, 6, null, null, null, null],
+                    [null, null, 6, 3, null, 5, 2, null, null],
+                    [null, null, null, null, 9, null, null, null, 6],
+                    [null, null, null, null, null, null, 7, 4, null],
+                    [2, 6, null, null, 8, null, null, null, null],
+                    [null, null, null, null, null, null, null, null, 1]
+                ],
+                hard: [
+                    [null, null, null, null, null, null, null, null, null],
+                    [null, null, 4, null, null, null, null, 6, null],
+                    [null, null, null, null, null, 3, null, null, null],
+                    [null, null, null, 1, 2, null, null, null, null],
+                    [null, 3, 5, null, null, null, 9, 8, null],
+                    [null, null, null, null, 6, 4, null, null, null],
+                    [null, null, null, 9, null, null, null, null, null],
+                    [null, 7, null, null, null, null, 2, null, null],
+                    [null, null, 8, null, null, null, null, null, null]
+                ]
+            };
+            initialBoard = boards[difficulty];
+            currentBoard = JSON.parse(JSON.stringify(initialBoard));
+        }
+
+        function createBoard() {
+            board.innerHTML = '';
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    
+                    if (col === 2 || col === 5) cell.classList.add('border-right');
+                    if (row === 2 || row === 5) cell.classList.add('border-bottom');
+
+                    if (initialBoard[row][col] !== null) {
+                        cell.textContent = initialBoard[row][col];
+                        cell.classList.add('fixed');
+                    } else {
+                        cell.addEventListener('click', () => selectCell(row, col, cell));
+                    }
+                    board.appendChild(cell);
+                }
+            }
+            applyRandomStyle();
+            
+        }
+
+        function selectCell(row, col, cell) {
+            if (cell.classList.contains('fixed')) {
+                return;
+            }
+            if (selectedCell) {
+                selectedCell.classList.remove('selected');
+                if (selectedCell === cell) {
+                    selectedCell = null;
+                    eraseBtn.style.display = 'none';
+                    return;
+                }
+            }
+            selectedCell = cell;
+            selectedCell.classList.add('selected');
+            eraseBtn.style.display = selectedCell.textContent ? 'block' : 'none';
+            updateNumberButtons(row, col);
+        }
+
+        function selectNumber(number) {
+            if (selectedNumber === number) {
+                selectedNumber = null;
+                document.querySelectorAll('.numbers button').forEach(button => button.classList.remove('active'));
+                return;
+            }
+            selectedNumber = number;
+            const buttons = document.querySelectorAll('.numbers button');
+            buttons.forEach(button => button.classList.remove('active'));
+            document.querySelector(`.numbers button:nth-child(${number})`).classList.add('active');
+            if (selectedCell) {
+                const { row, col } = selectedCell.dataset;
+                if (isValid(currentBoard, parseInt(row), parseInt(col), number)) {
+                    currentBoard[row][col] = number;
+                    selectedCell.textContent = number;
+                    selectedCell.classList.remove('selected', 'invalid');
+                    message.textContent = ''; 
+                    selectedCell = null;
+                    eraseBtn.style.display = 'none';
+                    checkWin();
+                } else {
+          
+                    selectedCell.classList.add('invalid');
+                }
+            }
+        }
+
+        function eraseNumber() {
+            if (selectedCell && !selectedCell.classList.contains('fixed')) {
+                const { row, col } = selectedCell.dataset;
+                currentBoard[row][col] = null;
+                selectedCell.textContent = '';
+                selectedCell.classList.remove('selected', 'invalid');
+                selectedCell = null;
+                eraseBtn.style.display = 'none';
+                messa;
+            }
+        }
+
+        function isValid(board, row, col, num) {
+            for (let x = 0; x < 9; x++) {
+                if ((board[row][x] === num && x !== col) || (board[x][col] === num && x !== row)) {
+                    return false;
+                }
+            }
+            const startRow = Math.floor(row / 3) * 3;
+            const startCol = Math.floor(col / 3) * 3;
+            for (let x = startRow; x < startRow + 3; x++) {
+                for (let y = startCol; y < startCol + 3; y++) {
+                    if (board[x][y] === num && (x !== row || y !== col)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function checkWin() {
+            let isComplete = true;
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    const cell = currentBoard[row][col];
+                    if (cell === null || !isValid(currentBoard, row, col, cell)) {
+                        isComplete = false;
+                        break;
+                    }
+                }
+            }
+            if (isComplete) {
+                message.textContent = 'شما برنده شدید!';
+                message.classList.add('won');
+            } 
+        }
+
+        function applyRandomStyle() {
+            const styles = ['style1', 'style2', 'style3', 'style4', 'style5', 'style6', 'style7'];
+            const randomStyle = styles[Math.floor(Math.random() * styles.length)];
+            document.querySelector('.board').classList.add(randomStyle);
+            
+            
+        }
+
+        function updateNumberButtons(row, col) {
+            const buttons = document.querySelectorAll('.numbers button');
+            buttons.forEach(button => {
+                const number = parseInt(button.textContent);
+                if (isValid(currentBoard, parseInt(row), parseInt(col), number)) {
+                    button.disabled = false;
+                } else {
+                    button.disabled = true;
+                }
+            });
+        }
+
+        function resetGame() {
+            const difficulty = getSavedDifficulty();
+            generateRandomBoard(difficulty);
+            createBoard();
+           
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const difficulty = getSavedDifficulty();
+            generateRandomBoard(difficulty);
+            createBoard();
+        });
+    </script>
+</body>
+</html>
