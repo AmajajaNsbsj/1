@@ -102,7 +102,7 @@
     },
     {
       "id": 11,
-      "name":  "فلاپی برد",
+      "name":  "آبعلی : جرئت حقیقت",
       "description": "",
       "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/blob/main/11.png",
       "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/11.html",
@@ -113,7 +113,7 @@
     
   {
       "id": 12,
-      "name":  "فلاپی برد",
+      "name":  "جدول ضرب",
       "description": "",
       "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/blob/main/12.png",
       "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/12.html",
@@ -123,7 +123,7 @@
     },
     {
       "id": 13,
-      "name":  "فلاپی برد",
+      "name":  "نقاشی ساده",
       "description": "",
       "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/blob/main/13.png",
       "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/13.html",
@@ -133,13 +133,13 @@
     },
     {
       "id": 14,
-      "name":  "فلاپی برد",
+      "name":  "پانتومیم",
       "description": "",
       "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/blob/main/14.png",
       "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/14.html",
       "size": 110,
       "packageName": "ir.iupp.5i60hjo",
-      "type": "web"
+      "type": "web" 
     }
   ]
 }
