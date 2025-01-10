@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>برنامه پانتومیم</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(#efefff, #ffffff, #fffefe);
+            font-family: "IRANSans", Arial, sans-serif;
+            touch-action: none;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 15px;
+            width: 90%;
+            height: 90%;
+        }
+        .button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 15px;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            color: #333;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+        }
+        .button svg {
+            width: 60px;
+            height: 60px;
+        }
+        .job { background: linear-gradient(45deg, #007bff, #4facfe); color: white; }
+        .food { background: linear-gradient(45deg, #28a745, #b6ff00); color: white; }
+        .object { background: linear-gradient(45deg, #dc3545, #ff6a00); color: white; }
+        .proverb { background: linear-gradient(45deg, #ffc107, #ffeb3b); color: black; }
+        .place { background: linear-gradient(45deg, #fd7e14, #ff9800); color: white; }
+        .cinema { background: linear-gradient(45deg, #6f42c1, #9c27b0); color: white; }
+        .sport { background: linear-gradient(45deg, #17a2b8, #00e6e6); color: white; }
+        .misc { background: linear-gradient(45deg, #343a40, #555555); color: white; }
+        .activity {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            font-size: 1.5em;
+            color: #333;
+            animation: fadeIn 1s ease-out forwards;
+        }
+        .activity.active {
+            display: flex;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="button job" onclick="showActivity('jobActivity')">
+            <svg viewBox="0 0 64 64">
+                <rect x="14" y="20" width="36" height="28" rx="6" fill="#fff" stroke="#007bff" stroke-width="3"/>
+                <rect x="24" y="14" width="16" height="6" rx="3" fill="#007bff"/>
+                <rect x="22" y="38" width="6" height="10" rx="2" fill="#007bff"/>
+                <rect x="36" y="38" width="6" height="10" rx="2" fill="#007bff"/>
+            </svg>
+            <span>مشاغل</span>
+        </button>
+
+        <button class="button food" onclick="showActivity('foodActivity')">
+            <svg viewBox="0 0 64 64">
+                <circle cx="32" cy="24" r="14" fill="#b6ff00" stroke="#28a745" stroke-width="4"/>
+                <path d="M20 40 H44 A5 5 0 0 1 39 46 H25 A5 5 0 0 1 20 40 Z" fill="#28a745"/>
+            </svg>
+            <span>غذاها</span>
+        </button>
+
+        <button class="button object" onclick="showActivity('objectActivity')">
+            <svg viewBox="0 0 64 64">
+                <rect x="18" y="18" width="28" height="28" rx="6" fill="#ff6a00" stroke="#dc3545" stroke-width="3"/>
+                <circle cx="32" cy="32" r="10" fill="#dc3545"/>
+            </svg>
+            <span>اشیاء</span>
+        </button>
+
+        <button class="button proverb" onclick="showActivity('proverbActivity')">
+            <svg viewBox="0 0 64 64">
+                <rect x="16" y="20" width="32" height="24" rx="6" fill="#ffeb3b" stroke="#ffc107" stroke-width="3"/>
+                <text x="32" y="38" fill="#ffc107" font-size="20" font-weight="bold" text-anchor="middle">ض</text>
+            </svg>
+            <span>ضرب‌المثل‌ها</span>
+        </button>
+
+        <button class="button place" onclick="showActivity('placeActivity')">
+            <svg viewBox="0 0 64 64">
+                <path d="M32 12 C22 12 14 22 14 32 C14 42 32 60 32 60 C32 60 50 42 50 32 C50 22 42 12 32 12 Z" fill="#fd7e14" stroke="#ff9800" stroke-width="3"/>
+                <circle cx="32" cy="32" r="6" fill="#fff"/>
+            </svg>
+            <span>اماکن</span>
+        </button>
+
+        <button class="button cinema" onclick="showActivity('cinemaActivity')">
+            <svg viewBox="0 0 64 64">
+                <rect x="10" y="20" width="44" height="24" rx="6" fill="#6f42c1" stroke="#9c27b0" stroke-width="3"/>
+                <circle cx="20" cy="32" r="4" fill="#fff"/>
+                <circle cx="32" cy="32" r="4" fill="#fff"/>
+                <circle cx="44" cy="32" r="4" fill="#fff"/>
+            </svg>
+            <span>سینما</span>
+        </button>
+
+        <button class="button sport" onclick="showActivity('sportActivity')">
+            <svg viewBox="0 0 64 64">
+                <circle cx="32" cy="32" r="20" fill="#00e6e6" stroke="#17a2b8" stroke-width="3"/>
+                <line x1="24" y1="24" x2="40" y2="40" stroke="#fff" stroke-width="3"/>
+                <line x1="40" y1="24" x2="24" y2="40" stroke="#fff" stroke-width="3"/>
+            </svg>
+            <span>ورزشی</span>
+        </button>
+
+        <button class="button misc" onclick="showActivity('miscActivity')">
+            <svg viewBox="0 0 64 64">
+                <path d="M32 12 L44 28 H20 Z" fill="#343a40" />
+                <rect x="28" y="28" width="8" height="20" fill="#555555"/>
+            </svg>
+            <span>سایر</span>
+        </button>
+    </div>
+
+    <div id="jobActivity" class="activity job">
+    <h2>مشاغل</h2>
+    <p>در اینجا شما می‌توانید اطلاعات و فعالیت‌های مربوط به مشاغل را ببینید.</p>
+    <button class="back-button" onclick="goBack()">بازگشت</button>
+</div>
+<div id="foodActivity" class="activity food">
+    <h2>غذاها</h2>
+    <p>در اینجا شما می‌توانید اطلاعات و فعالیت‌های مربوط به غذاها را ببینید.</p>
+    <button class="back-button" onclick="goBack()">بازگشت</button>
+</div>
+<div id="objectActivity" class="activity object">
+    <h2>اشیاء</h2>
+    <p>در اینجا شما می‌توانید اطلاعات و فعالیت‌های مربوط به اشیاء را ببینید.</p>
+    <button class="back-button" onclick="goBack()">بازگشت</button>
+</div>
+<div id="proverbActivity" class="activity proverb">
+    <h2>ضرب‌المثل‌ها</h2>
+    <p>در اینجا شما می‌توانید اطلاعات و فعالیت‌های مربوط به ضرب‌المثل‌ها را ببینید.</p>
+    <button class="back-button" onclick="goBack()">بازگشت</button>
+</div>
+<div id="placeActivity" class="activity place">
+    <h2>اماکن</h2>
+    <p>در اینجا شما می‌توانید اطلاعات و فعالیت‌های مربوط به اماکن را ببینید.</p>
+    <button class="back-button" onclick="goBack()">بازگشت</button>
+</div>
+<div id="cinemaActivity" class="activity cinema">
+    <h2>سینما</h2>
+    <p>در اینجا شما می‌توانید اطلاعات و فعالیت‌های مربوط به سینما را ببینید.</p>
+    <button class="back-button" onclick="goBack()">بازگشت</button>
+</div>
+<div id="sportActivity" class="activity sport">
+    <h2>ورزشی</h2>
+    <p>در اینجا شما می‌توانید اطلاعات و فعالیت‌های مربوط به ورزش را ببینید.</p>
+    <button class="back-button" onclick="goBack()">بازگشت</button>
+</div>
+<div id="miscActivity" class="activity misc">
+    <h2>سایر</h2>
+    <p>در اینجا شما می‌توانید اطلاعات و فعالیت‌های مربوط به دسته‌بندی‌های مختلف را ببینید.</p>
+    <button class="back-button" onclick="goBack()">بازگشت</button>
+</div>
+
+    <script>
+        // ایجاد گرادیان تصادفی برای پس‌زمینه بدنه
+        function randomGradient() {
+            const color1 = `rgb(${Math.floor(240 + Math.random() * 15)}, ${Math.floor(240 + Math.random() * 15)}, ${Math.floor(255 - Math.random() * 9)})`;
+            const color2 = `rgb(${Math.floor(250 + Math.random() * 5)}, ${Math.floor(250 + Math.random() * 5)}, ${Math.floor(250 + Math.random() * 5)})`;
+            const color3 = `rgb(${Math.floor(245 + Math.random() * 10)}, ${Math.floor(245 + Math.random() * 10)}, ${Math.floor(255 - Math.random() * 10)})`;
+            document.body.style.background = `linear-gradient(to bottom, ${color1}, ${color2}, ${color3})`;
+        }
+        setInterval(randomGradient, 100);
+
+        //
+        
+
+function startCountdown(activity) {
+    const activityKey = activity.id;
+    const randomPhrase = phrases[activityKey][Math.floor(Math.random() * phrases[activityKey].length)];
+
+    activity.innerHTML = `<h2>${randomPhrase}</h2><p>زمان باقی‌مانده: <span id="timer">30</span> ثانیه</p>`;
+
+    let timeLeft = 30;
+    const timerElement = document.getElementById('timer');
+
+    activeCountdown = setInterval(() => {
+        timeLeft--;
+        timerElement.textContent = timeLeft;
+
+        if (timeLeft <= 0) {    
+            clearInterval(activeCountdown);
+            activeCountdown = null; // ریست کردن تایمر
+            playBeep(); // پخش صدای بوق
+            activity.innerHTML = `<h2>زمان تمام شد!</h2>`;
+        }
+    }, 1000);
+}
+
+// تابع پخش صدای بوق
+let activeCountdown = null; // متغیر برای ذخیره تایمر
+let isActive = false; // نشان می‌دهد که کاربر داخل اکتیویتی است یا خیر
+
+function showActivity(activityId) {
+    // پنهان کردن کانتینر اصلی
+    document.querySelector('.container').classList.add('hidden');
+
+    // غیرفعال کردن همه اکتیویتی‌ها
+    const activities = document.querySelectorAll('.activity');
+    activities.forEach(activity => activity.classList.remove('active'));
+
+    // متوقف کردن تایمر قبلی
+    stopCountdown();
+
+    // فعال کردن اکتیویتی انتخابی
+    const selectedActivity = document.getElementById(activityId);
+    selectedActivity.classList.add('active');
+    isActive = true; // وضعیت اکتیویتی را فعال کنید
+
+    // شروع تایمر برای اکتیویتی انتخابی
+    startCountdown(selectedActivity);
+}
+
+function startCountdown(activity) {
+    const activityKey = activity.id;
+    const randomPhrase = phrases[activityKey][Math.floor(Math.random() * phrases[activityKey].length)];
+
+    activity.innerHTML = `<h2>${randomPhrase}</h2><p>زمان باقی‌مانده: <span id="timer">30</span> ثانیه</p>`;
+
+    let timeLeft = 30;
+    const timerElement = document.getElementById('timer');
+
+    // ایجاد تایمر جدید
+    activeCountdown = setInterval(() => {
+        if (!isActive) {
+            stopCountdown(); // اگر کاربر از اکتیویتی خارج شده باشد، تایمر متوقف شود
+            return;
+        }
+
+        timeLeft--;
+        timerElement.textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+            stopCountdown(); // متوقف کردن تایمر
+            playBeep(); // پخش صدای بوق
+            activity.innerHTML = `<h2>زمان تمام شد!</h2>`;
+            clearInterval(activeCountdown); // توقف تایمر
+        activeCountdown = null;
+        }
+    }, 1000);
+}
+
+function stopCountdown() {
+    if (activeCountdown) {
+        clearInterval(activeCountdown); // توقف تایمر
+        activeCountdown = null;
+    }
+    isActive = false; // کاربر دیگر در اکتیویتی نیست
+}
+
+// تابع پخش صدای بوق
+function playBeep() {
+    const context = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = context.createOscillator();
+    const gainNode = context.createGain();
+
+    oscillator.type = 'square';
+    oscillator.frequency.setValueAtTime(440, context.currentTime); // فرکانس بوق
+    oscillator.connect(gainNode);
+    gainNode.connect(context.destination);
+  
+    oscillator.start();
+    setTimeout(() => {
+        oscillator.stop();
+    }, 666); // مدت زمان بوق
+}
+
+// تابع بازگشت به صفحه اصلی
+function goBack() {
+    // غیرفعال کردن اکتیویتی فعال
+    const activeActivity = document.querySelector('.activity.active');
+    if (activeActivity) {
+        activeActivity.classList.remove('active');
+        activeActivity.classList.add('hidden');
+    }
+
+    // متوقف کردن تایمر
+    stopCountdown();
+
+    // نمایش کانتینر اصلی
+    const container = document.querySelector('.container');
+    container.classList.remove('hidden');
+}
+        // شروع شمارش معکوس برای اکتیویتی انتخابی
+        function startCountdown(activity) {
+            const phrases = {
+    jobActivity: [
+        "پزشک", "مهندس", "نقاش", "نویسنده", "معمار", "دندانپزشک", "راننده", "آشپز", 
+        "بازیگر", "خواننده", "کشاورز", "خلبان", "مدیر", "معلم", "پرستار", "مترجم", 
+        "فروشنده", "پلیس", "محافظ", "وکیل", "حسابدار", "کارگر", "آتش‌نشان", "زیست‌شناس", 
+        "برنامه‌نویس", "دیپلمات", "ورزشکار", "روزنامه‌نگار", "مدرس دانشگاه", "تکنسین", 
+        "بازاریاب", "مهندس عمران", "تکنولوژیست پزشکی", "مشاور", "هنرمند", "مجسمه‌ساز",
+        "نویسنده کودک", "مهندس برق", "مهندس مکانیک", "طراح صنعتی", "مهندس نرم‌افزار", 
+        "تحلیلگر داده", "طراح بازی", "طراح گرافیک", "ویراستار", "فیلمساز", "عکاس", 
+        "برقکار", "قصاب", "جوشکار", "مکانیک خودرو", "معلم ورزش", "مدیر فروش", "پزشک اطفال",
+        "مهندس هوافضا", "خلبان جنگنده", "مربی حیوانات", "مهندس معدن", "بازپرس", "پژوهشگر"
+    ],
+    foodActivity: [
+    "پیتزا", "کباب", "برنج", "ماهی", "مرغ", "همبرگر", "سالاد", "باقلوا", 
+    "کتلت", "سوپ", "خورش قورمه‌سبزی", "شله‌زرد", "آش", "ماکارونی", "خورش فسنجان",
+    "شیرینی", "پاستا", "تاکو", "ساندویچ", "املت", "کوفته", "دلمه", "ته‌چین", 
+    "کیک", "بستنی", "آبگوشت", "خورش بادمجان", "چلوکباب", "حلیم", "کله‌پاچه",
+    "لازانیا", "کوفته‌تبریزی", "جوجه‌کباب", "قیمه", "خورش کرفس", "خورش آلو", 
+    "قیمه‌نثار", "پلو مرغ", "لوبیاپلو", "سبزی‌پلو با ماهی", "زرشک‌پلو", "شیشلیک", 
+    "فسنجان", "چلوگوشت", "خورش قیمه‌بادمجان", "خورش قیمه‌سیب‌زمینی", "میرزا قاسمی",
+    "کشک بادمجان", "شامی", "خوراک لوبیا", "خوراک عدسی", "کباب‌ترش", "کباب‌کوبیده",
+    "خورش انار", "قلیه‌ماهی", "خورش بامیه", "خورش گوجه‌سبز", "حلوا", "فرنی", 
+    "سوپ جو", "سوپ قارچ", "سوپ سبزیجات", "سوپ شیر", "سوپ گوجه", "آش رشته", 
+    "آش دوغ", "آش ماست", "پلو عدس", "پلو ماش", "چلوماهیچه", "رولت گوشت", 
+    "چلوخورش قورمه‌سبزی", "املت قارچ", "املت سبزیجات", "خوراک بادمجان", "خوراک سیب‌زمینی",
+    "شیرینی نخودچی", "شیرینی تر", "شیرینی دانمارکی", "کلوچه", "بیسکوییت خانگی",
+    "آب پرتقال", "شربت زعفران", "آب انار", "شربت بیدمشک", "دوغ", "چای ایرانی",
+    "کیک اسفنجی", "کیک شکلاتی", "کیک هویج", "دسر پاناکوتا", "دسر زعفرانی", 
+    "ژله میوه‌ای", "بستنی سنتی", "بستنی زعفرانی", "نوشیدنی خنک", "اسموتی موز", 
+    "اسموتی توت‌فرنگی", "سالاد الویه", "سالاد فصل", "سالاد شیرازی", "سالاد کلم", 
+    "سالاد ماکارونی", "بورک", "پیراشکی", "کلم‌پلو", "عدسی", "حلیم بادمجان", 
+    "سوپ عدس", "سوپ سبزی‌جات گرمسیری", "لوبیا‌چیتی", "آبگوشت بزباش", "قیمه‌پلو", 
+    "خوراک مرغ با سبزیجات", "سوپ نودل", "املت ایتالیایی", "پیتزای سبزیجات", 
+    "پیتزای قارچ و پنیر", "پیتزای گوشت و مرغ", "پیتزای تنوری", "پیتزای فلفل‌دلمه", 
+    "پیتزای مارگاریتا", "پیتزای مخصوص", "پیتزای مکزیکی", "پیتزای دریایی", 
+    "چیکن استراگانف", "بیف‌استراگانف", "رست‌بیف", "همبرگر خانگی", "ساندویچ کالباس", 
+    "ساندویچ مرغ", "ساندویچ گوشت", "ساندویچ سبزیجات", "پنکیک", "کرپ", "وافل",
+    "تیرامیسو", "پای سیب", "پای لیمو", "پای توت‌فرنگی", "رولت خامه‌ای", "رولت شکلاتی",
+    "دونات", "مافین", "براونی", "کوکی", "نان خامه‌ای", "نان شیرمال", "نان بربری", 
+    "نان سنگک", "نان لواش", "نان فانتزی", "نان تست", "نان باگت", "نان همبرگری"
+],
+    objectActivity: [
+        "کتاب", "عینک", "تلفن", "کلید", "چمدان", "چراغ‌قوه", "لپ‌تاپ", "کوله‌پشتی",
+        "تلویزیون", "پنکه", "دوربین", "ماشین", "یخچال", "کفش", "ساعت", "لباس", 
+        "رادیو", "میز", "صندلی", "قاشق", "چنگال", "چاقو", "ظرف", "لیوان", "دفترچه", 
+        "خودکار", "مداد", "کیف پول", "آینه", "پرده", "فرش", "کلاه", "چراغ"
+    ],
+    proverbActivity: [
+    "از دل برود هرآنکه از دیده برفت", "دیوار موش داره، موش گوش داره", 
+    "قطره قطره جمع گردد وانگهی دریا شود", "چاه کن همیشه ته چاه است", 
+    "کار نیکو کردن از پر کردن است", "هر که بامش بیش، برفش بیشتر", 
+    "پول چرک کف دسته", "باد آورده را باد می‌برد", "دوستی با مردم دانا نکوست",
+    "نه سیخ بسوزه، نه کباب", "مار گزیده از ریسمان سیاه و سفید می‌ترسد",
+    "آب که از سر گذشت، چه یک وجب، چه صد وجب", "هر که خربزه می‌خورد، پای لرزش هم می‌نشینه",
+    "جوجه را آخر پاییز می‌شمارند", "یک دست صدا ندارد", "دیگی که برای من نمی‌جوشد، سر سگ در آن بجوشد",
+    "هر که طاووس خواهد، جور هندوستان کشد", "هر سخن جایی و هر نکته مکانی دارد", 
+    "خربزه شیرین، زنبور هم دورش می‌گرده", "گر صبر کنی ز غوره حلوا سازی", 
+    "در خانه اگر کس است، یک حرف بس است", "به مرگ می‌گیرد که به تب راضی شوی", 
+    "آفتاب از پشت ابر نمی‌ماند", "کبوتر با کبوتر، باز با باز", "هر کسی را بهر کاری ساخته‌اند", 
+    "هر که تخم بدی بکارد، باد درو می‌کند", "تا گوساله گاو شود، دل صاحبش آب شود", 
+    "چیزی که عوض داره، گله نداره", "سنگ بزرگ نشانه نزدنه", "هر که بامش بیش، برفش بیشتر",
+    "مرغ همسایه غاز است", "نازک آرای تن ساق گلی", "هر گردی گردو نیست", 
+    "از این ستون به آن ستون فرجه", "از این گوش می‌گیره، از آن گوش در می‌کنه", 
+    "هر جا که عشق باشد، غم آنجاست", "آب در کوزه و ما تشنه‌لبان می‌گردیم", 
+    "دود از کنده بلند می‌شود", "هر چه می‌خواهد دل تنگت بگو", "ماهی را هر وقت از آب بگیری، تازه است",
+    "حرف راست را از بچه بشنو", "نه خوردیم نه بردیم، گندم ری خوردیم", "گل پشت و رو ندارد", 
+    "با حلوا حلوا گفتن، دهان شیرین نمی‌شود", "باد کاشتی، طوفان درو می‌کنی", 
+    "همه چیز را همه‌کس دانند", "سالی که نکوست، از بهارش پیداست", 
+    "تا نباشد چیزکی، مردم نگویند چیزها", "بار کج به منزل نمی‌رسد", 
+    "حرف مرد یکی است", "همه چیز که گل و بلبل نیست", 
+    "آسمان به زمین نمی‌آید", "از زیر سنگ هم که شده، پیدایش می‌کنم", 
+    "هر که درخت بکارَد، سایه‌اش را نیز می‌بیند", "وقتی عقاب نباشد، کلاغ فرمانروایی می‌کند", 
+    "حرف حساب جواب نداره", "مرغ یک پا دارد", "این نیز بگذرد", 
+    "اگر کوه به کوه نرسد، آدم به آدم می‌رسد", "زبان سرخ، سر سبز می‌دهد بر باد", 
+    "با یک گل بهار نمی‌شود", "آب رفته به جوی باز نمی‌گردد", 
+    "هر که باد بکارد، طوفان درو می‌کند", "هر چه کنی به خود کنی، گر همه نیک و بد کنی",
+    "شتر دیدی، ندیدی", "کار امروز را به فردا مینداز", 
+    "خدا گر ز حکمت ببندد دری، ز رحمت گشاید در دیگری", "گر نگهدار من آن است که من می‌دانم، شیشه را در بغل سنگ نگه می‌دارد",
+    "هر کس طلا دارد، عیارش را خودش می‌سازد", "هر کس که بالاتر نشیند، استخوانش سخت‌تر می‌شکند", 
+    "ماه پشت ابر نمی‌ماند", "هر که را خواب آید، در خانه خود خوابد", 
+    "مرگ خوب است، ولی برای همسایه", "هر که را وعده دادند، به روزش برساندند",
+    "چشم دشمن کور", "آب که از سر گذشت، چه یک وجب، چه صد وجب", "سرکه نقد به از حلوای نسیه",
+    "هر که خربزه می‌خورد، پای لرزش هم می‌نشیند", "آب حوض همان است، ولی ماهی دیگر است",
+    "هر که خرش بیش، کارش کمتر", "هر که خر دارد، شلوارش زبر است", 
+    "بی‌مایه فطیر است", "آب پاکی روی دستش ریخت", 
+    "هر چه دانه‌ات، همان کشت می‌کنی", "هر که می‌خواهد برود، دلش هم با خودش ببرد",
+    "از کوزه همان تراود که در اوست", "دل خوش سیری چند؟", 
+    "چشم کور دل بینا", "نابرده رنج، گنج میسر نمی‌شود",
+    "همیشه حق با مشتری است", "خانه از پای‌بست ویران است",
+    "هر که بترسد، به او گزند رسد", "هر که طمع کرد، حق ندارد گلایه کند", 
+    "ز گهواره تا گور دانش بجوی", "هر که زر دارد، زور دارد", 
+    "آفتاب همیشه پشت ابر نمی‌ماند", "هر که به ما سنگ زند، ما به او گل می‌زنیم", 
+    "هر کسی دروغ گوید، رسوای خلق خواهد شد"
+],
+    placeActivity: [
+        "پارک", "موزه", "سینما", "رستوران", "مدرسه", "دانشگاه", "بیمارستان", "کتابخانه", 
+        "هتل", "فرودگاه", "ایستگاه قطار", "باشگاه ورزشی", "استخر", "مرکز خرید", "بانک", 
+        "پاسگاه", "کارخانه", "نمایشگاه", "تئاتر", "مسجد", "کلیسا", "فروشگاه", "بازار"
+    ],
+    cinemaActivity: [
+    "فیلم", "هنرپیشه", "کارگردان", "فیلمنامه", "پروژکتور", "پوستر", "دوربین فیلمبرداری", 
+    "تدوین", "فیلم کوتاه", "فیلم مستند", "فیلم بلند", "ژانر", "سکانس", "دیالوگ", 
+    "بازیگر مرد", "بازیگر زن", "فیلم‌نامه‌نویس", "تیتراژ", "موسیقی متن", "اکران", 
+    "گیشه", "صندلی سینما", "نقد فیلم", "جایزه اسکار", "فیلم خارجی", "فیلم ایرانی",
+    "پدرخوانده", "رستگاری در شاوشنک", "شوالیه تاریکی", "فارست گامپ", 
+    "نجات سرباز رایان", "داستان عامه‌پسند", "ارباب حلقه‌ها: بازگشت پادشاه", 
+    "اینترستلار", "تلقین", "سکوت بره‌ها", "گلادیاتور", "آواتار", 
+    "تایتانیک", "جنگ ستارگان", "هری پاتر", "دختر گمشده", "جوکر", 
+    "راشومون", "هفت سامورایی", "پرستیژ", "انگل", "ممنتو", 
+    "12 مرد خشمگین", "روانی", "شهر اشباح", "سینما پارادیزو", 
+    "1917", "دنیای ژوراسیک", "فهرست شیندلر", "خرس طلایی", 
+    "روزی روزگاری در هالیوود", "روزی روزگاری در آمریکا", 
+    "همشهری کین", "بیل را بکش", "شبکه اجتماعی", 
+    "لاک‌پشت‌های نینجا", "ماشین‌گوریلا", "آرگو", "دشمن مردم", 
+    "باشگاه مشت‌زنی", "جزیره شاتر", "درباره الی", "ابد و یک روز", 
+    "جدایی نادر از سیمین", "کازابلانکا", "بلید رانر", "ورطه", 
+    "ترمیناتور", "ماجراهای تن‌تن", "روح", "بنجامین باتن", 
+    "شجاع‌دل", "سریع و خشن", "گودزیلا", "کاپیتان آمریکا", 
+    "اسپایدرمن", "آیرون من", "انتقام‌جویان", "ددپول", 
+    "روز استقلال", "ارباب مگس‌ها", "ماشین‌ها", "پاندای کونگ‌فوکار", 
+    "شرک", "مینیون‌ها", "یخ‌زده", "داستان اسباب‌بازی", 
+    "کابوس قبل از کریسمس", "بالا", "در جستجوی نمو", 
+    "وال-ای", "کوکو", "خانواده آدامز", "چرخ‌دنده و جادو", 
+    "آوای موسیقی", "داستان وست‌ساید", "مولن روژ", 
+    "بوهمین راپسودی", "سوینی تاد", "بینوایان", "پیانیست", 
+    "ماه تلخ", "بیگ‌لبوفسکی", "بر باد رفته", 
+    "باران‌ساز", "هوگو", "سگ آندالوزی", "اتوبوسی به نام هوس", 
+    "سه‌گانه مادرخوانده", "سه‌گانه ارباب حلقه‌ها", "سه‌گانه شوالیه تاریکی", 
+    "بیل را بکش: جلد اول", "بیل را بکش: جلد دوم", "هزارتوی پن", 
+    "قوی سیاه", "زندگی زیباست", "محبوب میلیون‌ها", "هوانورد", 
+    "هوش مصنوعی", "بازی‌های گرسنگی", "جنگ دنیاها", "دکتر استرنج‌لاو", 
+    "طلوع یک امپراتوری", "مد مکس: جاده خشم", "دنیای خیالی", 
+    "یاغی یک", "هتل بزرگ بوداپست", "مهتاب", 
+    "دزد دوچرخه", "پدر", "پیرمردها وطن ندارند", 
+    "راننده تاکسی", "گزارش اقلیت", "آتش‌نشانان قهرمان", "کتاب سبز",
+    "رمبو", "دراکولا", "فرانکشتاین", "هالک", 
+    "ساعت‌ها", "سرخ‌پوست", "پایان بازی", "میان ستارگان"
+],
+    sportActivity: [
+        "فوتبال", "بسکتبال", "والیبال", "تنیس", "دوچرخه‌سواری", "شنا", "دو و میدانی", 
+        "بوکس", "کاراته", "کشتی", "شطرنج", "پینگ‌پنگ", "بیسبال", "گلف", "هاکی", 
+        "اسکی", "اسنوبورد", "ژیمناستیک", "بدنسازی", "بسکتبال خیابانی", "کوهنوردی", 
+        "دوچرخه‌کوهستان", "قایقرانی", "فریزبی", "پاتیناژ", "ورزش الکترونیکی"
+    ],
+    miscActivity: [
+        "موسیقی", "رقص", "نقاشی", "شعر", "عکاسی", "مجسمه‌سازی", "فیلم‌برداری", 
+        "طراحی لباس", "طراحی صنعتی", "برنامه‌نویسی", "پادکست‌سازی", "کتاب‌خوانی", 
+        "سفرنامه‌نویسی", "داستان‌نویسی", "نمایشنامه‌نویسی", "مدیتیشن", "باغبانی", 
+        "گل‌کاری", "حیوان‌داری", "جمع‌آوری تمبر", "کاردستی", "پخت‌وپز", "شمع‌سازی"
+    ]
+};
+
+            const activityKey = activity.id;
+            const randomPhrase = phrases[activityKey][Math.floor(Math.random() * phrases[activityKey].length)];
+
+            activity.innerHTML = `<h2>${randomPhrase}</h2><p>زمان باقی‌مانده: <span id="timer">30</span> ثانیه</p>`;
+
+            let timeLeft = 30;
+            const timerElement = document.getElementById('timer');
+
+            const countdown = setInterval(() => {
+                timeLeft--;
+                timerElement.textContent = timeLeft;
+
+                if (timeLeft <= 0) {    
+                    clearInterval(countdown);
+                    playBeep();
+                    activity.innerHTML = `<h2>زمان تمام شد!</h2>`;
+                }
+            }, 1000);
+        }
+
+        // پخش صدای بوق بعد از اتمام زمان
+        function playBeepIfInActivity(isInActivity) {
+    if (isInActivity) {
+        const context = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = context.createOscillator();
+        const gainNode = context.createGain();
+
+        oscillator.type = 'square';
+        oscillator.frequency.setValueAtTime(440, context.currentTime); // فرکانس بوق
+        oscillator.connect(gainNode);
+        gainNode.connect(context.destination);
+
+        oscillator.start();
+        setTimeout(() => {
+            oscillator.stop();
+        }, 500); // مدت زمان بوق
+    }
+}
+
+
+    </script>
+</body>
+</html>
