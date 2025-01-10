@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flappy Bird</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Disable scroll */
+            touch-action: none; /* Disable touch scroll */
+            width: 100%;
+            height: 100%;
+            background-color: #70c5ce;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<script>
+    // Get the canvas element and its context
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Set the canvas dimensions to full window size
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Variables
+    let gap = 85;
+    let pipeWidth = 50;
+    let pipeHeight = 150; // Initial pipe height
+    let constant = pipeHeight + gap;
+    let bX = 10;
+    let bY = 150;
+    let gravity = 2.3;
+    let score = 0;
+
+    // Base64 place holders for audio files
+    const flyAudioBase64 = 'data:audio/mp3;base64,...'; // Replace with actual base64 string of fly audio
+    const scoreAudioBase64 = 'data:audio/mp3;base64,...'; // Replace with actual base64 string of score audio
+
+    const fly = new Audio(flyAudioBase64);
+    const scor = new Audio(scoreAudioBase64);
+
+    // On key down
+    document.addEventListener('keydown', moveUp);
+    document.addEventListener('touchstart', moveUp);
+
+    function moveUp() {
+        bY -= 25;
+        fly.play();
+    }
+
+    // Pipe coordinates
+    let pipe = [];
+
+    pipe[0] = {
+        x : canvas.width,
+        y : 0
+    };
+
+    // Draw images
+    function draw() {
+        // Draw background
+        ctx.fillStyle = "#70c5ce";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        for (let i = 0; i < pipe.length; i++) {
+            // Draw pipes
+            ctx.fillStyle = "#228B22";
+            ctx.fillRect(pipe[i].x, pipe[i].y, pipeWidth, pipeHeight);
+            ctx.fillRect(pipe[i].x, pipe[i].y + constant, pipeWidth, canvas.height - (pipe[i].y + constant));
+
+            pipe[i].x--;
+
+            if (pipe[i].x == 125) {
+                pipe.push({
+                    x : canvas.width,
+                    y : Math.floor(Math.random() * pipeHeight) - pipeHeight
+                });
+            }
+
+            // Detect collision
+            if (bX + 20 >= pipe[i].x && bX <= pipe[i].x + pipeWidth
+                && (bY <= pipe[i].y + pipeHeight || bY + 20 >= pipe[i].y + constant)
+                || bY + 20 >= canvas.height - 20) {
+                location.reload(); // Reload the page
+            }
+
+            if (pipe[i].x == 5) {
+                score++;
+                scor.play();
+            }
+        }
+
+        // Draw foreground
+        ctx.fillStyle = "#654321";
+        ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
+
+        // Draw bird
+        ctx.fillStyle = "#FF0000";
+        ctx.beginPath();
+        ctx.arc(bX, bY, 10, 0, Math.PI * 2, false);
+        ctx.fill();
+
+        bY += gravity;
+
+        ctx.fillStyle = '#000';
+        ctx.font = '20px Verdana';
+        ctx.fillText('Score : ' + score, 10, canvas.height - 30);
+
+        requestAnimationFrame(draw);
+    }
+
+    draw();
+</script>
+</body>
+</html>
