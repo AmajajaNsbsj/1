@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>بازی جدول ضرب</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Disable scroll */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            font-family: 'Vazir', Arial, sans-serif;
+            text-align: center;
+            transition: background 1s;
+        }
+        .container {
+            width: 90%;
+            max-width: 500px;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            transition: background-color 1s, color 1s;
+            background-color: #fff;
+            animation: fadeIn 1s;
+        }
+        .question {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            animation: fadeIn 1s;
+        }
+        .answers {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .btn {
+            flex: 1 1 45%;
+            margin: 10px;
+            padding: 20px 30px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            transition: background-color 0.3s, color 0.3s, transform 0.3s;
+            background-color: #4CAF50;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .btn:hover {
+            transform: scale(1.05);
+            background-color: #45a049;
+        }
+        .result {
+            font-size: 1.5rem;
+            margin-top: 20px;
+            animation: fadeIn 1s;
+        }
+        .difficulty {
+            margin-top: 20px;
+        }
+        .difficulty button {
+            margin: 0 5px;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+            background-color: #2196F3;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .difficulty button:hover {
+            background-color: #1976D2;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="container">
+        <div class="question" id="question">سوال</div>
+        <div class="answers">
+            <button class="btn" id="answer1">جواب ۱</button>
+            <button class="btn" id="answer2">جواب ۲</button>
+            <button class="btn" id="answer3">جواب ۳</button>
+            <button class="btn" id="answer4">جواب ۴</button>
+        </div>
+        <div class="result" id="result"></div>
+        <div class="difficulty">
+            <button onclick="setDifficulty('easy')">راحت</button>
+            <button onclick="setDifficulty('medium')">متوسط</button>
+            <button onclick="setDifficulty('hard')">سخت</button>
+        </div>
+    </div>
+
+    <script>
+        const container = document.getElementById('container');
+        const questionElement = document.getElementById('question');
+        const answerButtons = document.querySelectorAll('.btn');
+        const resultElement = document.getElementById('result');
+
+        const correctSound = new Audio('data:audio/mp3;base64,...'); // Replace with actual base64 string
+
+        let correctAnswer;
+        let score = 0;
+        let attempts = 0;
+        let difficulty = 'easy';
+
+        const styles = [
+            { backgroundColor: '#ffebcc', color: '#000' },
+            { backgroundColor: '#ccffeb', color: '#000' },
+            { backgroundColor: '#ebccff', color: '#000' },
+            { backgroundColor: '#fff4cc', color: '#000' },
+            { backgroundColor: '#ccf2ff', color: '#000' },
+            { backgroundColor: '#f2ffcc', color: '#000' },
+            { backgroundColor: '#e6ccff', color: '#000' }
+        ];
+
+        function changeStyle() {
+            const randomStyle = styles[Math.floor(Math.random() * styles.length)];
+            container.style.backgroundColor = randomStyle.backgroundColor;
+            container.style.color = randomStyle.color;
+        }
+
+        function generateQuestion() {
+            let maxFactor;
+            switch (difficulty) {
+                case 'easy': maxFactor = 9; break;
+                case 'medium': maxFactor = 12; break;
+                case 'hard': maxFactor = 15; break;
+            }
+            const num1 = Math.floor(Math.random() * maxFactor) + 1;
+            const num2 = Math.floor(Math.random() * maxFactor) + 1;
+            correctAnswer = num1 * num2;
+            questionElement.textContent = `چقدر ${num1} ضربدر ${num2} می‌شود؟`;
+            generateAnswers(correctAnswer, maxFactor * maxFactor);
+        }
+
+        function generateAnswers(correct, max) {
+            const answers = [correct];
+            while (answers.length < 4) {
+                const randomAnswer = Math.floor(Math.random() * max) + 1;
+                if (!answers.includes(randomAnswer)) {
+                    answers.push(randomAnswer);
+                }
+            }
+            answers.sort(() => Math.random() - 0.5);
+            answerButtons.forEach((button, index) => {
+                button.textContent = answers[index];
+                button.onclick = () => checkAnswer(answers[index]);
+            });
+        }
+
+        function checkAnswer(answer) {
+            attempts++;
+            if (answer === correctAnswer) {
+                score++;
+                correctSound.play();
+                generateQuestion();
+                changeStyle();
+            } else {
+                resultElement.textContent = `پایان بازی! شما ${score} درست گفتید و ${attempts - score} اشتباه.`;
+                score = 0;
+                attempts = 0;
+                setTimeout(() => {
+                    resultElement.textContent = '';
+                    generateQuestion();
+                    changeStyle();
+                }, 3000);
+            }
+        }
+
+        function setDifficulty(level) {
+            difficulty = level;
+            generateQuestion();
+        }
+
+        setDifficulty(difficulty);
+        changeStyle();
+    </script>
+</body>
+</html>
