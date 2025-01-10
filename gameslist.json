@@ -90,5 +90,15 @@
       "packageName": "ir.upp.5i60ho",
       "type": "web"
     }
+    {
+      "id": 10,
+      "name": "صلوات شمار",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/blob/main/AddText_01-10-01.36.40.jpg",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/9.html",
+      "size": 110,
+      "packageName": "ir.iupp.5i60ho",
+      "type": "web"
+    }
   ]
 }
