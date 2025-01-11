@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Timer App</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            background: linear-gradient(45deg, #1c1f26, #121212);
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            color: white;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .timer-container {
+            text-align: center;
+            background-color: rgba(28, 31, 38, 0.9);
+            padding: 2vh 2vw;
+            border-radius: 1vh;
+            box-shadow: 0 0 2vh rgba(0, 0, 0, 0.5);
+            animation: fadeIn 1s ease-in-out;
+            width: 90vw;
+            max-width: 400px;
+            margin-bottom: 2vh;
+            border: 0.2vh solid #BB86FC;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-2vh); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #time {
+            font-size: 6vh;
+            margin-bottom: 2vh;
+            color: #BB86FC;
+            
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        input {
+            width: 20vw;
+            max-width: 70px;
+            padding: 0.5vh;
+            margin: 1vh;
+            font-size: 2vh;
+            text-align: center;
+            border: none;
+            border-radius: 1vh;
+            background-color: #333;
+            color: white;
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input:focus {
+            background-color: #BB86FC;
+            color: black;
+            transform: scale(1.1);
+            box-shadow: 0 0 0.5vh #BB86FC;
+        }
+
+        .custom-keyboard {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 21vh;
+            background-color: rgba(28, 31, 38, 0.9);
+            padding: -13vh -11vw;
+            border-radius: 1vh;
+            box-shadow: 0 0 2vh rgba(0, 0, 0, 0.5);
+            animation: fadeIn 1s ease-in-out;
+            width: 90vw;
+            max-width: 313px;
+            border: 0.2vh solid #BB86FC;
+        }
+
+        .custom-keyboard button {
+            padding: 1vh 2vw;
+            margin: 0.5vh;
+            font-size: 2.5vh;
+            cursor: pointer;
+            border: none;
+            border-radius: 1vh;
+            background-color: #BB86FC;
+            color: #121212;
+            transition: background-color 0.3s ease, transform 0.2s, box-shadow 0.3s ease;
+            animation: bounce 0.5s;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        @keyframes bounce {
+            from { transform: scale(0.8); }
+            to { transform: scale(1); }
+        }
+
+        .custom-keyboard button:hover {
+            background-color: #3700B3;
+            transform: scale(1.1);
+            box-shadow: 0 0 0.5vh #3700B3;
+        }
+
+        .custom-keyboard button:active {
+            transform: scale(0.9);
+        }
+
+        .custom-keyboard button.disabled {
+            background-color: #555;
+            color: #333;
+            cursor: not-allowed;
+            transform: none;
+            animation: none;
+        }
+
+        .custom-keyboard button.disabled:hover {
+            background-color: #555;
+            transform: none;
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 0.5vh #BB86FC; }
+            50% { box-shadow: 0 0 2vh #BB86FC; }
+            100% { box-shadow: 0 0 0.5vh #BB86FC; }
+        }
+
+        .custom-keyboard button:focus {
+            animation: glow 1s infinite;
+        }
+
+        @media (max-width: 600px) {
+            .timer-container, .custom-keyboard {
+                max-width: 90vw;
+            }
+
+            .custom-keyboard button {
+                padding: 2vh 4vw;
+                font-size: 4vh;
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-1vh); }
+            50% { transform: translateX(1vh); }
+            75% { transform: translateX(-1vh); }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes flash {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .flash {
+            animation: flash 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="timer-container">
+        <h1 id="time">00:00:00</h1>
+        <input type="number" id="hours" placeholder="Hours" min="0" max="23" readonly>
+        <input type="number" id="minutes" placeholder="Minutes" min="0" max="59" readonly>
+        <input type="number" id="seconds" placeholder="Seconds" min="0" max="59" readonly>
+    </div>
+    <div class="custom-keyboard">
+        <button onclick="inputNumber(1)">1</button>
+        <button onclick="inputNumber(2)">2</button>
+        <button onclick="inputNumber(3)">3</button>
+        <button onclick="inputNumber(4)">4</button>
+        <button onclick="inputNumber(5)">5</button>
+        <button onclick="inputNumber(6)">6</button>
+        <button onclick="inputNumber(7)">7</button>
+        <button onclick="inputNumber(8)">8</button>
+        <button onclick="inputNumber(9)">9</button>
+        <button onclick="inputNumber(0)">0</button>
+        <button onclick="setAndStartTimer()">Set</button>
+    </div>
+    <script>
+        let timer;
+        let time = 0;
+        let isRunning = false;
+        let activeInput = null;
+
+        function formatTime(seconds) {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateDisplay() {
+            document.getElementById('time').textContent = formatTime(time);
+        }
+
+        function setAndStartTimer() {
+            const hours = parseInt(document.getElementById('hours').value) || 0;
+            const minutes = parseInt(document.getElementById('minutes').value) || 0;
+            const seconds = parseInt(document.getElementById('seconds').value) || 0;
+            time = hours * 3600 + minutes * 60 + seconds;
+            updateDisplay();
+            startTimer();
+        }
+
+        function startTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                timer = setInterval(() => {
+                    if (time > 0) {
+                        time--;
+                        updateDisplay();
+                    } else {
+                        clearInterval(timer);
+                        isRunning = false;
+                        timeUp();
+                    }
+                }, 1000);
+            }
+        }
+
+        function stopTimer() {
+            if (isRunning) {
+                isRunning = false;
+                clearInterval(timer);
+            }
+        }
+
+        function resetTimer() {
+            stopTimer();
+            time = 0;
+            updateDisplay();
+        }
+
+        function timeUp() {
+            document.body.style.background = 'linear-gradient(to right, #ff0000, #d50000)';
+            playBeep();
+            setTimeout(function() {
+                document.body.style.background = '';
+            }, 500);
+        }
+
+        function playBeep() {
+            document.querySelectorAll('input').forEach(input => input.value = ''); // خالی کردن همه input ها
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(1000, audioCtx.currentTime); // 1000 Hz
+            gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+
+            oscillator.start();
+            setTimeout(() => {
+                oscillator.stop();
+                audioCtx.close();
+            }, 500);
+        }
+
+        function inputNumber(num) {
+            if (activeInput) {
+                activeInput.value = (activeInput.value + num).slice(-2);
+                checkLimits();
+            }
+        }
+
+        function clearInput() {
+            if (activeInput) {
+                activeInput.value = '';
+            }
+        }
+
+        function checkLimits() {
+            const hours = parseInt(document.getElementById('hours').value) || 0;
+            const minutes = parseInt(document.getElementById('minutes').value) || 0;
+            const seconds = parseInt(document.getElementById('seconds').value) || 0;
+
+            document.querySelectorAll('.custom-keyboard button').forEach(button => {
+                const value = parseInt(button.textContent);
+                if (activeInput === document.getElementById('hours') && hours * 10 + value > 23) {
+                    button.disabled = true;
+                    button.classList.add('disabled');
+                } else if (activeInput === document.getElementById('minutes') && minutes * 10 + value > 59) {
+                    button.disabled = true;
+                    button.classList.add('disabled');
+                } else if (activeInput === document.getElementById('seconds') && seconds * 10 + value > 59) {
+                    button.disabled = true;
+                    button.classList.add('disabled');
+                } else {
+                    button.disabled = false;
+                    button.classList.remove('disabled');
+                }
+            });
+        }
+
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', () => {
+                if (activeInput === input) {
+                    clearInput();
+                }
+                activeInput = input;
+                checkLimits();
+            });
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                setAndStartTimer();
+            } else if (event.key === ' ') {
+                stopTimer();
+            } else if (event.key === 'r') {
+                resetTimer();
+            }
+        });
+
+        document.body.addEventListener('touchmove', function(event) {
+            event.preventDefault();
+        }, { passive: false });
+
+        document.addEventListener('gesturestart', function(event) {
+            event.preventDefault();
+        });
+
+        updateDisplay();
+    </script>
+</body>
+</html>
