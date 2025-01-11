@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بازی حدس عدد</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            touch-action: none;
+            user-select: none;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            animation: bounceIn 1s ease;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            animation: fadeInUp 1s ease;
+        }
+
+        #guessInput {
+            padding: 15px;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 300px;
+            transition: border-color 0.3s ease;
+        }
+
+        #guessInput:focus {
+            border-color: #6200EE;
+            outline: none;
+        }
+
+        #submitGuess {
+            padding: 10px 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            background: #6200EE;
+            color: white;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        #submitGuess:hover {
+            background: #3700B3;
+            transform: scale(1.05);
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 1.5em;
+            color: #333;
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes bounceIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-1vh); }
+            50% { transform: translateX(1vh); }
+            75% { transform: translateX(-1vh); }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes flash {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .flash {
+            animation: flash 1s infinite;
+        }
+
+        @keyframes confetti {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100vh); }
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            animation: confetti 3s linear infinite;
+        }
+
+        .keyboard {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+            animation: fadeIn 1s ease;
+        }
+
+        .keyboard button {
+            width: 60px;
+            height: 60px;
+            margin: 5px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            background: #6200EE;
+            color: white;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .keyboard button:hover {
+            background: #3700B3;
+            transform: scale(1.05);
+        }
+
+        .keyboard button:active {
+            background: #03DAC6;
+        }
+
+        .style1 {
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            color: #2D2D2D;
+        }
+
+        .style2 {
+            background: linear-gradient(135deg, #a18cd1, #fbc2eb);
+            color: #fff;
+        }
+
+        .style3 {
+            background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
+            color: #333;
+        }
+
+        .style4 {
+            background: linear-gradient(135deg, #f8f9fa, #cfd9df);
+            color: #6c757d;
+        }
+
+        .style5 {
+            background: linear-gradient(135deg, #6200EE, #03DAC6);
+            color: #fff;
+        }
+
+        .style6 {
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            color: #fff;
+        }
+
+        .style7 {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: #fff;
+        }
+
+        .style8 {
+            background: linear-gradient(135deg, #f953c6, #b91d73);
+            color: #fff;
+        }
+
+        @keyframes glow {
+            0% { text-shadow: 0 0 10px gold, 0 0 20px gold, 0 0 30px gold, 0 0 40px gold, 0 0 50px gold, 0 0 60px gold, 0 0 70px gold; }
+            100% { text-shadow: 0 0 20px gold, 0 0 30px gold, 0 0 40px gold, 0 0 50px gold, 0 0 60px gold, 0 0 70px gold, 0 0 80px gold; }
+        }
+
+        .glow {
+            animation: glow 1s infinite;
+        }
+
+        .win {
+            background: linear-gradient(135deg, #a8e063, #56ab2f);
+            color: #000;
+        }
+
+        .win h1, .win p, .win #result {
+            color: #000;
+        }
+    </style>
+</head>
+<body class="style1">
+    <div class="container">
+        <h1>بازی حدس عدد</h1>
+        <p>عدد بین 1 تا 100 را حدس بزنید!</p>
+        <input type="text" id="guessInput" placeholder="عدد را وارد کنید" autocomplete="off" onfocus="this.blur()">
+        <button id="submitGuess">حدس بزنید</button>
+        <div id="result"></div>
+        <div class="keyboard">
+            <button onclick="inputKey(1)">1</button>
+            <button onclick="inputKey(2)">2</button>
+            <button onclick="inputKey(3)">3</button>
+            <button onclick="inputKey(4)">4</button>
+            <button onclick="inputKey(5)">5</button>
+            <button onclick="inputKey(6)">6</button>
+            <button onclick="inputKey(7)">7</button>
+            <button onclick="inputKey(8)">8</button>
+            <button onclick="inputKey(9)">9</button>
+            <button onclick="inputKey(0)">0</button>
+            <button onclick="clearInput()">C</button>
+        </div>
+    </div>
+
+    <script>
+        const randomNumber = Math.floor(Math.random() * 100) + 1;
+        const submitGuess = document.getElementById('submitGuess');
+        const guessInput = document.getElementById('guessInput');
+        const resultDiv = document.getElementById('result');
+        const styles = ['style1', 'style2', 'style3', 'style4', 'style5', 'style6', 'style7', 'style8'];
+        let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let oscillator = audioContext.createOscillator();
+        let gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        oscillator.type = 'sine';
+        oscillator.start();
+
+        function changeStyle() {
+            const currentStyle = document.body.className;
+            let newStyle = styles[Math.floor(Math.random() * styles.length)];
+            while (newStyle === currentStyle) {
+                newStyle = styles[Math.floor(Math.random() * styles.length)];
+            }
+            document.body.className = newStyle;
+        }
+
+        function inputKey(num) {
+            guessInput.value += num;
+        }
+
+        function clearInput() {
+            guessInput.value = '';
+        }
+
+        function updateFrequency() {
+            const userGuess = Number(guessInput.value);
+            const proximity = Math.abs(userGuess - randomNumber);
+            const frequency = 200 + (1000 / (proximity + 1));
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+        }
+
+        function stopSound() {
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        }
+
+        function showConfetti() {
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+
+        function showWinningAnimation() {
+            document.body.classList.add('win');
+            resultDiv.textContent = `تبریک! شما برنده شدید! عدد ${randomNumber} بود.`;
+            resultDiv.style.fontSize = '2em';
+            resultDiv.classList.add('glow');
+        }
+
+        submitGuess.addEventListener('click', () => {
+            const userGuess = Number(guessInput.value);
+            if (userGuess < 1 || userGuess > 100) {
+                resultDiv.textContent = 'لطفاً عددی بین 1 تا 100 وارد کنید.';
+                resultDiv.classList.add('shake');
+                setTimeout(() => resultDiv.classList.remove('shake'), 500);
+                stopSound();
+            } else if (userGuess === randomNumber) {
+                stopSound();
+                showConfetti();
+                showWinningAnimation();
+            } else {
+                resultDiv.textContent = userGuess < randomNumber ? 'عدد بزرگتر است. دوباره تلاش کنید!' : 'عدد کوچکتر است. دوباره تلاش کنید!';
+                resultDiv.classList.add('shake');
+                setTimeout(() => resultDiv.classList.remove('shake'), 500);
+                updateFrequency();
+                guessInput.value = '';
+            }
+        });
+
+        window.addEventListener('load', changeStyle);
+
+        window.addEventListener('blur', stopSound);
+        window.addEventListener('focus', () => {
+            const userGuess = Number(guessInput.value);
+            if (!isNaN(userGuess) && userGuess >= 1 && userGuess <= 100) {
+                updateFrequency();
+            }
+        });
+
+        document.body.addEventListener('touchmove', function(event) {
+            event.preventDefault();
+        }, { passive: false });
+
+        document.addEventListener('gesturestart', function(event) {
+            event.preventDefault();
+        });
+    </script>
+</body>
+</html>
