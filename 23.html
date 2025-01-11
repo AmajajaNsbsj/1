@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Roboto', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background-color: #1E1E1E; /* تغییر به رنگ تاریک برای پس‌زمینه */
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    color: #F7DF1E; /* رنگ زرد برای متن که مشابه جاوااسکریپت است */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.scroll-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    flex-wrap: nowrap;
+    scroll-snap-type: x mandatory;
+    width: 100%;
+    height: 100%;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 20px;
+}
+
+.page {
+    flex-shrink: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 30px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    scroll-snap-align: center;
+    position: relative;
+    transform: scale(0.98);
+    opacity: 0;
+    animation: fadeIn 0.5s ease-out forwards;
+    padding: 20px;
+    background-color: #2D2D2D; /* رنگ تیره برای پس‌زمینه هر صفحه */
+}
+
+.page-text {
+    text-align: center;
+    font-size: calc(16px + 1.5vw);
+    line-height: 1.8;
+    max-width: 80%;
+    max-height: 80%;
+    overflow-y: auto;
+    opacity: 0;
+    animation: fadeInUp 0.5s 0.25s forwards;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.highlight {
+    font-size: calc(18px + 1.5vw);
+    font-weight: 600;
+    color: #00A1F1; /* رنگ آبی برای هایلایت‌های کد جاوااسکریپت */
+    cursor: pointer;
+    transition: transform 0.1s ease, color 0.1s ease;
+}
+
+.highlight:hover {
+    color: #FF5722; /* تغییر رنگ هنگام هاور به نارنجی */
+    transform: scale(1.05);
+}
+
+.page-footer {
+    position: absolute;
+    bottom: 20px;
+    font-size: 18px;
+    font-weight: 500;
+    width: 100%;
+    text-align: center;
+    letter-spacing: 2px;
+    transform: scale(0.6);
+    animation: fadeInFooter 0.5s 0.25s forwards;
+}
+
+.style-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 40px;
+    height: 40px;
+    background: #00A1F1; /* دکمه‌ها با رنگ آبی */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.style-btn:hover {
+    background: #FF5722; /* دکمه‌ها هنگام هاور به نارنجی تبدیل می‌شوند */
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.style-btn .icon {
+    width: 20px;
+    height: 20px;
+}
+
+.copy-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: #03DAC6; /* دکمه کپی با رنگ خاص */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.copy-btn:hover {
+    background: #018786;
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.copy-btn .icon {
+    width: 20px;
+    height: 20px;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInFooter {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.container::-webkit-scrollbar {
+    display: none;
+}
+
+/* Base Colors for JavaScript-inspired UI */
+:root {
+    --primary-bg: #1E1E1E; /* پس‌زمینه تاریک */
+    --primary-text: #F7DF1E; /* متن زرد مشابه جاوااسکریپت */
+    --highlight-color: #00A1F1; /* رنگ آبی برای هایلایت‌ها */
+    --btn-bg: #00A1F1; /* رنگ دکمه‌ها */
+    --btn-bg-hover: #FF5722; /* رنگ دکمه‌ها هنگام هاور */
+    --card-bg: #2D2D2D; /* رنگ پس‌زمینه کارت‌ها */
+    --border-radius: 30px;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+.style1 {
+    background: var(--primary-bg);
+    color: var(--primary-text);
+}
+
+.style1 .highlight {
+    color: var(--highlight-color);
+}
+
+.style1 .style-btn {
+    background: var(--btn-bg);
+}
+
+.style1 .style-btn:hover {
+    background: var(--btn-bg-hover);
+}
+
+.style2 {
+    background: #000;
+    color: #fff;
+}
+
+.style2 .highlight {
+    color: #03DAC6;
+}
+
+.style2 .style-btn {
+    background: #BB86FC;
+}
+
+.style2 .style-btn:hover {
+    background: #3700B3;
+}
+
+/* Style3: Elegant Light */
+.style3 {
+    background: #f9f9f9;
+    color: #333;
+}
+
+.style3 .highlight {
+    color: #03DAC6;
+}
+
+.style3 .style-btn {
+    background: #03DAC6;
+}
+
+.style3 .style-btn:hover {
+    background: #018786;
+}
+
+/* Style4: Soft Pastel */
+.style4 {
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+.style4 .highlight {
+    color: #BB86FC;
+}
+
+.style4 .style-btn {
+    background: #03DAC6;
+}
+
+.style4 .style-btn:hover {
+    background: #018786;
+}
+
+/* Style5: Elegant Gradient */
+.style5 {
+    background: linear-gradient(135deg, #6200EE, #03DAC6);
+    color: #fff;
+}
+
+.style5 .highlight {
+    color: #ffcc00;
+}
+
+.style5 .style-btn {
+    background: #03DAC6;
+}
+
+.style5 .style-btn:hover {
+    background: #018786;
+}
+</style>
+    
+</head>
+<body onfocus="window.scrollTo(0, 0); setTimeout(() => window.scrollTo(0, 0), 100);">
+
+<div class="scroll-container">
+    <div class="container" id="container">
+    </div>
+</div>
+
+<script>
+    const pages = [
+    "﷼ گویای دنیای دیجیتال ﷼\nجاوااسکریپت، زبانی است که از آن به‌عنوان یکی از ستون‌های اصلی وب یاد می‌شود. اگر وب یک خانه باشد، جاوااسکریپت در واقع همان کارگر ماهری است که ساختمان را با دقت و پیچیدگی می‌سازد.",
+  
+    "﷼ قدرت تعامل با مرورگر ﷼\nجاوااسکریپت به مرورگرها این امکان را می‌دهد که با کاربر ارتباط برقرار کنند. صفحات وب با استفاده از این زبان، به صفحات پویا تبدیل می‌شوند که می‌توانند تعاملات پیچیده و دینامیک ایجاد کنند.",
+  
+    "﷼ کدگذاری فراتر از مرورگر ﷼\nهرچند جاوااسکریپت بیشتر در مرورگرها شناخته شده است، اما این زبان امروز با Node.js به سرورهای قدرتمندی هم دست پیدا کرده است. جاوااسکریپت نه تنها در سمت کاربر، بلکه در سمت سرور نیز خود را ثابت کرده است.",
+  
+    "﷼ جاوااسکریپت و دنیای واقعی ﷼\nبا استفاده از جاوااسکریپت، شما می‌توانید هر نوع اپلیکیشن آنلاین بسازید. از بازی‌های وب گرفته تا سیستم‌های پیچیده پردازش داده. این زبان برای هر چیزی مناسب است که در دنیای دیجیتال می‌بینید.",
+  
+    "﷼ دنیای متغیرها و داده‌ها ﷼\nجاوااسکریپت به شما امکان می‌دهد داده‌ها را به اشکال مختلفی ذخیره کنید، از متغیرهای ساده گرفته تا آرایه‌ها و شیء‌ها. این زبان انعطاف‌پذیر برای هر نوع نیاز داده‌ای مناسب است.",
+  
+    "﷼ برنامه‌نویسی غیرهمزمان ﷼\nجاوااسکریپت با معرفی Promise و async/await، مفهوم برنامه‌نویسی غیرهمزمان را به بهترین شکل معرفی کرد. این ویژگی به توسعه‌دهندگان این امکان را می‌دهد که عملیات پیچیده را به‌صورت موازی و بدون وقفه انجام دهند.",
+  
+    "﷼ از اسکریپت تا فریم‌ورک ﷼\nجاوااسکریپت یک زبان ساده است، اما وقتی شما وارد دنیای فریم‌ورک‌های آن می‌شوید، داستان کاملاً متفاوت است. React، Vue و Angular به شما کمک می‌کنند که وب‌سایت‌هایی فوق‌العاده پویا بسازید.",
+  
+    "﷼ ایجاد تجربه‌های کاربری پویا ﷼\nجاوااسکریپت به شما این امکان را می‌دهد که تجربه‌های کاربری زیبا و شگفت‌انگیز ایجاد کنید. هر کلیک، هر حرکت موس و هر تعامل با صفحه می‌تواند منجر به تغییرات شگرفی در ظاهر صفحه شود.",
+  
+    "﷼ متغیرهای محلی و جهانی ﷼\nدر جاوااسکریپت، شما می‌توانید از متغیرهای محلی (local) و جهانی (global) استفاده کنید. این به شما اجازه می‌دهد تا به‌طور دقیق‌تری کد خود را مدیریت کنید و دسترسی به داده‌ها را کنترل نمایید.",
+  
+    "﷼ حلقه‌های بی‌پایان ﷼\nحلقه‌های جاوااسکریپت مانند while، for و forEach از ابزارهای کلیدی هستند که به شما این امکان را می‌دهند که داده‌ها را به‌طور مؤثر پردازش کنید و تصمیمات پیچیده بگیرید.",
+  
+    "﷼ همه چیز یک شی است ﷼\nدر جاوااسکریپت، بیشتر چیزها یک شیء هستند. حتی توابع و کلاس‌ها هم می‌توانند به‌عنوان اشیاء رفتار کنند. این یکی از ویژگی‌های جالب این زبان است که آن را برای برنامه‌نویسان جذاب می‌کند.",
+  
+    "﷼ توابع و بازگشتی‌ها ﷼\nتوابع در جاوااسکریپت کلید اصلی بهینه‌سازی و کاهش کدهای تکراری هستند. علاوه بر این، شما می‌توانید از بازگشتی‌ها برای حل مشکلات پیچیده استفاده کنید.",
+  
+    "﷼ شی‌گرایی و پروتوتایپ‌ها ﷼\nجاوااسکریپت از یک مدل شی‌گرایی متفاوت استفاده می‌کند. به‌جای کلاس‌ها، در جاوااسکریپت از پروتوتایپ‌ها برای ایجاد ویژگی‌ها و متدها استفاده می‌شود که به‌طور کامل متفاوت از زبان‌های دیگر است.",
+  
+    "﷼ عملگرهای منطقی ﷼\nجاوااسکریپت دارای عملگرهای منطقی مانند AND (&&) و OR (||) است که به شما این امکان را می‌دهد که شرایط پیچیده‌ای را بررسی کنید و برنامه‌هایی با عملکرد بالا بنویسید.",
+  
+    "﷼ مدیریت خطاها ﷼\nجاوااسکریپت برای مدیریت خطاها ابزارهایی مانند try/catch ارائه می‌دهد که به شما کمک می‌کند تا کد خود را امن‌تر کنید و از بروز خطاهای غیرمنتظره جلوگیری کنید.",
+  
+    "﷼ DOM و تعامل با صفحات ﷼\nDocument Object Model (DOM) یکی از مفاهیم اصلی جاوااسکریپت است که به شما این امکان را می‌دهد تا با ساختار HTML صفحات وب خود تعامل داشته باشید و تغییرات داینامیک ایجاد کنید.",
+  
+    "﷼ از طریق جاوااسکریپت و شبکه‌ها ﷼\nجاوااسکریپت ابزارهایی مانند Fetch API و XMLHttpRequest را برای برقراری ارتباط با سرور ارائه می‌دهد. این ابزارها به شما این امکان را می‌دهند که درخواست‌های HTTP را ارسال کنید و اطلاعات را از سرورها دریافت کنید.",
+  
+    "﷼ اجزای مدرن جاوااسکریپت ﷼\nدر دنیای مدرن جاوااسکریپت، مفهوم ماژول‌ها و ES6 به‌طور گسترده مورد استفاده قرار می‌گیرد. شما می‌توانید کدهای خود را به‌راحتی به قسمت‌های مختلف تقسیم کنید و مدیریت بهتری داشته باشید.",
+  
+    "﷼ آرایه‌ها و دستکاری داده‌ها ﷼\nجاوااسکریپت دارای توابع بسیار زیادی برای دستکاری آرایه‌ها است. از متدهایی مانند map، filter و reduce می‌توانید برای پردازش داده‌ها استفاده کنید.",
+  
+    "﷼ کلاس‌ها و وراثت ﷼\nبا استفاده از ویژگی کلاس‌ها و وراثت در جاوااسکریپت، شما می‌توانید رفتار و ویژگی‌های اجزای مختلف برنامه خود را به‌راحتی به اشتراک بگذارید و از کدهای تکراری جلوگیری کنید.",
+  
+    "﷼ امنیت و اجرای کد در مرورگر ﷼\nدر جاوااسکریپت، امنیت یکی از مسائل مهم است. برای جلوگیری از حملات XSS و CSRF، این زبان روش‌هایی را برای مدیریت امن داده‌ها و ورودی‌های کاربر فراهم کرده است.",
+  
+    "﷼ شبکه‌های اجتماعی و API‌ها ﷼\nجاوااسکریپت به شما این امکان را می‌دهد که از APIهای مختلف برای اتصال به شبکه‌های اجتماعی مانند Facebook، Twitter و Google استفاده کنید و اطلاعات مفیدی را دریافت کنید.",
+  
+    "﷼ کار با فرمت‌های JSON و XML ﷼\nجاوااسکریپت به‌طور مستقیم از فرمت‌های JSON و XML پشتیبانی می‌کند که به شما این امکان را می‌دهد که داده‌ها را به‌راحتی پردازش کرده و از آن‌ها در برنامه‌های خود استفاده کنید.",
+  
+    "﷼ ایجاد انیمیشن‌های جذاب ﷼\nجاوااسکریپت به‌راحتی به شما این امکان را می‌دهد که انیمیشن‌های جذاب و پویا در صفحات وب خود ایجاد کنید و تجربه کاربری را ارتقا دهید.",
+  
+    "﷼ توسعه وب و جاوااسکریپت ﷼\nجاوااسکریپت با استفاده از فریم‌ورک‌ها و کتابخانه‌های متنوع، می‌تواند برای توسعه وب‌سایت‌های پیچیده و کاربردی استفاده شود. این زبان به شما این امکان را می‌دهد که پروژه‌های بزرگ و کوچک را با استفاده از ابزارهای حرفه‌ای بسازید.",
+  
+    "﷼ گستره‌های مختلف استفاده ﷼\nجاوااسکریپت در هر نوع پروژه‌ای کاربرد دارد. چه در توسعه بازی‌های آنلاین، چه در ساخت اپلیکیشن‌های موبایل، و حتی در برنامه‌های دسکتاپ، جاوااسکریپت همیشه در دسترس است.",
+  
+    "﷼ تعاملات شبکه‌های بی‌سیم ﷼\nجاوااسکریپت با استفاده از WebSockets این امکان را فراهم می‌کند که داده‌ها به‌صورت زنده و بلادرنگ بین مرورگرها و سرورها منتقل شوند.",
+  
+    "﷼ نوآوری‌های جدید ﷼\nهر روز نوآوری‌های جدیدی در دنیای جاوااسکریپت به چشم می‌خورد. از افزونه‌ها و ابزارهای جدید گرفته تا فریم‌ورک‌ها و کتابخانه‌های مختلف، این زبان همیشه در حال پیشرفت است.",
+  
+    "﷼ موتورهای جاوااسکریپت ﷼\nجاوااسکریپت به موتورهایی مانند V8 و SpiderMonkey وابسته است که برای ترجمه کدهای جاوااسکریپت به کدهای ماشین طراحی شده‌اند.",
+  
+    "﷼ نحوۀ نوشتن کدهای بهینه ﷼\nبرای نوشتن کدهای سریع و بهینه در جاوااسکریپت، باید از تکنیک‌هایی مانند debounce، throttle و async/await استفاده کنید.",
+  
+    "﷼ تجربه کاربری جذاب ﷼\nجاوااسکریپت با به‌کارگیری اصول طراحی مدرن، به شما کمک می‌کند تا تجربه کاربری را به شکلی چشمگیر و منحصر به فرد بسازید.",
+  
+    "﷼ آموزش و یادگیری سریع ﷼\nجاوااسکریپت به‌عنوان یکی از زبان‌های محبوب دنیا، به راحتی در دسترس است و منابع بسیاری برای یادگیری آن وجود دارد. چه مبتدی باشید و چه حرفه‌ای، همیشه منابع جدیدی برای یادگیری پیدا خواهید کرد."
+];
+
+    const styles = ['style1', 'style2', 'style3', 'style4', 'style5'];
+    let currentStyle = localStorage.getItem('currentStyle') || 'style1';
+    let currentPage = parseInt(localStorage.getItem('currentPage')) || 0;
+
+    function processText(text) {
+        return text.replace(/﷼(.*?)﷼/g, '<span class="highlight">$1</span>');
+    }
+
+    const container = document.getElementById('container');
+
+    function renderPages(start) {
+        container.innerHTML = '';
+        for (let i = start - 30; i <= start + 30; i++) {
+            if (i >= 0 && i < pages.length) {
+                const pageDiv = document.createElement('div');
+                pageDiv.classList.add('page', currentStyle);
+                const pageContent = `
+                    <button class="style-btn" onclick="changeStyle()">
+                        <img src="https://img.icons8.com/ios-glyphs/30/ffffff/paint-palette.png" class="icon" />
+                    </button>
+                    <button class="copy-btn" onclick="copyText(${i})">
+                        <img src="https://img.icons8.com/ios-glyphs/30/ffffff/copy.png" class="icon" />
+                    </button>
+                    <div class="page-text">
+                        ${processText(pages[i])}
+                    </div>
+                    <div class="page-footer">${i + 1}</div>
+                `;
+                pageDiv.innerHTML = pageContent;
+                container.appendChild(pageDiv);
+            }
+        }
+    }
+
+    function changeStyle() {
+        currentStyle = styles[(styles.indexOf(currentStyle) + 1) % styles.length];
+        localStorage.setItem('currentStyle', currentStyle);
+        const pageDivs = container.querySelectorAll('.page');
+        pageDivs.forEach(pageDiv => pageDiv.classList.remove(...styles));
+        pageDivs.forEach(pageDiv => pageDiv.classList.add(currentStyle));
+    }
+
+    function copyText(index) {
+        const textToCopy = pages[index].replace(/﷼/g, '');
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            // متن کپی شد
+        });
+    }
+
+    window.addEventListener('load', () => {
+        renderPages(currentPage);
+        setTimeout(() => {
+            container.scrollLeft = currentPage * window.innerWidth;
+        }, 0); 
+    });
+
+    container.addEventListener('scroll', () => {
+        const newPage = Math.round(container.scrollLeft / window.innerWidth);
+        if (newPage !== currentPage) {
+            currentPage = newPage;
+            localStorage.setItem('currentPage', currentPage);
+        }
+    });
+</script>
+
+</body>
+</html>

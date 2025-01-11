@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>برنامه با UI خلاقانه برای Kotlin</title>
+<style>
+    * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Roboto', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background-color: #ffffff; /* رنگ پس‌زمینه سفید */
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    color: #333333; /* رنگ متن تیره */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.scroll-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    flex-wrap: nowrap;
+    scroll-snap-type: x mandatory;
+    width: 100%;
+    height: 100%;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 20px;
+}
+
+.page {
+    flex-shrink: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 30px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    scroll-snap-align: center;
+    position: relative;
+    transform: scale(0.98);
+    opacity: 0;
+    animation: fadeIn 0.5s ease-out forwards;
+    padding: 20px;
+    background-color: #ffffff; /* رنگ پس‌زمینه صفحه */
+}
+
+.page-text {
+    text-align: center;
+    font-size: calc(16px + 1.5vw);
+    line-height: 1.8;
+    max-width: 80%;
+    max-height: 80%;
+    overflow-y: auto;
+    opacity: 0;
+    animation: fadeInUp 0.5s 0.25s forwards;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.highlight {
+    font-size: calc(18px + 1.5vw);
+    font-weight: 600;
+    color: #2965F1; /* رنگ برجسته برای CSS */
+    cursor: pointer;
+    transition: transform 0.1s ease, color 0.1s ease;
+}
+
+.highlight:hover {
+    color: #00618A; /* رنگ هاور برای MySQL */
+    transform: scale(1.05);
+}
+
+.page-footer {
+    position: absolute;
+    bottom: 20px;
+    font-size: 18px;
+    font-weight: 500;
+    width: 100%;
+    text-align: center;
+    letter-spacing: 2px;
+    transform: scale(0.6);
+    animation: fadeInFooter 0.5s 0.25s forwards;
+}
+
+.style-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 40px;
+    height: 40px;
+    background: #8892BF; /* رنگ دکمه PHP */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.style-btn:hover {
+    background: #00618A; /* رنگ هاور دکمه برای MySQL */
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.style-btn .icon {
+    width: 20px;
+    height: 20px;
+}
+
+.copy-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: #03DAC6; /* رنگ دکمه کپی */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.copy-btn:hover {
+    background: #018786; /* رنگ هاور دکمه کپی */
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.copy-btn .icon {
+    width: 20px;
+    height: 20px;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInFooter {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.container::-webkit-scrollbar {
+    display: none;
+}
+
+/* Base Colors for PHP, MySQL, CSS inspired UI */
+:root {
+    --primary-bg: #ffffff; /* پس‌زمینه سفید */
+    --primary-text: #333333; /* رنگ متن تیره */
+    --highlight-color: #2965F1; /* رنگ برجسته (CSS blue) */
+    --btn-bg: #8892BF; /* رنگ دکمه (PHP blue) */
+    --btn-bg-hover: #00618A; /* رنگ هاور دکمه (MySQL blue) */
+    --card-bg: #F0F0F0; /* پس‌زمینه کارت‌ها */
+    --border-radius: 30px;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+.style1 {
+    background: var(--primary-bg);
+    color: var(--primary-text);
+}
+
+.style1 .highlight {
+    color: var(--highlight-color);
+}
+
+.style1 .style-btn {
+    background: var(--btn-bg);
+}
+
+.style1 .style-btn:hover {
+    background: var(--btn-bg-hover);
+}
+
+.style2 {
+    background: #000;
+    color: #fff;
+}
+
+.style2 .highlight {
+    color: #03DAC6;
+}
+
+.style2 .style-btn {
+    background: #BB86FC;
+}
+
+.style2 .style-btn:hover {
+    background: #3700B3;
+}
+
+/* Style3: Elegant Light */
+.style3 {
+    background: #f9f9f9;
+    color: #333;
+}
+
+.style3 .highlight {
+    color: #03DAC6;
+}
+
+.style3 .style-btn {
+    background: #03DAC6;
+}
+
+.style3 .style-btn:hover {
+    background: #018786;
+}
+
+/* Style4: Soft Pastel */
+.style4 {
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+.style4 .highlight {
+    color: #BB86FC;
+}
+
+.style4 .style-btn {
+    background: #03DAC6;
+}
+
+.style4 .style-btn:hover {
+    background: #018786;
+}
+
+/* Style5: Elegant Gradient */
+.style5 {
+    background: linear-gradient(135deg, #8892BF, #03DAC6); /* تغییر به آبی PHP */
+    color: #fff;
+}
+
+.style5 .highlight {
+    color: #ffcc00;
+}
+
+.style5 .style-btn {
+    background: #03DAC6;
+}
+
+.style5 .style-btn:hover {
+    background: #018786;
+} </style>
+</head>
+<body onfocus="window.scrollTo(0, 0); setTimeout(() => window.scrollTo(0, 0), 100);">
+
+<div class="scroll-container">
+    <div class="container" id="container">
+    </div>
+</div>
+
+<script>
+    const pages = [
+    "﷼ دنیای پی‌اچ‌پی ﷼\nPHP، زبانی است که به‌عنوان روح حیات برای سرورهای وب شناخته می‌شود. وقتی صحبت از قدرت دنیای وب است، PHP همچون جادوگری است که پرده‌های سرور را به‌طور شگفت‌انگیز و دینامیک به‌هم می‌زند.",
+  
+    "﷼ قدرت در پویایی وب ﷼\nPHP با توانایی تعامل عمیق با دیتابیس‌ها، صفحات وب را به یک تجربه زنده و پویا تبدیل می‌کند. شما قادر خواهید بود تا داده‌ها را به‌طور یکپارچه مدیریت کرده و صفحات دینامیک بسازید.",
+  
+    "﷼ فراتر از صفحات استاتیک ﷼\nدر دنیای پی‌اچ‌پی، صفحات وب دیگر محدود به استاتیک نیستند. این زبان از طریق پردازش‌های پیچیده سرور، می‌تواند صفحات وب را به تعاملات زنده و متغیر تبدیل کند.",
+  
+    "﷼ PHP و جهان پایگاه داده‌ها ﷼\nبا PHP می‌توانید از قدرت بی‌نظیر پایگاه داده‌های MySQL برای ساخت وب‌سایت‌های تعاملی و داینامیک استفاده کنید. PHP همچون پلی است که شما را به دنیای بزرگ داده‌ها می‌رساند.",
+  
+    "﷼ کار با فرم‌ها و ورودی‌ها ﷼\nدر PHP، پردازش فرم‌ها و ورودی‌ها تبدیل به یک هنر می‌شود. از ورود داده‌های کاربر تا پردازش آن‌ها در سرور، همه‌چیز به‌دقت و به‌صورت حرفه‌ای انجام می‌شود.",
+  
+    "﷼ امنیت در دنیای PHP ﷼\nPHP به شما این امکان را می‌دهد که به‌طور مؤثر از حملات امنیتی جلوگیری کنید. از رمزنگاری داده‌ها گرفته تا مقابله با حملات SQL Injection، امنیت در PHP بخشی جدایی‌ناپذیر از این زبان است.",
+  
+    "﷼ تجربه برنامه‌نویسی شی‌گرا ﷼\nPHP به‌طور پیشرفته از ویژگی شی‌گرایی (OOP) پشتیبانی می‌کند. این ویژگی به شما این امکان را می‌دهد که کدهای خود را به‌صورت ساختاریافته و سازمان‌یافته مدیریت کنید.",
+  
+    "﷼ مدیریت خطاها و استثناها ﷼\nPHP با ارائه ابزارهایی مانند try/catch، به شما کمک می‌کند که خطاها را در کد خود به‌طور مؤثر مدیریت کنید و از وقفه‌های غیرمنتظره جلوگیری کنید.",
+  
+    "﷼ تعامل با سرورها و API‌ها ﷼\nPHP به‌راحتی با استفاده از CURL یا ابزارهای مشابه، به شما این امکان را می‌دهد که با دیگر سرورها و API‌ها ارتباط برقرار کرده و داده‌ها را از منابع خارجی دریافت کنید.",
+  
+    "﷼ ارسال و دریافت ایمیل‌ها ﷼\nPHP به‌عنوان ابزاری قدرتمند در ارسال ایمیل‌ها شناخته می‌شود. از طریق توابع PHP، شما قادر خواهید بود ایمیل‌هایی با محتوای داینامیک و ویژگی‌های مختلف ارسال کنید.",
+  
+    "﷼ ایجاد صفحات وب پویا با PHP ﷼\nPHP نه‌تنها برای ایجاد صفحات استاتیک، بلکه برای خلق صفحات وب پویا و متغیر که براساس ورودی کاربر تغییر می‌کنند، نیز استفاده می‌شود.",
+  
+    "﷼ انعطاف‌پذیری در طراحی قالب‌ها ﷼\nبا استفاده از PHP، می‌توانید سیستم‌های قالب‌بندی قدرتمند ایجاد کنید که به شما این امکان را می‌دهد طراحی سایت‌ها را بدون نیاز به تغییرات مستقیم در کدها انجام دهید.",
+  
+    "﷼ مدیریت نشست‌ها و کوکی‌ها ﷼\nPHP با فراهم کردن ابزارهایی برای مدیریت نشست‌ها و کوکی‌ها، به شما این امکان را می‌دهد که وضعیت کاربر را در سرور ذخیره کنید و تجربه‌ای شخصی‌سازی‌شده بسازید.",
+  
+    "﷼ ساخت سیستم‌های مدیریت محتوا ﷼\nPHP ابزاری قدرتمند برای ایجاد سیستم‌های مدیریت محتوا (CMS) است که به‌طور گسترده در وب‌سایت‌های مختلف استفاده می‌شود.",
+  
+    "﷼ ارتباطات در شبکه و توزیع داده‌ها ﷼\nPHP به شما این امکان را می‌دهد که از طریق پروتکل‌های مختلف شبکه‌ای، داده‌ها را به‌طور مؤثر و سریع بین سیستم‌های مختلف ارسال و دریافت کنید.",
+  
+    "﷼ برنامه‌نویسی با فریم‌ورک‌های PHP ﷼\nبا استفاده از فریم‌ورک‌هایی مانند Laravel و Symfony، می‌توانید برنامه‌های وب پیچیده و کاربرپسند بسازید. فریم‌ورک‌ها سرعت توسعه را افزایش داده و به شما ابزارهای قدرتمندی می‌دهند.",
+  
+    "﷼ پیاده‌سازی MVC در PHP ﷼\nPHP با پیاده‌سازی معماری MVC، به شما این امکان را می‌دهد که کدهای خود را از نظر ساختاری و منطقی جدا کنید و فرآیند توسعه را آسان‌تر کنید.",
+  
+    "﷼ استفاده از Composer برای مدیریت بسته‌ها ﷼\nComposer ابزاری است که به شما کمک می‌کند تا کتابخانه‌ها و وابستگی‌های پروژه‌تان را به‌طور مؤثر مدیریت کنید و کدهای PHP خود را بهینه کنید.",
+  
+    "﷼ کار با فرم‌های AJAX در PHP ﷼\nPHP می‌تواند به‌راحتی با تکنیک‌های AJAX ترکیب شود تا اطلاعات را بدون نیاز به بارگذاری مجدد صفحه دریافت و ارسال کنید و تجربه کاربری روان و تعاملی بسازید.",
+  
+    "﷼ طراحی و توسعه وب‌سایت‌های مدرن ﷼\nPHP در کنار HTML و CSS به شما این امکان را می‌دهد که وب‌سایت‌هایی مدرن و جذاب بسازید که با آخرین تکنولوژی‌های وب سازگار باشد."
+];
+
+    const styles = ['style1', 'style2', 'style3', 'style4', 'style5'];
+    let currentStyle = localStorage.getItem('currentStyle') || 'style1';
+    let currentPage = parseInt(localStorage.getItem('currentPage')) || 0;
+
+    function processText(text) {
+        return text.replace(/﷼(.*?)﷼/g, '<span class="highlight">$1</span>');
+    }
+
+    const container = document.getElementById('container');
+
+    function renderPages(start) {
+        container.innerHTML = '';
+        for (let i = start - 30; i <= start + 30; i++) {
+            if (i >= 0 && i < pages.length) {
+                const pageDiv = document.createElement('div');
+                pageDiv.classList.add('page', currentStyle);
+                const pageContent = `
+                    <button class="style-btn" onclick="changeStyle()">
+                        <img src="https://img.icons8.com/ios-glyphs/30/ffffff/paint-palette.png" class="icon" />
+                    </button>
+                    <button class="copy-btn" onclick="copyText(${i})">
+                        <img src="https://img.icons8.com/ios-glyphs/30/ffffff/copy.png" class="icon" />
+                    </button>
+                    <div class="page-text">
+                        ${processText(pages[i])}
+                    </div>
+                    <div class="page-footer">${i + 1}</div>
+                `;
+                pageDiv.innerHTML = pageContent;
+                container.appendChild(pageDiv);
+            }
+        }
+    }
+
+    function changeStyle() {
+        currentStyle = styles[(styles.indexOf(currentStyle) + 1) % styles.length];
+        localStorage.setItem('currentStyle', currentStyle);
+        const pageDivs = container.querySelectorAll('.page');
+        pageDivs.forEach(pageDiv => pageDiv.classList.remove(...styles));
+        pageDivs.forEach(pageDiv => pageDiv.classList.add(currentStyle));
+    }
+
+    function copyText(index) {
+        const textToCopy = pages[index].replace(/﷼/g, '');
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            // متن کپی شد
+        });
+    }
+
+    window.addEventListener('load', () => {
+        renderPages(currentPage);
+        setTimeout(() => {
+            container.scrollLeft = currentPage * window.innerWidth;
+        }, 0); 
+    });
+
+    container.addEventListener('scroll', () => {
+        const newPage = Math.round(container.scrollLeft / window.innerWidth);
+        if (newPage !== currentPage) {
+            currentPage = newPage;
+            localStorage.setItem('currentPage', currentPage);
+        }
+    });
+</script>
+
+</body>
+</html>
