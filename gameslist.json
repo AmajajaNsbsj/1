@@ -23,8 +23,8 @@
     {
       "id": 3,
       "name": "ماشین ساده",
-      "description": "",
-      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/AddText_01-09-04.29.21.png",
+      "description": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/AddText_01-09-10.45.44.jpg",
+      "iconUrl": "",
       "downloadUrl": "https://raw.githubusercontent.com/TechGeekUnited/Offline-HTML-Games/refs/heads/main/Games/mini_car_game.html",
       "size": 110,
       "packageName": "ir.upp.i690o",
@@ -54,7 +54,7 @@
       "id": 6,
       "name": "2048",
       "description": "",
-      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/AddText_01-09-10.45.44.jpg",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/AddText_01-09-04.29.21.png",
       "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/5.html",
       "size": 110,
       "packageName": "ir.tupp.5i60o",
@@ -77,7 +77,7 @@
       "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/AddText_01-09-11.53.05.png",
       "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/7.html",
       "size": 110,
-      "packageName": "ir.upp.5i60ho",
+      "packageName": "ir.u0ho",
       "type": "web"
     },
     {
