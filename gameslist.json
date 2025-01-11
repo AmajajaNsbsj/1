@@ -228,5 +228,26 @@
       "packageName": "ip.p",
       "type": "web" 
     }
+            ,
+    {
+      "id": 21,
+      "name":  "جاوا اسکریپت",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/23.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/23.html",
+      "size": 110,
+      "packageName": "ir.iu.p",
+      "type": "web" 
+    }        ,
+    {
+      "id": 21,
+      "name":  "php",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/24.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/24.html",
+      "size": 110,
+      "packageName": "ir.iup.p",
+      "type": "web" 
+    }
   ]
 }
