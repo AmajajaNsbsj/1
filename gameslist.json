@@ -207,5 +207,16 @@
       "packageName": "ir.iupp.o60hjo",
       "type": "web" 
     }
+        ,
+    {
+      "id": 21,
+      "name":  "فال حافظ",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/21.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/21.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }
   ]
 }
