@@ -259,6 +259,56 @@
       "size": 110,
       "packageName": "ir.iupp.p",
       "type": "web" 
+    }        ,
+    {
+      "id": 26,
+      "name":  "کرنومتر",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/26.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/26.html",
+      "size": 110,
+      "packageName": "pp.p",
+      "type": "web" 
+    }        ,
+    {
+      "id": 27,
+      "name":  "مورس",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/27.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/27.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }        ,
+    {
+      "id": 28,
+      "name":  "کد گذاری پیام",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/28.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/28.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }        ,
+    {
+      "id": 29,
+      "name":  "تاس",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/29.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/29.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }        ,
+    {
+      "id": 30,
+      "name":  "CICI",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/30.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/30.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
     }
   ]
 }
