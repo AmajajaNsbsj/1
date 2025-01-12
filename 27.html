@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مترجم کد مورس</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+            flex-direction: column;
+            user-select: none;
+            position: relative;
+            direction: rtl;
+        }
+
+        .app-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+        }
+
+        button {
+            padding: 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            width: 100px;
+            height: 100px;
+            font-size: 16px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #outputContainer {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+
+        #translatedText {
+            font-weight: bold;
+            color: #333;
+        }
+
+        #helpButton {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 10px;
+            border: none;
+            background-color: #ff9800;
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            transition: background-color 0.3s;
+        }
+
+        #helpButton:hover {
+            background-color: #f57c00;
+        }
+
+        #helpModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #helpModalContent {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 600px;
+        }
+
+        #closeHelpButton {
+            background-color: #ff9800;
+            border: none;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        #closeHelpButton:hover {
+            background-color: #f57c00;
+        }
+
+        #unitTimeLabel {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        #unitTimeSlider {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1>مترجم کد مورس</h1>
+        <div id="outputContainer">
+            <h2>متن ترجمه شده:</h2>
+            <p id="translatedText"></p>
+        </div>
+        <button id="morseButton">فشار دهید</button>
+        <label id="unitTimeLabel">واحد زمان: 300 میلی‌ثانیه</label>
+        <input type="range" id="unitTimeSlider" min="100" max="1000" value="300">
+    </div>
+    <button id="helpButton">?</button>
+    <div id="helpModal">
+        <div id="helpModalContent">
+            <h2>درباره کد مورس</h2>
+            <p>کد مورس یک روش در ارتباطات از راه دور است که برای رمزگذاری حروف متن به صورت توالی‌ای از نقطه‌ها و خط‌ها یا سیگنال‌های کوتاه و بلند استفاده می‌شود. هر حرف یا عدد با یک توالی منحصر به فرد نمایش داده می‌شود.</p>
+            <p>1. فاصله بین نشانه‌ها (نقطه‌ها و خط‌ها) در یک حرف باید به اندازه‌ی یک واحد باشد.</p>
+            <p>2. فاصله بین حروف در یک کلمه باید به اندازه‌ی ۳ واحد باشد.</p>
+            <p>3. فاصله بین کلمات باید به اندازه‌ی ۷ واحد باشد.</p>
+            <p>
+                const morseCodeMap = {
+            '.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D', '.': 'E',
+            '..-.': 'F', '--.': 'G', '....': 'H', '..': 'I', '.---': 'J',
+            '-.-': 'K', '.-..': 'L', '--': 'M', '-.': 'N', '---': 'O',
+            '.--.': 'P', '--.-': 'Q', '.-.': 'R', '...': 'S', '-': 'T',
+            '..-': 'U', '...-': 'V', '.--': 'W', '-..-': 'X', '-.--': 'Y',
+            '--..': 'Z', '-----': '0', '.----': '1', '..---': '2', '...--': '3',
+            '....-': '4', '.....': '5', '-....': '6', '--...': '7', '---..': '8',
+            '----.': '9', '|': ' '
+        };
+            </p>
+            <button id="closeHelpButton">بستن</button>
+        </div>
+    </div>
+    <script>
+        const morseCodeMap = {
+            '.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D', '.': 'E',
+            '..-.': 'F', '--.': 'G', '....': 'H', '..': 'I', '.---': 'J',
+            '-.-': 'K', '.-..': 'L', '--': 'M', '-.': 'N', '---': 'O',
+            '.--.': 'P', '--.-': 'Q', '.-.': 'R', '...': 'S', '-': 'T',
+            '..-': 'U', '...-': 'V', '.--': 'W', '-..-': 'X', '-.--': 'Y',
+            '--..': 'Z', '-----': '0', '.----': '1', '..---': '2', '...--': '3',
+            '....-': '4', '.....': '5', '-....': '6', '--...': '7', '---..': '8',
+            '----.': '9', '|': ' '
+        };
+
+        let morseInput = '';
+        let pressTimer;
+        let lastPressTime = 0;
+        const morseButton = document.getElementById('morseButton');
+        const unitTimeSlider = document.getElementById('unitTimeSlider');
+        const unitTimeLabel = document.getElementById('unitTimeLabel');
+        let unitTime = unitTimeSlider.value; // 1 واحد زمان به میلی‌ثانیه
+
+        unitTimeSlider.addEventListener('input', (event) => {
+            unitTime = event.target.value;
+            unitTimeLabel.textContent = `واحد زمان: ${unitTime} میلی‌ثانیه`;
+        });
+
+        function addMorseCode(symbol) {
+            morseInput += symbol;
+            navigator.vibrate(100); // لرزش برای نشان دادن اضافه شدن نشانه
+        }
+
+        function translateMorse() {
+            const words = morseInput.trim().split('       '); // 7 units for words
+            const translatedText = words.map(word => 
+                word.split('   ') // 3 units for letters
+                    .map(letter => 
+                        letter.split(' ') // 1 unit for symbols
+                            .map(code => morseCodeMap[code] || '').join('')
+                    ).join('')
+                ).join(' ');
+            document.getElementById('translatedText').innerText = translatedText;
+            morseInput = '';
+            navigator.vibrate(200); // لرزش برای نشان دادن ترجمه
+        }
+
+        morseButton.addEventListener('mousedown', () => {
+            pressTimer = setTimeout(() => {
+                addMorseCode('-');
+            }, unitTime);
+            lastPressTime = Date.now();
+        });
+
+        morseButton.addEventListener('mouseup', () => {
+            clearTimeout(pressTimer);
+            if (Date.now() - lastPressTime < unitTime) {
+                addMorseCode('.');
+            }
+            lastPressTime = Date.now();
+        });
+
+        morseButton.addEventListener('dblclick', translateMorse);
+
+        morseButton.addEventListener('mouseleave', () => {
+            clearTimeout(pressTimer);
+        });
+
+        // Help modal functionality
+        const helpButton = document.getElementById('helpButton');
+        const helpModal = document.getElementById('helpModal');
+        const closeHelpButton = document.getElementById('closeHelpButton');
+
+        helpButton.addEventListener('click', () => {
+            helpModal.style.display = 'flex';
+        });
+
+        closeHelpButton.addEventListener('click', () => {
+            helpModal.style.display = 'none';
+        });
+    </script>
+</body>
+</html>

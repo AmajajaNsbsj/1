@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Apple-style Stopwatch App with Vibration</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=San+Francisco&display=swap');
+        
+        body {
+            background-color: #111;
+            color: #e0e0e0;
+            overflow: hidden;
+            font-family: 'San Francisco', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            user-select: none;
+        }
+
+        .stopwatch {
+            background: #1f1f1f;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .time {
+            font-size: 56px;
+            margin-bottom: 20px;
+            border: 1px solid #555;
+            padding: 20px 40px;
+            border-radius: 8px;
+            background: #333;
+            font-variant-numeric: tabular-nums;
+            animation: pulse 1.5s infinite;
+        }
+
+        button {
+            background: #bb86fc;
+            border: none;
+            color: #000;
+            padding: 15px 30px;
+            font-size: 18px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #8e24aa;
+            color: #fff;
+        }
+
+        button:disabled {
+            background: #555;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.999);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.00005);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="stopwatch">
+        <div class="time" id="display">00:00:00:000</div>
+        <div>
+            <button id="startStop">Start</button>
+            <button id="reset" disabled>Reset</button>
+        </div>
+    </div>
+    <script>
+        let startTime;
+        let elapsedTime = 0;
+        let timerInterval;
+        const display = document.getElementById('display');
+        const startStopButton = document.getElementById('startStop');
+        const resetButton = document.getElementById('reset');
+
+        function vibrate() {
+            if (navigator.vibrate && startStopButton.textContent === 'Stop') {
+                navigator.vibrate(100); // ویبره 100 میلی‌ثانیه فقط زمانی که کرنومتر در حال حرکت است
+            }
+        }
+
+        function updateTime() {
+            const time = Date.now() - startTime + elapsedTime;
+            const hours = Math.floor(time / 3600000);
+            const minutes = Math.floor((time % 3600000) / 60000);
+            const seconds = Math.floor((time % 60000) / 1000);
+            const milliseconds = time % 1000;
+
+            display.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}:${String(milliseconds).padStart(3, '0')}`;
+
+            // ویبره کردن در هر فریم
+            vibrate();
+        }
+
+        startStopButton.addEventListener('click', () => {
+            if (startStopButton.textContent === 'Start') {
+                startTime = Date.now();
+                timerInterval = setInterval(updateTime, 50);
+                startStopButton.textContent = 'Stop';
+                resetButton.disabled = true;
+                display.classList.add('pulsating');
+                display.style.animation = 'shake 0.5s infinite'; // انیمیشن شیک برای زمان در حال حرکت
+            } else {
+                clearInterval(timerInterval);
+                elapsedTime += Date.now() - startTime;
+                startStopButton.textContent = 'Start';
+                resetButton.disabled = false;
+                display.classList.remove('pulsating');
+                display.style.animation = ''; // حذف انیمیشن شیک وقتی متوقف می‌شود
+            }
+        });
+
+        resetButton.addEventListener('click', () => {
+            clearInterval(timerInterval);
+            startStopButton.textContent = 'Start';
+            display.textContent = '00:00:00:000';
+            elapsedTime = 0;
+            resetButton.disabled = true;
+        });
+
+        document.addEventListener('touchmove', function(event) {
+            event.preventDefault();
+        }, { passive: false });
+
+        document.addEventListener('wheel', function(event) {
+            event.preventDefault();
+        }, { passive: false });
+
+    </script>
+</body>
+</html>

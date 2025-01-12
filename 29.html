@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Dice</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        let scene = new THREE.Scene();
+        let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        let renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // نورپردازی بهبود یافته
+        let ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        let pointLight = new THREE.PointLight(0xffffff, 1);
+        pointLight.position.set(2, 3, 5);
+        scene.add(pointLight);
+
+        // ایجاد تاس
+        let diceGeometry = new THREE.BoxGeometry(1, 1, 1);
+        let diceMaterials = [
+            createDiceFaceMaterial([[0, 0]], 0xff0000, 'red'), // 1
+            createDiceFaceMaterial([[-0.25, -0.25], [0.25, 0.25]], 0x0000ff, 'blue'), // 2
+            createDiceFaceMaterial([[0, 0], [-0.25, -0.25], [0.25, 0.25]], 0x0000ff, 'blue'), // 3
+            createDiceFaceMaterial([[-0.25, -0.25], [0.25, 0.25], [-0.25, 0.25], [0.25, -0.25]], 0x0000ff, 'blue'), // 4
+            createDiceFaceMaterial([[0, 0], [-0.25, -0.25], [0.25, 0.25], [-0.25, 0.25], [0.25, -0.25]], 0x0000ff, 'blue'), // 5
+            createDiceFaceMaterial([[-0.25, -0.25], [0.25, 0.25], [-0.25, 0.25], [0.25, -0.25], [-0.25, 0], [0.25, 0]], 0x0000ff, 'blue') // 6
+        ];
+        let dice = new THREE.Mesh(diceGeometry, diceMaterials);
+        scene.add(dice);
+
+        camera.position.z = 5;
+
+        let rolling = false;
+        let rollSpeed = 0.5; // افزایش سرعت چرخش
+
+        document.body.addEventListener('click', () => {
+            rolling = true;
+            setTimeout(() => {
+                rolling = false;
+                setRandomRotation();
+            }, 2000); // چرخش به مدت ۲ ثانیه
+        });
+
+        function createDiceFaceMaterial(positions, color, faceColor) {
+            let canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 256;
+            let context = canvas.getContext('2d');
+            context.fillStyle = 'white';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            context.fillStyle = faceColor;
+            positions.forEach(pos => {
+                context.beginPath();
+                context.arc(128 + pos[0] * 256, 128 + pos[1] * 256, 20, 0, 2 * Math.PI);
+                context.fill();
+            });
+            return new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(canvas), bumpMap: new THREE.CanvasTexture(canvas), bumpScale: 0.1 });
+        }
+
+        function setRandomRotation() {
+            let xRotation = Math.floor(Math.random() * 4) * (Math.PI / 2);
+            let yRotation = Math.floor(Math.random() * 4) * (Math.PI / 2);
+            let zRotation = Math.floor(Math.random() * 4) * (Math.PI / 2);
+            dice.rotation.set(xRotation, yRotation, zRotation);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (rolling) {
+                dice.rotation.x += rollSpeed * (Math.random() * 2 - 1); // چرخش تصادفی در محور x
+                dice.rotation.y += rollSpeed * (Math.random() * 2 - 1); // چرخش تصادفی در محور y
+                dice.rotation.z += rollSpeed * (Math.random() * 2 - 1); // چرخش تصادفی در محور z
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
