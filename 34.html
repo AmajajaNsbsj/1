@@ -172,13 +172,17 @@
             <span id="duration">00:00</span>
         </div>
         <div class="controls">
-            <input type="file" id="file-input" accept="audio/*" multiple>
+            <button id="add-file">➕</button>
+            <input type="file" id="file-input" accept="audio/*" multiple style="display:none;">
             <button id="prev">⏮</button>
             <button id="play">⏯</button>
             <button id="next">⏭</button>
+    
+            <button id="background-play-toggle">پخش در پس‌زمینه</button>
+          
         </div>
     </div>
-    <script>
+<script>
         const audio = new Audio();
         const playButton = document.getElementById('play');
         const prevButton = document.getElementById('prev');
@@ -190,13 +194,16 @@
         const titleElement = document.getElementById('title');
         const artistElement = document.getElementById('artist');
         const fileInput = document.getElementById('file-input');
+        const addFileButton = document.getElementById('add-file');
         const playlist = document.getElementById('playlist');
         const blackScreen = document.getElementById('blackScreen');
+        const backgroundPlayToggle = document.getElementById('background-play-toggle');
+        const shuffleToggle = document.getElementById('shuffle-toggle');
 
         let songs = [];
         let currentSongIndex = 0;
         let isShuffling = false;
-        let idleTimeout;
+        let isBackgroundPlay = false;
         let longPressTimeout;
         let db;
 
@@ -283,6 +290,10 @@
             });
         });
 
+        addFileButton.addEventListener('click', () => {
+            fileInput.click();
+        });
+
         function getRandomColor() {
             const letters = '0123456789ABCDEF';
             let color = '#';
@@ -301,7 +312,6 @@
         }
 
         function playPause() {
-            isShuffling = true;
             if (audio.paused) {
                 audio.play();
                 playButton.textContent = "⏸";
@@ -383,40 +393,50 @@
             }
         });
 
-        document.addEventListener('touchstart', function(event) {
-            if (event.touches.length === 1) {
-                const touch = event.touches[0];
+        playlist.addEventListener('touchstart', function(event) {
+            if (event.target.tagName === 'LI') {
                 longPressTimeout = setTimeout(() => {
-                    blackScreen.style.display = 'block';
-                }, 500);
+                    const index = parseInt(event.target.dataset.index, 10);
+                    const songTitle = songs[index].title;
+                    if (confirm(`آیا می‌خواهید آهنگ "${songTitle}" را حذف کنید؟`)) {
+                        removeSong(index);
+                    }
+                }, 2000);  // 2 ثانیه برای کلیک طولانی
             }
         });
 
-        document.addEventListener('touchend', function(event) {
+        playlist.addEventListener('touchend', function(event) {
             clearTimeout(longPressTimeout);
         });
 
-        document.addEventListener('touchmove', function(event) {
-            if (event.touches.length > 1) {
-                clearTimeout(longPressTimeout);
-            }
+        function removeSong(index) {
+            const transaction = db.transaction(['songs'], 'readwrite');
+            const objectStore = transaction.objectStore('songs');
+            objectStore.delete(songs[index].id);
+
+            transaction.oncomplete = function() {
+                console.log('Song has been removed from your database.');
+                songs.splice(index, 1);
+                playlist.innerHTML = '';
+                loadStoredSongs();
+            };
+
+            transaction.onerror = function(event) {
+                console.error('Transaction error:', event.target.errorCode);
+            };
+        }
+
+        backgroundPlayToggle.addEventListener('click', () => {
+            isBackgroundPlay = !isBackgroundPlay;
         });
 
-        document.addEventListener('touchstart', function(event) {
-            if (event.touches.length === 1) {
-                idleTimeout = setTimeout(() => {
-                    document.body.classList.add('no-lock');
-                }, 5000);
-            }
-        });
-
-        document.addEventListener('touchend', function(event) {
-            clearTimeout(idleTimeout);
-        });
+    
 
         window.addEventListener('blur', () => {
-            audio.pause();
-            playButton.textContent = "⏯";
+            if (!isBackgroundPlay) {
+                audio.pause();
+                playButton.textContent = "⏯";
+            }
         });
 
         window.addEventListener('focus', () => {
@@ -433,124 +453,123 @@
         });
 
         // Set up audio context for visualizer
-       
-    const canvas = document.getElementById('backgroundCanvas');
-const ctx = canvas.getContext('2d');
-let width, height;
-let waves = [];
+        const canvas = document.getElementById('backgroundCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let waves = [];
 
-let deviceOrientation = 0;  // برای ذخیره زاویه دستگاه
-let dayMultiplier = 1.5;  // مقدار پیش‌فرض برای شب
-let nightHeightMultiplier = 1.5;
-let dayHeightMultiplier = 0.5;
+        let deviceOrientation = 0;  // برای ذخیره زاویه دستگاه
+        let dayMultiplier = 1.5;  // مقدار پیش‌فرض برای شب
+        let nightHeightMultiplier = 1.5;
+        let dayHeightMultiplier = 0.5;
 
-function init() {
-    resizeCanvas();
-    for (let i = 0; i < 3; i++) {
-        waves.push(new Wave());
-    }
-    animate();
-}
+        function init() {
+            resizeCanvas();
+            for (let i = 0; i < 3; i++) {
+                waves.push(new Wave());
+            }
+            animate();
+        }
 
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    width = canvas.width;
-    height = canvas.height;
-}
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            width = canvas.width;
+            height = canvas.height;
+        }
 
-window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('resize', resizeCanvas);
 
-// محاسبه تغییرات ارتفاع بر اساس ساعت روز و شب
-function updateDayNight() {
-    const hour = new Date().getHours();
-    dayMultiplier = (hour >= 6 && hour < 18) ? dayHeightMultiplier : nightHeightMultiplier;
-}
+        // محاسبه تغییرات ارتفاع بر اساس ساعت روز و شب
+        function updateDayNight() {
+            const hour = new Date().getHours();
+            dayMultiplier = (hour >= 6 && hour < 18) ? dayHeightMultiplier : nightHeightMultiplier;
+        }
 
-// اضافه کردن حرکت ژیروسکوپ برای تغییرات جهت‌گیری
-window.addEventListener('deviceorientation', (event) => {
-    deviceOrientation = event.gamma; // زاویه چرخش گوشی در محور x
-});
-
-// کلاس Wave که ویژگی‌های جدید اضافه شده
-function Wave() {
-    this.points = [];
-    this.numPoints = 5;
-    this.baseHeight = Math.random() * 100 + 50;
-    this.speed = Math.random() * 0.02 + 0.01;
-    for (let i = 0; i <= this.numPoints; i++) {
-        this.points.push({
-            x: (i / this.numPoints) * width,
-            y: height / 2
+        // اضافه کردن حرکت ژیروسکوپ برای تغییرات جهت‌گیری
+        window.addEventListener('deviceorientation', (event) => {
+            deviceOrientation = event.gamma; // زاویه چرخش گوشی در محور x
         });
-    }
-}
 
-Wave.prototype.update = function () {
-    updateDayNight(); // بروزرسانی وضعیت شب یا روز
+        // کلاس Wave که ویژگی‌های جدید اضافه شده
+        function Wave() {
+            this.points = [];
+            this.numPoints = 5;
+            this.baseHeight = Math.random() * 100 + 50;
+            this.speed = Math.random() * 0.02 + 0.01;
+            for (let i = 0; i <= this.numPoints; i++) {
+                this.points.push({
+                    x: (i / this.numPoints) * width,
+                    y: height / 2
+                });
+            }
+        }
 
-    // تغییرات ارتفاع بر اساس زمان و ژیروسکوپ
-    const dynamicHeight = this.baseHeight * dayMultiplier + deviceOrientation / 10;
+        Wave.prototype.update = function () {
+            updateDayNight(); // بروزرسانی وضعیت شب یا روز
 
-    for (let i = 0; i <= this.numPoints; i++) {
-        this.points[i].y = height / 2 + Math.sin(Date.now() * this.speed + i) * dynamicHeight;
-    }
-};
+            // تغییرات ارتفاع بر اساس زمان و ژیروسکوپ
+            const dynamicHeight = this.baseHeight * dayMultiplier + deviceOrientation / 10;
 
-Wave.prototype.draw = function () {
-    ctx.beginPath();
-    ctx.moveTo(this.points[0].x, this.points[0].y);
-    for (let i = 1; i <= this.numPoints; i++) {
-        ctx.lineTo(this.points[i].x, this.points[i].y);
-    }
-    ctx.lineTo(width, height);
-    ctx.lineTo(0, height);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-    ctx.fill();
-};
+            for (let i = 0; i <= this.numPoints; i++) {
+                this.points[i].y = height / 2 + Math.sin(Date.now() * this.speed + i) * dynamicHeight;
+            }
+        };
 
-function animate() {
-    ctx.clearRect(0, 0, width, height);
-    waves.forEach(wave => {
-        wave.update();
-        wave.draw();
-    });
-    requestAnimationFrame(animate);
-}
+        Wave.prototype.draw = function () {
+            ctx.beginPath();
+            ctx.moveTo(this.points[0].x, this.points[0].y);
+            for (let i = 1; i <= this.numPoints; i++) {
+                ctx.lineTo(this.points[i].x, this.points[i].y);
+            }
+            ctx.lineTo(width, height);
+            ctx.lineTo(0, height);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fill();
+        };
 
-init();
-animate();
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            waves.forEach(wave => {
+                wave.update();
+                wave.draw();
+            });
+            requestAnimationFrame(animate);
+        }
 
-// کنترل موسیقی و بروزرسانی ویژگی‌ها بر اساس صدا
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-const analyser = audioContext.createAnalyser();
-const source = audioContext.createMediaElementSource(audio);
-source.connect(analyser);
-analyser.connect(audioContext.destination);
+        init();
+        animate();
 
-analyser.fftSize = 256;
-const bufferLength = analyser.frequencyBinCount;
-const dataArray = new Uint8Array(bufferLength);
+        // کنترل موسیقی و بروزرسانی ویژگی‌ها بر اساس صدا
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const analyser = audioContext.createAnalyser();
+        const source = audioContext.createMediaElementSource(audio);
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
 
-function updateWaves() {
-    analyser.getByteFrequencyData(dataArray);
+        analyser.fftSize = 256;
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
 
-    const average = dataArray.reduce((a, b) => a + b) / bufferLength;
+        function updateWaves() {
+            analyser.getByteFrequencyData(dataArray);
 
-    waves.forEach((wave, index) => {
-        wave.baseHeight = average / (index + 1);
-        wave.update();
-    });
+            const average = dataArray.reduce((a, b) => a + b) / bufferLength;
 
-    requestAnimationFrame(updateWaves);
-}
+            waves.forEach((wave, index) => {
+                wave.baseHeight = average / (index + 1);
+                wave.update();
+            });
 
-audio.addEventListener('play', () => {
-    audioContext.resume().then(() => {
-        updateWaves();
-    });
-});
+            requestAnimationFrame(updateWaves);
+        }
+
+        audio.addEventListener('play', () => {
+            audioContext.resume().then(() => {
+                updateWaves();
+            });
+        });
     </script>
 </body>
 </html>
