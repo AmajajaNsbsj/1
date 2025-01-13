@@ -310,5 +310,36 @@
       "packageName": "ir.iupp.p",
       "type": "web" 
     }
+            ,
+    {
+      "id": 31,
+      "name":  "مبپل واحد ها",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/31.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/31.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }        ,
+    {
+      "id": 32,
+      "name":  "چقدر زنده بودی ؟",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/33.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/33.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }        ,
+    {
+      "id": 33,
+      "name":  "موزیک پلیر",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/34.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/34.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }
   ]
 }
