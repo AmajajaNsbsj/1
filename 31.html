@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اپلیکیشن تبدیل واحد</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f0f0;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        .calculator {
+            width: 90%;
+            max-width: 500px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            background-color: #ffffff;
+        }
+        .display {
+            width: 100%;
+            height: 100px;
+            border-radius: 10px;
+            text-align: right;
+            padding: 15px;
+            font-size: 36px;
+            font-weight: bold;
+            overflow-x: auto;
+            border: 2px solid #333;
+            font-family: 'Digital-7 Mono', sans-serif;
+            background-color: #f7f7f7;
+            margin-bottom: 20px;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            height: auto;
+        }
+        .button {
+            border: none;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .button:hover {
+            background: #555;
+        }
+        .button.clear {
+            background: #f39c12;
+        }
+        .button.clear:hover {
+            background: #e67e22;
+        }
+        .button.backspace {
+            background: #3498db;
+        }
+        .button.backspace:hover {
+            background: #2980b9;
+        }
+        .button.equals {
+            background: #1abc9c;
+            grid-column: span 2;
+        }
+        .button.equals:hover {
+            background: #16a085;
+        }
+        .unit-select {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .unit-select label,
+        .unit-select select {
+            width: 48%;
+        }
+        .unit-select select {
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            background-color: #f7f7f7;
+            transition: border 0.3s;
+        }
+        .unit-select select:focus {
+            border-color: #007bff;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #333333;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div id="display" class="display">0</div>
+        <div class="buttons">
+            <button class="button clear" onclick="clearDisplay()">C</button>
+            <button class="button backspace" onclick="backspace()">←</button>
+            <button class="button" onclick="appendNumber('7')">7</button>
+            <button class="button" onclick="appendNumber('8')">8</button>
+            <button class="button" onclick="appendNumber('9')">9</button>
+            <button class="button" onclick="appendNumber('4')">4</button>
+            <button class="button" onclick="appendNumber('5')">5</button>
+            <button class="button" onclick="appendNumber('6')">6</button>
+            <button class="button" onclick="appendNumber('1')">1</button>
+            <button class="button" onclick="appendNumber('2')">2</button>
+            <button class="button" onclick="appendNumber('3')">3</button>
+            <button class="button" onclick="appendNumber('0')" style="grid-column: span 2;">0</button>
+            <button class="button" onclick="appendNumber('.')">.</button>
+            <button class="button equals" onclick="convert()">=</button>
+        </div>
+        <div class="unit-select">
+            <label for="fromUnit">از واحد:</label>
+            <select id="fromUnit" onchange="populateToUnits()"></select>
+        </div>
+        <div class="unit-select">
+            <label for="toUnit">به واحد:</label>
+            <select id="toUnit"></select>
+        </div>
+    </div>
+</body>
+<script>
+    const unitConversions = {
+        length: {
+            units: ['متر', 'کیلومتر', 'سانتی‌متر', 'میلی‌متر', 'اینچ', 'فوت', 'یارد', 'مایل', 'نانومتر', 'آنگستروم'],
+            convert: (value, from, to) => {
+                const factors = { 'متر': 1, 'کیلومتر': 1000, 'سانتی‌متر': 0.01, 'میلی‌متر': 0.001, 'اینچ': 0.0254, 'فوت': 0.3048, 'یارد': 0.9144, 'مایل': 1609.34, 'نانومتر': 1e-9, 'آنگستروم': 1e-10 };
+                return (value * factors[from]) / factors[to];
+            }
+        },
+        weight: {
+            units: ['کیلوگرم', 'گرم', 'میلی‌گرم', 'تن', 'پوند', 'اونس', 'میکروگرم', 'استون'],
+            convert: (value, from, to) => {
+                const factors = { 'کیلوگرم': 1, 'گرم': 0.001, 'میلی‌گرم': 1e-6, 'تن': 1000, 'پوند': 0.453592, 'اونس': 0.0283495, 'میکروگرم': 1e-9, 'استون': 6.35029 };
+                return (value * factors[from]) / factors[to];
+            }
+        },
+        temperature: {
+            units: ['سلسیوس', 'فارنهایت', 'کلوین'],
+            convert: (value, from, to) => {
+                if (from === to) return value;
+                if (from === 'سلسیوس') return to === 'فارنهایت' ? value * 9/5 + 32 : value + 273.15;
+                if (from === 'فارنهایت') return to === 'سلسیوس' ? (value - 32) * 5/9 : (value - 32) * 5/9 + 273.15;
+                if (from === 'کلوین') return to === 'سلسیوس' ? value - 273.15 : (value - 273.15) * 9/5 + 32;
+            }
+        },
+        volume: {
+            units: ['لیتر', 'میلی‌لیتر', 'گالن', 'پینت', 'کوارت', 'متر مکعب', 'سانتیمتر مکعب', 'فلوئید اونس'],
+            convert: (value, from, to) => {
+                const factors = { 'لیتر': 1, 'میلی‌لیتر': 0.001, 'گالن': 3.78541, 'پینت': 0.473176, 'کوارت': 1.13652, 'متر مکعب': 1000, 'سانتیمتر مکعب': 0.001, 'فلوئید اونس': 0.0295735 };
+                return (value * factors[from]) / factors[to];
+            }
+        },
+        speed: {
+            units: ['کیلومتر بر ساعت', 'متر بر ثانیه', 'مایل بر ساعت', 'فوت بر ثانیه', 'گره'],
+            convert: (value, from, to) => {
+                const factors = { 'کیلومتر بر ساعت': 1, 'متر بر ثانیه': 3.6, 'مایل بر ساعت': 1.60934, 'فوت بر ثانیه': 1.09728, 'گره': 1.852 };
+                return (value * factors[from]) / factors[to];
+            }
+        },
+        time: {
+            units: ['ثانیه', 'دقیقه', 'ساعت', 'روز', 'هفته', 'ماه', 'سال', 'میکروثانیه', 'میلی‌ثانیه'],
+            convert: (value, from, to) => {
+                const factors = { 'ثانیه': 1, 'دقیقه': 60, 'ساعت': 3600, 'روز': 86400, 'هفته': 604800, 'ماه': 2628000, 'سال': 31536000, 'میکروثانیه': 1e-6, 'میلی‌ثانیه': 1e-3 };
+                return (value * factors[from]) / factors[to];
+            }
+        }
+    };
+
+    const fromUnitSelect = document.getElementById('fromUnit');
+    const toUnitSelect = document.getElementById('toUnit');
+    const display = document.getElementById('display');
+
+    function populateUnits() {
+        const allUnits = [
+            'متر', 'کیلومتر', 'سانتی‌متر', 'میلی‌متر', 'اینچ', 'فوت', 'یارد', 'مایل', 'نانومتر', 'آنگستروم',
+            'کیلوگرم', 'گرم', 'میلی‌گرم', 'تن', 'پوند', 'اونس', 'میکروگرم', 'استون',
+            'سلسیوس', 'فارنهایت', 'کلوین',
+            'لیتر', 'میلی‌لیتر', 'گالن', 'پینت', 'کوارت', 'متر مکعب', 'سانتیمتر مکعب', 'فلوئید اونس',
+            'کیلومتر بر ساعت', 'متر بر ثانیه', 'مایل بر ساعت', 'فوت بر ثانیه', 'گره',
+            'ثانیه', 'دقیقه', 'ساعت', 'روز', 'هفته', 'ماه', 'سال', 'میکروثانیه', 'میلی‌ثانیه'
+        ];
+        fromUnitSelect.innerHTML = '';
+
+        allUnits.forEach(unit => {
+            const option = document.createElement('option');
+            option.value = unit;
+            option.textContent = unit;
+            fromUnitSelect.appendChild(option);
+        });
+
+        populateToUnits();
+    }
+
+    function populateToUnits() {
+        const fromUnit = fromUnitSelect.value;
+        const fromUnitType = detectUnitType(fromUnit);
+
+        toUnitSelect.innerHTML = '';
+
+        if (fromUnitType) {
+            const units = unitConversions[fromUnitType].units;
+            units.forEach(unit => {
+                if (unit !== fromUnit) {
+                    const option = document.createElement('option');
+                    option.value = unit;
+                    option.textContent = unit;
+                    toUnitSelect.appendChild(option);
+                }
+            });
+        }
+    }
+
+    function detectUnitType(unit) {
+        if (['متر', 'کیلومتر', 'سانتی‌متر', 'میلی‌متر', 'اینچ', 'فوت', 'یارد', 'مایل', 'نانومتر', 'آنگستروم'].includes(unit)) return 'length';
+        if (['کیلوگرم', 'گرم', 'میلی‌گرم', 'تن', 'پوند', 'اونس', 'میکروگرم', 'استون'].includes(unit)) return 'weight';
+        if (['سلسیوس', 'فارنهایت', 'کلوین'].includes(unit)) return 'temperature';
+        if (['لیتر', 'میلی‌لیتر', 'گالن', 'پینت', 'کوارت', 'متر مکعب', 'سانتیمتر مکعب', 'فلوئید اونس'].includes(unit)) return 'volume';
+        if (['کیلومتر بر ساعت', 'متر بر ثانیه', 'مایل بر ساعت', 'فوت بر ثانیه', 'گره'].includes(unit)) return 'speed';
+        if (['ثانیه', 'دقیقه', 'ساعت', 'روز', 'هفته', 'ماه', 'سال', 'میکروثانیه', 'میلی‌ثانیه'].includes(unit)) return 'time';
+        return null;
+    }
+
+    function appendNumber(number) {
+        if (display.textContent === '0') {
+            display.textContent = number;
+        } else {
+            display.textContent += number;
+        }
+    }
+
+    function clearDisplay() {
+        display.textContent = '0';
+    }
+
+    function backspace() {
+        display.textContent = display.textContent.slice(0, -1) || '0';
+    }
+
+    function convert() {
+        const fromUnit = fromUnitSelect.value;
+        const toUnit = toUnitSelect.value;
+        const value = parseFloat(display.textContent);
+
+        if (isNaN(value)) {
+            display.textContent = 'لطفاً مقدار معتبر وارد کنید';
+            setTimeout(() => display.textContent = '0', 1500);
+            return;
+        }
+
+        const fromUnitType = detectUnitType(fromUnit);
+        const toUnitType = detectUnitType(toUnit);
+
+        if (fromUnitType !== toUnitType) {
+            display.textContent = 'واحدهای انتخابی باید از یک نوع باشند';
+            setTimeout(() => display.textContent = '0', 1500);
+            return;
+        }
+
+        const result = unitConversions[fromUnitType].convert(value, fromUnit, toUnit);
+        display.textContent = result;
+    }
+
+    populateUnits();
+    document.addEventListener('touchmove', function(event) {
+        event.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('wheel', function(event) {
+        event.preventDefault();
+    }, { passive: false });
+</script>
+</html>

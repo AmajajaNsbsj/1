@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>پخش کننده موزیک حرفه‌ای</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1f1f2e;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            direction: rtl;
+            position: relative;
+        }
+        body.no-lock {
+            touch-action: none;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        .black-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 10;
+            display: none;
+        }
+        .player {
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            background-color: rgba(41, 41, 61, 0.8);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            transition: transform 0.3s ease;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .player:hover {
+            transform: scale(1.05);
+        }
+        .song-info {
+            margin: 10px 0;
+        }
+        .song-info h3, .song-info h4 {
+            margin: 5px 0;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(41, 41, 61, 0.8);
+            padding: 10px 0;
+            border-radius: 15px;
+        }
+        .controls button, .controls input[type="file"] {
+            background: #007bff;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .controls button:hover {
+            background: #0056b3;
+        }
+        .progress-container {
+            position: relative;
+            background: #3a3a4f;
+            border-radius: 10px;
+            width: 100%;
+            height: 8px;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        .progress {
+            background: #ff5e57;
+            height: 100%;
+            width: 0;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        .time {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+        }
+        .playlist {
+            margin-top: 20px;
+            list-style-type: none;
+            padding: 0;
+            max-height: 50vh;
+            overflow-y: auto;
+            border-top: 1px solid #ddd;
+            flex-grow: 1;
+        }
+        .playlist li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            background: linear-gradient(135deg, #d3d3d3, #c4c4c4);
+            margin-bottom: 5px;
+            border-radius: 5px;
+            animation: fade-in 0.5s ease-in-out;
+        }
+        .playlist li:hover, .playlist .active {
+            background-color: #007bff;
+            color: white;
+        }
+        .playlist .shuffling {
+            animation: pulse 1s infinite;
+        }
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="backgroundCanvas"></canvas>
+    <div class="black-screen" id="blackScreen"></div>
+    <div class="player">
+        <ul class="playlist" id="playlist"></ul>
+        <div class="song-info">
+            <h3 id="title">آهنگ فعلی: انتخاب نشده</h3>
+            <h4 id="artist">هنرمند: ناشناس</h4>
+        </div>
+        <div class="progress-container" id="progress-container">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div class="time">
+            <span id="current-time">00:00</span>
+            <span id="duration">00:00</span>
+        </div>
+        <div class="controls">
+            <input type="file" id="file-input" accept="audio/*" multiple>
+            <button id="prev">⏮</button>
+            <button id="play">⏯</button>
+            <button id="next">⏭</button>
+        </div>
+    </div>
+    <script>
+    
+        const audio = new Audio();
+        const playButton = document.getElementById('play');
+        const prevButton = document.getElementById('prev');
+        const nextButton = document.getElementById('next');
+        const progressContainer = document.getElementById('progress-container');
+        const progress = document.getElementById('progress');
+        const currentTimeElement = document.getElementById('current-time');
+        const durationElement = document.getElementById('duration');
+        const titleElement = document.getElementById('title');
+        const artistElement = document.getElementById('artist');
+        const fileInput = document.getElementById('file-input');
+        const playlist = document.getElementById('playlist');
+        const blackScreen = document.getElementById('blackScreen');
+
+        let songs = [];
+        let currentSongIndex = 0;
+        let isShuffling = false;
+        let idleTimeout;
+        let longPressTimeout;
+        let db;
+
+        const request = indexedDB.open('musicPlayerDB', 1);
+
+        request.onerror = function(event) {
+            console.error('Database error:', event.target.errorCode);
+        };
+
+        request.onsuccess = function(event) {
+            db = event.target.result;
+            loadStoredSongs();
+        };
+
+        request.onupgradeneeded = function(event) {
+            db = event.target.result;
+            const objectStore = db.createObjectStore('songs', { keyPath: 'id', autoIncrement: true });
+            objectStore.createIndex('title', 'title', { unique: false });
+        };
+
+        function saveSongToDB(song) {
+            const transaction = db.transaction(['songs'], 'readwrite');
+            const objectStore = transaction.objectStore('songs');
+            objectStore.add(song);
+
+            transaction.oncomplete = function() {
+                console.log('Song has been added to your database.');
+                loadStoredSongs();
+            };
+
+            transaction.onerror = function(event) {
+                console.error('Transaction error:', event.target.errorCode);
+            };
+        }
+
+        function loadStoredSongs() {
+            const transaction = db.transaction(['songs'], 'readonly');
+            const objectStore = transaction.objectStore('songs');
+            const request = objectStore.getAll();
+
+            request.onsuccess = function(event) {
+                songs = event.target.result;
+                songs.forEach((song, index) => {
+                    const songElement = document.createElement('li');
+                    songElement.textContent = song.title;
+                    songElement.dataset.index = index;
+                    songElement.style.background = song.background;
+                    playlist.appendChild(songElement);
+                });
+                if (songs.length > 0) {
+                    loadSong(songs[currentSongIndex]);
+                }
+            };
+
+            request.onerror = function(event) {
+                console.error('Request error:', event.target.errorCode);
+            };
+        }
+
+        fileInput.addEventListener('change', (e) => {
+            const files = e.target.files;
+            Array.from(files).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const randomColor = `linear-gradient(135deg, ${getRandomColor()}, ${getRandomColor()})`;
+                    const songElement = document.createElement('li');
+                    songElement.textContent = file.name;
+                    songElement.dataset.index = songs.length;
+                    songElement.style.background = randomColor;
+                    playlist.appendChild(songElement);
+                    const song = {
+                        title: file.name,
+                        artist: 'ناشناس',
+                        file: event.target.result,
+                        background: randomColor
+                    };
+                    songs.push(song);
+                    saveSongToDB(song);
+                    if (songs.length === 1) {
+                        loadSong(songs[0]);
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function loadSong(song) {
+            titleElement.textContent = `آهنگ فعلی: ${song.title}`;
+            artistElement.textContent = `هنرمند: ${song.artist}`;
+            audio.src = song.file;
+            updateActiveTrack();
+            scrollToCurrentSong();
+        }
+
+        function playPause() {
+            isShuffling = true;
+            if (audio.paused) {
+                audio.play();
+                playButton.textContent = "⏸";
+            } else {
+                audio.pause();
+                playButton.textContent = "⏯";
+            }
+        }
+
+        function updateProgress() {
+            const progressPercent = (audio.currentTime / audio.duration) * 100;
+            progress.style.width = `${progressPercent}%`;
+
+            const currentMinutes = Math.floor(audio.currentTime / 60);
+            const currentSeconds = Math.floor(audio.currentTime % 60);
+            const durationMinutes = Math.floor(audio.duration / 60);
+            const durationSeconds = Math.floor(audio.duration % 60);
+
+            currentTimeElement.textContent = `${currentMinutes}:${currentSeconds < 10 ? '0' : ''}${currentSeconds}`;
+            durationElement.textContent = `${durationMinutes}:${durationSeconds < 10 ? '0' : ''}${durationSeconds}`;
+        }
+
+        function setProgress(e) {
+            const width = progressContainer.clientWidth;
+            const clickX = e.offsetX;
+            audio.currentTime = (clickX / width) * audio.duration;
+        }
+
+        function nextSong() {
+            if (isShuffling) {
+                currentSongIndex = Math.floor(Math.random() * songs.length);
+            } else {
+                currentSongIndex = (currentSongIndex + 1) % songs.length;
+            }document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        audio.pause(); 
+    }
+});
+            loadSong(songs[currentSongIndex]);
+            audio.play();
+        }
+
+        function prevSong() {
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            loadSong(songs[currentSongIndex]);
+            audio.play();
+        }
+
+        function updateActiveTrack() {
+            const items = playlist.getElementsByTagName('li');
+            Array.from(items).forEach(item => item.classList.remove('active', 'shuffling'));
+            items[currentSongIndex].classList.add('active');
+            if (isShuffling) {
+                items[currentSongIndex].classList.add('shuffling');
+            }
+        }
+
+        function scrollToCurrentSong() {
+            const items = playlist.getElementsByTagName('li');
+            const currentItem = items[currentSongIndex];
+            currentItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        audio.addEventListener('timeupdate', updateProgress);
+        progressContainer.addEventListener('click', setProgress);
+        
+        progressContainer.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            const rect = progressContainer.getBoundingClientRect();
+            const offsetX = touch.clientX - rect.left;
+            const width = rect.width;
+            audio.currentTime = (offsetX / width) * audio.duration;
+        });
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        audio.pause(); 
+    }
+});
+        playButton.addEventListener('click', playPause);
+        nextButton.addEventListener('click', nextSong);
+        prevButton.addEventListener('click', prevSong);
+
+        playlist.addEventListener('click', (e) => {
+            if (e.target && e.target.nodeName === "LI") {
+                currentSongIndex = parseInt(e.target.dataset.index);
+                loadSong(songs[currentSongIndex]);
+                audio.play();
+                isShuffling = false;
+                updateActiveTrack();
+                audio.addEventListener('ended', nextSong);
+            }
+        });
+
+        playlist.addEventListener('touchstart', (e) => {
+            audio.addEventListener('ended', nextSong);
+            if (e.target && e.target.nodeName === "LI") {
+                longPressTimeout = setTimeout(() => {
+                    const index = parseInt(e.target.dataset.index);
+                    songs.splice(index, 1);
+                    const transaction = db.transaction(['songs'], 'readwrite');
+                    const objectStore = transaction.objectStore('songs');
+                    objectStore.delete(index);
+
+                    transaction.oncomplete = function() {
+                        console.log('Song has been removed from your database.');
+                        playlist.removeChild(e.target);
+                        if (currentSongIndex >= songs.length) {
+                            currentSongIndex = 0;
+                        }
+                        if (songs.length > 0) {
+                            loadSong(songs[currentSongIndex]);
+                        } else {
+                            audio.pause();
+                            titleElement.textContent = "آهنگ فعلی: انتخاب نشده";
+                            artistElement.textContent = "هنرمند: ناشناس";
+                            playButton.textContent = "⏯";
+                        }
+                    };
+
+                    transaction.onerror = function(event) {
+                        console.error('Transaction error:', event.target.errorCode);
+                    };
+                }, 3000);
+            }
+        });
+
+        playlist.addEventListener('touchend', () => {
+            clearTimeout(longPressTimeout);
+        });
+
+        loadStoredSongs();
+        audio.addEventListener('ended', nextSong);
+
+        const canvas = document.getElementById('backgroundCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let waves = [];
+
+        function init() {
+            resizeCanvas();
+            for (let i = 0; i < 3; i++) {
+                waves.push(new Wave());
+            }
+            animate();
+        }
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            width = canvas.width;
+            height = canvas.height;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        function Wave() {
+            this.points = [];
+            this.numPoints = 5;
+            this.height = Math.random() * 100 + 50;
+            this.speed = Math.random() * 0.02 + 0.01;
+            for (let i = 0; i <= this.numPoints; i++) {
+                this.points.push({
+                    x: (i / this.numPoints) * width,
+                    y: height / 2
+                });
+            }
+        }
+
+        Wave.prototype.update = function () {
+            const hour = new Date().getHours();
+            const dayMultiplier = (hour >= 6 && hour < 18) ? 0.5 : 1.5;
+
+            for (let i = 0; i <= this.numPoints; i++) {
+                this.points[i].y = height / 2 + Math.sin(Date.now() * this.speed + i) * this.height * dayMultiplier;
+            }
+        };
+
+        Wave.prototype.draw = function () {
+            ctx.beginPath();
+            ctx.moveTo(this.points[0].x, this.points[0].y);
+            for (let i = 1; i <= this.numPoints; i++) {
+                ctx.lineTo(this.points[i].x, this.points[i].y);
+            }
+            ctx.lineTo(width, height);
+            ctx.lineTo(0, height);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fill();
+        };
+
+        function animate() {
+    ctx.clearRect(0, 0, width, height);
+    waves.forEach(wave => {
+        wave.update();
+        wave.draw();
+    });
+    requestAnimationFrame(animate);
+}
+
+init();
+animate();
+
+        init();
+
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const analyser = audioContext.createAnalyser();
+        const source = audioContext.createMediaElementSource(audio);
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
+        
+
+        analyser.fftSize = 256;
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+
+        function updateWaves() {
+    analyser.getByteFrequencyData(dataArray);
+
+    const average = dataArray.reduce((a, b) => a + b) / bufferLength;
+
+    waves.forEach((wave, index) => {
+        wave.height = average / (index + 1);
+        wave.update(average);
+    });
+
+    requestAnimationFrame(updateWaves);
+}
+        audio.addEventListener('play', () => {
+            audioContext.resume().then(() => {
+                updateWaves();
+            });
+        });
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        audio.pause(); 
+    }
+});
+        audio.addEventListener('ended', nextSong);
+
+        function resetIdleTimer() {
+            clearTimeout(idleTimeout);
+            blackScreen.style.display = 'none';
+            idleTimeout = setTimeout(() => {
+                blackScreen.style.display = 'block';
+            }, 30000);
+        }
+
+        document.addEventListener('mousemove', resetIdleTimer);
+        document.addEventListener('keypress', resetIdleTimer);
+        document.addEventListener('touchstart', resetIdleTimer);
+
+        resetIdleTimer();
+
+        function preventScreenLock() {
+            document.body.classList.add('no-lock');
+        }
+
+        preventScreenLock();
+        
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                audio.pause(); 
+            } else {
+                audio.play(); 
+            }
+        });
+        
+    </script>
+</body>
+</html>
