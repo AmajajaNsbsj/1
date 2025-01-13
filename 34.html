@@ -29,7 +29,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
+            z-index: -10;
         }
         .black-screen {
             position: absolute;
@@ -70,7 +70,7 @@
             align-items: center;
             background-color: rgba(41, 41, 61, 0.8);
             padding: 10px 0;
-            border-radius: 15px;
+            border-radius: 105px;
         }
         .controls button, .controls input[type="file"] {
             background: #007bff;
@@ -98,7 +98,7 @@
             height: 100%;
             width: 0;
             border-radius: 10px;
-            transition: width 0.3s ease;
+            transition: width 0.2s ease;
         }
         .time {
             display: flex;
@@ -109,7 +109,7 @@
             margin-top: 20px;
             list-style-type: none;
             padding: 0;
-            max-height: 50vh;
+            max-height: 66vh;
             overflow-y: auto;
             border-top: 1px solid #ddd;
             flex-grow: 1;
@@ -155,7 +155,8 @@
     </style>
 </head>
 <body>
-    <canvas id="backgroundCanvas"></canvas>
+ <canvas id="backgroundCanvas"></canvas>
+
     <div class="black-screen" id="blackScreen"></div>
     <div class="player">
         <ul class="playlist" id="playlist"></ul>
@@ -178,7 +179,6 @@
         </div>
     </div>
     <script>
-    
         const audio = new Audio();
         const playButton = document.getElementById('play');
         const prevButton = document.getElementById('prev');
@@ -335,164 +335,182 @@
                 currentSongIndex = Math.floor(Math.random() * songs.length);
             } else {
                 currentSongIndex = (currentSongIndex + 1) % songs.length;
-            }document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-        audio.pause(); 
-    }
-});
+            }
             loadSong(songs[currentSongIndex]);
             audio.play();
+            playButton.textContent = "⏸";
         }
 
         function prevSong() {
             currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
             loadSong(songs[currentSongIndex]);
             audio.play();
+            playButton.textContent = "⏸";
         }
 
         function updateActiveTrack() {
-            const items = playlist.getElementsByTagName('li');
-            Array.from(items).forEach(item => item.classList.remove('active', 'shuffling'));
-            items[currentSongIndex].classList.add('active');
-            if (isShuffling) {
-                items[currentSongIndex].classList.add('shuffling');
+            const tracks = playlist.getElementsByTagName('li');
+            Array.from(tracks).forEach(track => {
+                track.classList.remove('active');
+            });
+            const activeTrack = tracks[currentSongIndex];
+            if (activeTrack) {
+                activeTrack.classList.add('active');
             }
         }
 
         function scrollToCurrentSong() {
-            const items = playlist.getElementsByTagName('li');
-            const currentItem = items[currentSongIndex];
-            currentItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const activeTrack = playlist.getElementsByClassName('active')[0];
+            if (activeTrack) {
+                activeTrack.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
 
-        audio.addEventListener('timeupdate', updateProgress);
-        progressContainer.addEventListener('click', setProgress);
-        
-        progressContainer.addEventListener('touchmove', (e) => {
-            const touch = e.touches[0];
-            const rect = progressContainer.getBoundingClientRect();
-            const offsetX = touch.clientX - rect.left;
-            const width = rect.width;
-            audio.currentTime = (offsetX / width) * audio.duration;
-        });
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-        audio.pause(); 
-    }
-});
         playButton.addEventListener('click', playPause);
         nextButton.addEventListener('click', nextSong);
         prevButton.addEventListener('click', prevSong);
+        progressContainer.addEventListener('click', setProgress);
+
+        audio.addEventListener('timeupdate', updateProgress);
+        audio.addEventListener('ended', nextSong);
 
         playlist.addEventListener('click', (e) => {
-            if (e.target && e.target.nodeName === "LI") {
-                currentSongIndex = parseInt(e.target.dataset.index);
+            if (e.target.tagName === 'LI') {
+                currentSongIndex = parseInt(e.target.dataset.index, 10);
                 loadSong(songs[currentSongIndex]);
                 audio.play();
-                isShuffling = false;
-                updateActiveTrack();
-                audio.addEventListener('ended', nextSong);
+                playButton.textContent = "⏸";
             }
         });
 
-        playlist.addEventListener('touchstart', (e) => {
-            audio.addEventListener('ended', nextSong);
-            if (e.target && e.target.nodeName === "LI") {
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length === 1) {
+                const touch = event.touches[0];
                 longPressTimeout = setTimeout(() => {
-                    const index = parseInt(e.target.dataset.index);
-                    songs.splice(index, 1);
-                    const transaction = db.transaction(['songs'], 'readwrite');
-                    const objectStore = transaction.objectStore('songs');
-                    objectStore.delete(index);
-
-                    transaction.oncomplete = function() {
-                        console.log('Song has been removed from your database.');
-                        playlist.removeChild(e.target);
-                        if (currentSongIndex >= songs.length) {
-                            currentSongIndex = 0;
-                        }
-                        if (songs.length > 0) {
-                            loadSong(songs[currentSongIndex]);
-                        } else {
-                            audio.pause();
-                            titleElement.textContent = "آهنگ فعلی: انتخاب نشده";
-                            artistElement.textContent = "هنرمند: ناشناس";
-                            playButton.textContent = "⏯";
-                        }
-                    };
-
-                    transaction.onerror = function(event) {
-                        console.error('Transaction error:', event.target.errorCode);
-                    };
-                }, 3000);
+                    blackScreen.style.display = 'block';
+                }, 500);
             }
         });
 
-        playlist.addEventListener('touchend', () => {
+        document.addEventListener('touchend', function(event) {
             clearTimeout(longPressTimeout);
         });
 
-        loadStoredSongs();
-        audio.addEventListener('ended', nextSong);
-
-        const canvas = document.getElementById('backgroundCanvas');
-        const ctx = canvas.getContext('2d');
-        let width, height;
-        let waves = [];
-
-        function init() {
-            resizeCanvas();
-            for (let i = 0; i < 3; i++) {
-                waves.push(new Wave());
+        document.addEventListener('touchmove', function(event) {
+            if (event.touches.length > 1) {
+                clearTimeout(longPressTimeout);
             }
-            animate();
-        }
+        });
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            width = canvas.width;
-            height = canvas.height;
-        }
-
-        window.addEventListener('resize', resizeCanvas);
-
-        function Wave() {
-            this.points = [];
-            this.numPoints = 5;
-            this.height = Math.random() * 100 + 50;
-            this.speed = Math.random() * 0.02 + 0.01;
-            for (let i = 0; i <= this.numPoints; i++) {
-                this.points.push({
-                    x: (i / this.numPoints) * width,
-                    y: height / 2
-                });
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length === 1) {
+                idleTimeout = setTimeout(() => {
+                    document.body.classList.add('no-lock');
+                }, 5000);
             }
-        }
+        });
 
-        Wave.prototype.update = function () {
-            const hour = new Date().getHours();
-            const dayMultiplier = (hour >= 6 && hour < 18) ? 0.5 : 1.5;
+        document.addEventListener('touchend', function(event) {
+            clearTimeout(idleTimeout);
+        });
 
-            for (let i = 0; i <= this.numPoints; i++) {
-                this.points[i].y = height / 2 + Math.sin(Date.now() * this.speed + i) * this.height * dayMultiplier;
+        window.addEventListener('blur', () => {
+            audio.pause();
+            playButton.textContent = "⏯";
+        });
+
+        window.addEventListener('focus', () => {
+            if (!audio.paused) {
+                audio.play();
+                playButton.textContent = "⏸";
             }
-        };
+        });
 
-        Wave.prototype.draw = function () {
-            ctx.beginPath();
-            ctx.moveTo(this.points[0].x, this.points[0].y);
-            for (let i = 1; i <= this.numPoints; i++) {
-                ctx.lineTo(this.points[i].x, this.points[i].y);
+        window.addEventListener('resize', () => {
+            if (window.innerWidth < 500) {
+                document.body.style.overflow = 'auto';
             }
-            ctx.lineTo(width, height);
-            ctx.lineTo(0, height);
-            ctx.closePath();
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-            ctx.fill();
-        };
+        });
 
-        function animate() {
+        // Set up audio context for visualizer
+       
+    const canvas = document.getElementById('backgroundCanvas');
+const ctx = canvas.getContext('2d');
+let width, height;
+let waves = [];
+
+let deviceOrientation = 0;  // برای ذخیره زاویه دستگاه
+let dayMultiplier = 1.5;  // مقدار پیش‌فرض برای شب
+let nightHeightMultiplier = 1.5;
+let dayHeightMultiplier = 0.5;
+
+function init() {
+    resizeCanvas();
+    for (let i = 0; i < 3; i++) {
+        waves.push(new Wave());
+    }
+    animate();
+}
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    width = canvas.width;
+    height = canvas.height;
+}
+
+window.addEventListener('resize', resizeCanvas);
+
+// محاسبه تغییرات ارتفاع بر اساس ساعت روز و شب
+function updateDayNight() {
+    const hour = new Date().getHours();
+    dayMultiplier = (hour >= 6 && hour < 18) ? dayHeightMultiplier : nightHeightMultiplier;
+}
+
+// اضافه کردن حرکت ژیروسکوپ برای تغییرات جهت‌گیری
+window.addEventListener('deviceorientation', (event) => {
+    deviceOrientation = event.gamma; // زاویه چرخش گوشی در محور x
+});
+
+// کلاس Wave که ویژگی‌های جدید اضافه شده
+function Wave() {
+    this.points = [];
+    this.numPoints = 5;
+    this.baseHeight = Math.random() * 100 + 50;
+    this.speed = Math.random() * 0.02 + 0.01;
+    for (let i = 0; i <= this.numPoints; i++) {
+        this.points.push({
+            x: (i / this.numPoints) * width,
+            y: height / 2
+        });
+    }
+}
+
+Wave.prototype.update = function () {
+    updateDayNight(); // بروزرسانی وضعیت شب یا روز
+
+    // تغییرات ارتفاع بر اساس زمان و ژیروسکوپ
+    const dynamicHeight = this.baseHeight * dayMultiplier + deviceOrientation / 10;
+
+    for (let i = 0; i <= this.numPoints; i++) {
+        this.points[i].y = height / 2 + Math.sin(Date.now() * this.speed + i) * dynamicHeight;
+    }
+};
+
+Wave.prototype.draw = function () {
+    ctx.beginPath();
+    ctx.moveTo(this.points[0].x, this.points[0].y);
+    for (let i = 1; i <= this.numPoints; i++) {
+        ctx.lineTo(this.points[i].x, this.points[i].y);
+    }
+    ctx.lineTo(width, height);
+    ctx.lineTo(0, height);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+    ctx.fill();
+};
+
+function animate() {
     ctx.clearRect(0, 0, width, height);
     waves.forEach(wave => {
         wave.update();
@@ -504,71 +522,35 @@ document.addEventListener('visibilitychange', () => {
 init();
 animate();
 
-        init();
+// کنترل موسیقی و بروزرسانی ویژگی‌ها بر اساس صدا
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+const analyser = audioContext.createAnalyser();
+const source = audioContext.createMediaElementSource(audio);
+source.connect(analyser);
+analyser.connect(audioContext.destination);
 
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const analyser = audioContext.createAnalyser();
-        const source = audioContext.createMediaElementSource(audio);
-        source.connect(analyser);
-        analyser.connect(audioContext.destination);
-        
+analyser.fftSize = 256;
+const bufferLength = analyser.frequencyBinCount;
+const dataArray = new Uint8Array(bufferLength);
 
-        analyser.fftSize = 256;
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-
-        function updateWaves() {
+function updateWaves() {
     analyser.getByteFrequencyData(dataArray);
 
     const average = dataArray.reduce((a, b) => a + b) / bufferLength;
 
     waves.forEach((wave, index) => {
-        wave.height = average / (index + 1);
-        wave.update(average);
+        wave.baseHeight = average / (index + 1);
+        wave.update();
     });
 
     requestAnimationFrame(updateWaves);
 }
-        audio.addEventListener('play', () => {
-            audioContext.resume().then(() => {
-                updateWaves();
-            });
-        });
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-        audio.pause(); 
-    }
+
+audio.addEventListener('play', () => {
+    audioContext.resume().then(() => {
+        updateWaves();
+    });
 });
-        audio.addEventListener('ended', nextSong);
-
-        function resetIdleTimer() {
-            clearTimeout(idleTimeout);
-            blackScreen.style.display = 'none';
-            idleTimeout = setTimeout(() => {
-                blackScreen.style.display = 'block';
-            }, 30000);
-        }
-
-        document.addEventListener('mousemove', resetIdleTimer);
-        document.addEventListener('keypress', resetIdleTimer);
-        document.addEventListener('touchstart', resetIdleTimer);
-
-        resetIdleTimer();
-
-        function preventScreenLock() {
-            document.body.classList.add('no-lock');
-        }
-
-        preventScreenLock();
-        
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                audio.pause(); 
-            } else {
-                audio.play(); 
-            }
-        });
-        
     </script>
 </body>
 </html>
