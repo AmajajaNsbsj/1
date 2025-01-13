@@ -570,6 +570,12 @@
                 updateWaves();
             });
         });
+    window.addEventListener('visibilitychange', () => {
+    if (document.hidden && !isBackgroundPlay) {
+        audio.pause();
+        playButton.textContent = "⏯";
+    }
+});
     </script>
 </body>
 </html>
