@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اپلیکیشن تراز</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            transition: background-color 0.2s;
+        }
+        .container {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .ball {
+            width: 30px;
+            height: 30px;
+            background-color: red;
+            border-radius: 50%;
+            position: absolute;
+        }
+        .reset-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #008cba;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .reset-button:hover {
+            background-color: #005f5f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>لطفاً گوشی را در یک سطح صاف قرار دهید و دکمه تنظیم را فشار دهید</h1>
+        <button class="reset-button" onclick="resetCalibration()">تنظیم</button>
+    </div>
+    <div class="ball" id="ball"></div>
+    <script>
+        const ball = document.getElementById('ball');
+        const resetButton = document.querySelector('.reset-button');
+        let calibratedX = 0;
+        let calibratedY = 0;
+
+        function resetCalibration() {
+            calibratedX = window.innerWidth / 2;
+            calibratedY = window.innerHeight / 2;
+            document.querySelector('.container').style.display = 'none';
+        }
+
+        function updateBallPosition(x, y) {
+            const maxX = window.innerWidth - ball.offsetWidth;
+            const maxY = window.innerHeight - ball.offsetHeight;
+
+            const posX = calibratedX + (x / 90) * (maxX / 2);
+            const posY = calibratedY + (y / 90) * (maxY / 2);
+
+            ball.style.left = `${posX}px`;
+            ball.style.top = `${posY}px`;
+
+            // محاسبه فاصله از مرکز صفحه
+            const distance = Math.sqrt(Math.pow(posX - window.innerWidth / 2, 2) + Math.pow(posY - window.innerHeight / 2, 2));
+
+            // درصد فاصله برای تعیین شدت رنگ
+            const maxDistance = Math.sqrt(Math.pow(maxX / 2, 2) + Math.pow(maxY / 2, 2));
+            const distancePercentage = distance / maxDistance;
+
+            let red = 0;
+            let green = 0;
+            let blue = 0;
+
+            // تغییر رنگ از مشکی به قرمز، سپس به سبز و در نهایت به سفید
+            if (distancePercentage < 0.2) {
+                // رنگ قرمز
+                red = Math.min(255, distancePercentage * 255 * 5);
+                document.body.style.backgroundColor = `rgb(${red}, 0, 0)`;
+            } else if (distancePercentage < 0.4) {
+                // رنگ سبز
+                green = Math.min(255, (distancePercentage - 0.2) * 255 * 5);
+                document.body.style.backgroundColor = `rgb(255, ${green}, 0)`;
+            } else if (distancePercentage < 0.6) {
+                // ترکیب رنگ سبز به سفید
+                green = Math.min(255, (distancePercentage - 0.4) * 255 * 5);
+                document.body.style.backgroundColor = `rgb(255, 255, ${255 - green})`;
+            } else {
+                // سفید
+                document.body.style.backgroundColor = 'white';
+            }
+        }
+
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', function(event) {
+                const x = event.beta; // زاویه X
+                const y = event.gamma; // زاویه Y
+
+                updateBallPosition(y, x);
+            }, false);
+        } else {
+            alert("ژیروسکوپ توسط این مرورگر پشتیبانی نمی‌شود.");
+        }
+    </script>
+</body>
+</html>

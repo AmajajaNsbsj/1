@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اپلیکیشن قطب‌نما</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            background: linear-gradient(135deg, #2c3e50, #4ca1af);
+            color: #ecf0f1;
+        }
+
+        #compass-container {
+            position: relative;
+            padding: 20px;
+        }
+
+        #compass, #qibla-compass {
+            width: 200px;
+            height: 200px;
+            border: 10px solid #2980b9;
+            border-radius: 50%;
+            position: relative;
+            margin: 20px auto;
+            background-color: #ecf0f1;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        #needle, #qibla-needle {
+            width: 4px;
+            height: 80px;
+            background-color: #e74c3c;
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform-origin: 50% 100%;
+            transform: rotate(0deg);
+            transition: transform 0.1s ease-out;
+        }
+
+        #direction, #qibla-direction {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        #compass::before, #qibla-compass::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 8px;
+            height: 8px;
+            background: #e74c3c;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+        }
+
+        #city-select {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 5px;
+            border: 1px solid #2980b9;
+        }
+
+        #accuracy-note {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #ecf0f1;
+        }
+    </style>
+</head>
+<body>
+    <div id="compass-container">
+        <div id="compass">
+            <div id="needle"></div>
+        </div>
+        <p id="direction"></p>
+    </div>
+
+    <select id="city-select">
+        <option value="35.6892,51.3890">تهران</option>
+        <option value="32.6539,51.6660">اصفهان</option>
+        <option value="29.5918,52.5836">شیراز</option>
+        <option value="28.9684,50.8382">بوشهر</option>
+        <option value="36.2871,59.6150">مشهد</option>
+        <option value="34.6399,50.8759">قم</option>
+        <option value="31.8974,54.3569">یزد</option>
+        <option value="38.0833,46.2833">تبریز</option>
+        <option value="37.5515,45.0761">ارومیه</option>
+        <option value="30.2839,57.0834">کرمان</option>
+        <option value="35.3075,59.6059">نیشابور</option>
+        <option value="35.1028,58.7742">سبزوار</option>
+        <option value="27.1833,56.2667">بندرعباس</option>
+        <option value="31.3213,48.6692">اهواز</option>
+        <option value="37.5486,46.2089">مراغه</option>
+        <option value="35.1911,33.3823">دامغان</option>
+        <option value="37.1451,50.0066">رشت</option>
+        <option value="35.5522,51.0133">کرج</option>
+        <option value="32.6613,51.6804">کاشان</option>
+        <option value="30.2910,57.0658">زرند</option>
+        <option value="36.6512,53.0601">ساری</option>
+        <option value="35.2474,51.3921">اسلام‌شهر</option>
+        <option value="35.8012,50.9713">شهریار</option>
+        <option value="34.7992,48.5146">همدان</option>
+        <option value="29.4850,60.8670">چابهار</option>
+        <option value="30.2000,57.8000">بم</option>
+        <option value="34.3482,47.0580">کرمانشاه</option>
+        <option value="29.5845,60.8467">زاهدان</option>
+        <option value="36.9260,54.9010">گرگان</option>
+        <option value="28.9939,50.8180">بوشهر</option>
+        <option value="31.5497,74.3436">لاهور</option>
+        <option value="40.7128,-74.0060">نیویورک</option>
+        <option value="51.5074,-0.1278">لندن</option>
+        <option value="48.8566,2.3522">پاریس</option>
+        <option value="35.6895,139.6917">توکیو</option>
+        <option value="55.7558,37.6173">مسکو</option>
+        <option value="34.0522,-118.2437">لس‌آنجلس</option>
+        <option value="41.9028,12.4964">رم</option>
+        <option value="39.9042,116.4074">پکن</option>
+        <option value="19.4326,-99.1332">مکزیکوسیتی</option>
+        <option value="28.6139,77.2090">دهلی نو</option>
+    </select>
+
+    <div id="compass-container">
+        <div id="qibla-compass">
+            <div id="qibla-needle"></div>
+        </div>
+        <p id="qibla-direction">جهت قبله</p>
+    </div>
+
+    <p id="accuracy-note">دقت هر گوشی با گوشی دیگر متفاوت است</p>
+
+    <script>
+        const qiblaCoordinates = { lat: 21.4225, lng: 39.8262 };
+
+        let alpha = 0;
+        let lastAlpha = 0;
+        let qiblaAngle = 0;
+        const smoothingFactor = 0.1;
+
+        function updateCompass() {
+            const needle = document.getElementById("needle");
+            const qiblaNeedle = document.getElementById("qibla-needle");
+            const directionText = document.getElementById("direction");
+
+            alpha = lastAlpha + smoothingFactor * (alpha - lastAlpha);
+            lastAlpha = alpha;
+
+            needle.style.transform = "rotate(" + alpha + "deg)";
+            qiblaNeedle.style.transform = "rotate(" + (alpha + qiblaAngle) + "deg)";
+
+            if (alpha >= 0 && alpha <= 45 || alpha > 315) {
+                directionText.innerHTML = "شمال";
+            } else if (alpha > 45 && alpha <= 135) {
+                directionText.innerHTML = "شرق";
+            } else if (alpha > 135 && alpha <= 225) {
+                directionText.innerHTML = "جنوب";
+            } else {
+                directionText.innerHTML = "غرب";
+            }
+
+            requestAnimationFrame(updateCompass);
+        }
+
+        function calculateQiblaAngle(cityCoordinates) {
+            const lat1 = cityCoordinates.lat * Math.PI / 180.0;
+            const lon1 = cityCoordinates.lng * Math.PI / 180.0;
+            const lat2 = qiblaCoordinates.lat * Math.PI / 180.0;
+            const lon2 = qiblaCoordinates.lng * Math.PI / 180.0;
+
+            const dLon = lon2 - lon1;
+            const x = Math.cos(lat2) * Math.sin(dLon);
+            const y = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+            return (Math.atan2(x, y) * 180.0 / Math.PI + 360) % 360;
+        }
+
+        function updateQiblaCompass(cityCoordinates) {
+            const qiblaDirectionText = document.getElementById("qibla-direction");
+            qiblaAngle = calculateQiblaAngle(cityCoordinates);
+            qiblaDirectionText.innerHTML = "جهت قبله (تقریباً " + qiblaAngle.toFixed(2) + "°)";
+            localStorage.setItem('selectedCity', JSON.stringify(cityCoordinates));
+        }
+
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener("deviceorientation", function(event) {
+                alpha = event.alpha;
+            }, false);
+            requestAnimationFrame(updateCompass);
+        } else {
+            alert("دستگاه شما از جهت‌یاب پشتیبانی نمی‌کند.");
+        }
+
+        document.getElementById("city-select").addEventListener("change", function() {
+            const [lat, lng] = this.value.split(',').map(Number);
+            const cityCoordinates = { lat, lng };
+            updateQiblaCompass(cityCoordinates);
+        });
+
+        const savedCity = JSON.parse(localStorage.getItem('selectedCity'));
+        if (savedCity) {
+            updateQiblaCompass(savedCity);
+            document.getElementById("city-select").value = `${savedCity.lat},${savedCity.lng}`;
+        } else {
+            const defaultCity = document.getElementById("city-select").value.split(',');
+            updateQiblaCompass({ lat: parseFloat(defaultCity[0]), lng: parseFloat(defaultCity[1]) });
+        }
+    </script>
+</body>
+</html>
