@@ -325,10 +325,10 @@
       "id": 32,
       "name":  "چقدر زنده بودی ؟",
       "description": "",
-      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/33.png",
-      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/33.html",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/32.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/32.html",
       "size": 110,
-      "packageName": "ir.iupp.p",
+      "packageName": "ir.iupp",
       "type": "web" 
     }        ,
     {
@@ -340,6 +340,48 @@
       "size": 110,
       "packageName": "ir.iupp.p",
       "type": "web" 
-    }
+    }        ,
+    {
+      "id": 36,
+      "name":  "داده حفظ کن",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/36.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/36.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }        ,
+       
+    {
+      "id": 38,
+      "name":  "ضرب المثل",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/38.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/38.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }        ,
+    {
+      "id": 39,
+      "name":  "فرکانس درد",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/39.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/39.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }        ,
+    {
+      "id": 40,
+      "name":  "انگیشیات",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/40.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/40.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }        
+  
   ]
 }
