@@ -382,6 +382,26 @@
       "packageName": "ir.iupp.p",
       "type": "web" 
     }        
-  
+          ,
+    {
+      "id": 41,
+      "name":  "قطب و قبله",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/41.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/41.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }        ,
+    {
+      "id": 42,
+      "name":  "تراز",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/42.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/42.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }
   ]
 }
