@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #000000;
+      color: white;
+    }
+    #main-button {
+      width: 100px;
+      height: 100px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .frequency-button {
+      width: 100px;
+      height: 50px;
+      background-color: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 14px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    #controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+      position: absolute;
+      bottom: 20px;
+    }
+    #frequency-slider {
+      width: 80%;
+      margin-top: 20px;
+    }
+    #visualizer {
+      width: 80%;
+      height: 60vh;
+      background-color: #000000;
+    }
+    #frequency-display {
+      position: absolute;
+      top: 10px;
+      font-size: 24px;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      border: 2px solid #2196f3;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="frequency-display">فرکانس: 440 Hz</div>
+  <canvas id="visualizer"></canvas>
+
+  <div id="controls">
+    <div>
+      <button class="frequency-button" id="square-wave">مربع</button>
+      <button class="frequency-button" id="sine-wave">سینوسی</button>
+      <button class="frequency-button" id="sawtooth-wave">دندانه‌اره‌ای</button>
+    </div>
+
+    <input type="range" id="frequency-slider" min="0" max="6666" value="440">
+    <button id="main-button">شروع</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('visualizer');
+    const canvasCtx = canvas.getContext('2d');
+    const frequencyDisplay = document.getElementById('frequency-display');
+    const frequencySlider = document.getElementById('frequency-slider');
+    const mainButton = document.getElementById("main-button");
+
+    let isPlaying = false;
+    let frequency = frequencySlider.value;
+    let waveform = 'sine'; // Default waveform
+    let phase = 0;
+
+    // Audio context setup
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let oscillator;
+    let gainNode = audioCtx.createGain();
+
+    // Set up canvas size
+    function resizeCanvas() {
+      canvas.width = window.innerWidth * 0.8;
+      canvas.height = window.innerHeight * 0.6;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Add event listeners to buttons and slider
+    document.getElementById("square-wave").addEventListener("click", () => {
+      waveform = 'square';
+      if (oscillator) oscillator.type = waveform;
+      if (isPlaying) visualize();
+    });
+    document.getElementById("sine-wave").addEventListener("click", () => {
+      waveform = 'sine';
+      if (oscillator) oscillator.type = waveform;
+      if (isPlaying) visualize();
+    });
+    document.getElementById("sawtooth-wave").addEventListener("click", () => {
+      waveform = 'sawtooth';
+      if (oscillator) oscillator.type = waveform;
+      if (isPlaying) visualize();
+    });
+
+    mainButton.addEventListener("click", () => {
+      isPlaying = !isPlaying;
+      mainButton.style.backgroundColor = isPlaying ? "#f44336" : "#4caf50";
+      if (isPlaying) {
+        startOscillator();
+        visualize();
+      } else {
+        stopOscillator();
+      }
+    });
+
+    frequencySlider.addEventListener("input", (event) => {
+      frequency = event.target.value;
+      frequencyDisplay.textContent = `فرکانس: ${frequency} Hz`;
+      if (oscillator) {
+        oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+      }
+    });
+
+    // Function to start the oscillator
+    function startOscillator() {
+      oscillator = audioCtx.createOscillator();
+      oscillator.type = waveform;
+      oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      oscillator.start();
+    }
+
+    // Function to stop the oscillator
+    function stopOscillator() {
+      if (oscillator) {
+        oscillator.stop();
+        oscillator.disconnect();
+      }
+    }
+
+    // Function to visualize the waveform
+    function visualize() {
+      const amplitude = canvas.height / 3;
+      const wavelength = canvas.width / (frequency / 111);
+
+      function draw() {
+        if (!isPlaying) {
+          return;
+        }
+
+        requestAnimationFrame(draw);
+
+        phase += 0.1; // Adjust speed of wave movement
+
+        canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+
+        canvasCtx.lineWidth = 5; // Set line width to 5 pixels
+        canvasCtx.strokeStyle = 'blue'; // Set stroke color to blue
+
+        canvasCtx.beginPath();
+
+        for (let i = 0; i < canvas.width; i++) {
+          let y = canvas.height / 2;
+
+          if (waveform === 'sine') {
+            y += amplitude * Math.sin((i / wavelength) * 2 * Math.PI + phase);
+          } else if (waveform === 'square') {
+            y += (Math.sin((i / wavelength) * 2 * Math.PI + phase) >= 0) ? amplitude : -amplitude;
+          } else if (waveform === 'sawtooth') {
+            y += amplitude * (2 * ((i / wavelength + phase / (2 * Math.PI)) % 1) - 1);
+          }
+
+          if (i === 0) {
+            canvasCtx.moveTo(i, y);
+          } else {
+            canvasCtx.lineTo(i, y);
+          }
+        }
+
+        canvasCtx.stroke();
+      }
+
+      draw();
+    }
+
+    // Continuously update the visualization when the frequency slider is changed
+    frequencySlider.addEventListener("input", () => {
+      if (isPlaying) {
+        visualize();
+      }
+    });
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ردیاب سلامتی</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden; /* Disable scrolling */
+            user-select: none; /* Disable text selection */
+        }
+
+        .container {
+            width: 80%;
+            max-width: 1000px;
+            text-align: center;
+            background: #fff;
+            padding: 40px;
+            border-radius: 11px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.21);
+            transition: transform 0.3s ease;
+            animation: fly-in 1s ease-out; /* Add fly-in animation */
+        }
+
+        .container:hover {
+            transform: translateY(-10px);
+        }
+
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        #chartContainer {
+            margin-bottom: 40px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .charts {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+
+        .chart {
+            width: 100%;
+            max-width: 400px;
+            margin: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            animation: scale-in 0.5s ease; /* Add scale-in animation */
+        }
+
+        .chart:hover {
+            transform: scale(1.05); /* Add hover effect */
+        }
+
+        canvas {
+            background-color: #f9f9f9;
+            border-radius: 10px;
+        }
+
+        .reset-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #ff5e57;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .reset-button:hover {
+            background-color: #ff1e1e;
+        }
+
+        .copy-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+
+        @keyframes fly-in {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scale-in {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Add random styles */
+        .style1 { background: linear-gradient(45deg, #f093fb, #f5576c); }
+        .style2 { background: linear-gradient(45deg, #5ee7df, #b490ca); }
+        .style3 { background: linear-gradient(45deg, #c3cfe2, #c3cfe2); }
+        .style4 { background: linear-gradient(45deg, #c3cfe2, #c3cfe2); }
+        .style5 { background: linear-gradient(45deg, #f093fb, #f5576c); }
+        .style6 { background: linear-gradient(45deg, #5ee7df, #b490ca); }
+        .style7 { background: linear-gradient(45deg, #c3cfe2, #c3cfe2); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ردیاب سلامتی</h1>
+        <div id="chartContainer" class="charts">
+            <div class="chart">
+                <canvas id="weeklyChart"></canvas>
+            </div>
+            <div class="chart">
+                <canvas id="monthlyChart"></canvas>
+            </div>
+            <div class="chart">
+                <canvas id="yearlyChart"></canvas>
+            </div>
+        </div>
+        <button id="addRecordButton">ثبت داده</button>
+        <button class="reset-button" id="resetButton">ریست</button>
+        <button class="copy-button" id="copyButton">کپی داده‌ها</button>
+    </div>
+
+    <script>
+        let data = JSON.parse(localStorage.getItem('healthData')) || [];
+
+        function addEntry() {
+            const entry = {
+                date: new Date().toISOString()
+            };
+            data.push(entry);
+            localStorage.setItem('healthData', JSON.stringify(data));
+            updateCharts();
+        }
+
+        document.getElementById('addRecordButton').addEventListener('click', addEntry);
+
+        function resetData() {
+            if (confirm('آیا مطمئن هستید که می‌خواهید ریست کنید؟')) {
+                if (confirm('آیا واقعاً مطمئن هستید؟ این عمل غیر قابل بازگشت است!')) {
+                    localStorage.removeItem('healthData');
+                    data = [];
+                    updateCharts();
+                    alert('ریست با موفقیت انجام شد.');
+                }
+            }
+        }
+
+        document.getElementById('resetButton').addEventListener('click', resetData);
+
+        document.getElementById('copyButton').addEventListener('click', () => {
+            const dataString = JSON.stringify(data, null, 2);
+            navigator.clipboard.writeText(dataString).then(() => {
+                alert('داده‌ها کپی شد!');
+            }, (err) => {
+                console.error('خطا در کپی کردن داده‌ها: ', err);
+            });
+        });
+
+        function filterData(period) {
+            const now = new Date();
+            return data.filter(entry => {
+                const entryDate = new Date(entry.date);
+                if (period === 'year') {
+                    return entryDate.getFullYear() === now.getFullYear();
+                } else if (period === 'month') {
+                    return entryDate.getFullYear() === now.getFullYear() && entryDate.getMonth() === now.getMonth();
+                } else if (period === 'week') {
+                    const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+                    return entryDate >= startOfWeek;
+                }
+                return true;
+            });
+        }
+
+        function toPersianDigits(str) {
+            const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+            return str.replace(/\d/g, (d) => persianDigits[d]);
+        }
+
+        function gregorianToJalali(gy, gm, gd) {
+            const g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+            let jy = (gy <= 1600) ? 0 : 979;
+            gy -= (gy <= 1600) ? 621 : 1600;
+            const gy2 = (gm > 2) ? (gy + 1) : gy;
+            const days = (365 * gy) + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400) - 80 + gd + g_d_m[gm - 1];
+            jy += 33 * Math.floor(days / 12053);
+            const days2 = days % 12053;
+            jy += 4 * Math.floor(days2 / 1461);
+            let days3 = days2 % 1461;
+            if (days3 > 365) {
+                jy += Math.floor((days3 - 1) / 365);
+                days3 = (days3 - 1) % 365;
+            }
+            const jm = (days3 < 186) ? 1 + Math.floor(days3 / 31) : 7 + Math.floor((days3 - 186) / 30);
+            const jd = 1 + ((days3 < 186) ? (days3 % 31) : ((days3 - 186) % 30));
+            return [jy, jm, jd];
+        }
+
+        function convertToJalaliDate(date) {
+            const gDate = new Date(date);
+            const [jy, jm, jd] = gregorianToJalali(gDate.getFullYear(), gDate.getMonth() + 1, gDate.getDate());
+            return `${toPersianDigits(jy.toString())}/${toPersianDigits(jm.toString())}/${toPersianDigits(jd.toString())}`;
+        }
+
+        const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
+        const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+        const yearlyCtx = document.getElementById('yearlyChart').getContext('2d');
+
+        const weeklyChart = new Chart(weeklyCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: 7 }, (_, i) => convertToJalaliDate(new Date(new Date().setDate(new Date().getDate() - i)))),
+                datasets: [{
+                    label: 'ورودی‌های هفتگی',
+                    data: [],
+                    backgroundColor: 'rgba(75, 192, 192, 0.4)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#ddd' },
+                        ticks: { color: '#333' }
+                    },
+                    x: {
+                        grid: { color: '#ddd' },
+                        ticks: { color: '#333' }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: '#333' } }
+                }
+            }
+        });
+
+        const monthlyChart = new Chart(monthlyCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: 31 }, (_, i) => `${toPersianDigits((i + 1).toString())}`),
+                datasets: [{
+                    label: 'ورودی‌های ماهانه',
+                    data: [],
+                    backgroundColor: 'rgba(153, 102, 255, 0.4)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#ddd' },
+                        ticks: { color: '#333' }
+                    },
+                    x: {
+                        grid: { color: '#ddd' },
+                        ticks: { color: '#333' }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: '#333' } }
+                }
+            }
+        });
+
+        const yearlyChart = new Chart(yearlyCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: 12 }, (_, i) => `ماه ${toPersianDigits((i + 1).toString())}`),
+                datasets: [{
+                    label: 'ورودی‌های سالانه',
+                    data: [],
+                    backgroundColor: 'rgba(255, 159, 64, 0.4)',
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#ddd' },
+                        ticks: { color: '#333' }
+                    },
+                    x: {
+                        grid: { color: '#ddd' },
+                        ticks: { color: '#333' }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: '#333' } }
+                }
+            }
+        });
+
+        function updateCharts() {
+            const weeklyData = filterData('week');
+            const monthlyData = filterData('month');
+            const yearlyData = filterData('year');
+
+            const weeklyCounts = Array.from({ length: 7 }, (_, i) =>
+                weeklyData.filter(entry => new Date(entry.date).getDay() === i).length
+            );
+            weeklyChart.data.datasets[0].data = weeklyCounts;
+            weeklyChart.update();
+
+            const monthlyCounts = Array.from({ length: 31 }, (_, i) =>
+                monthlyData.filter(entry => new Date(entry.date).getDate() === i + 1).length
+            );
+            monthlyChart.data.datasets[0].data = monthlyCounts;
+            monthlyChart.update();
+
+            const yearlyCounts = Array.from({ length: 12 }, (_, i) =>
+                yearlyData.filter(entry => new Date(entry.date).getMonth() === i).length
+            );
+            yearlyChart.data.datasets[0].data = yearlyCounts;
+            yearlyChart.update();
+        }
+
+        updateCharts();
+
+        // Disable zooming
+        document.addEventListener('wheel', (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Apply random style
+        const styles = ['style1', 'style2', 'style3', 'style4', 'style5', 'style6', 'style7'];
+        const randomStyle = styles[Math.floor(Math.random() * styles.length)];
+        document.querySelector('.container').classList.add(randomStyle);
+    </script>
+</body>
+</html>

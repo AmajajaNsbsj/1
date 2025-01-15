@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake Call Simulation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 50px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #fakeCallButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+        }
+
+        .callScreen {
+            border: 2px solid #000;
+            background-color: #f1f1f1;
+            width: 300px;
+            padding: 20px;
+            margin: 50px auto;
+            border-radius: 10px;
+        }
+
+        .callDetails {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #callerName {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 18px;
+            margin: 10px;
+            cursor: pointer;
+        }
+
+        #answerButton {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #declineButton {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button id="fakeCallButton">Simulate Fake Call</button>
+        
+        <!-- Fake Call Screen -->
+        <div id="callScreen" class="callScreen hidden">
+            <div class="callDetails">
+                <p id="callerName">John Doe</p>
+                <button id="answerButton" onclick="answerCall()">Answer</button>
+                <button id="declineButton" onclick="declineCall()">Decline</button>
+            </div>
+        </div>
+
+        <!-- Audio for fake call ringtone (replace the URL with the desired sound file) -->
+        <audio id="ringTone" src="https://dls.musics-fa.com/tagdl/downloads/Iphone%20Ringtone%20-%20Number%201%20(320).mp3" loop></audio>
+    </div>
+
+    <script>
+        document.getElementById('fakeCallButton').addEventListener('click', function() {
+            // Show the call screen
+            document.getElementById('callScreen').classList.remove('hidden');
+            
+            // Play the ringtone
+            document.getElementById('ringTone').play();
+            
+            // Automatically stop the ringtone and hide the call screen after 15 seconds
+            setTimeout(function() {
+                document.getElementById('ringTone').pause();
+                alert("You missed the call!");
+                document.getElementById('callScreen').classList.add('hidden');
+            }, 15000);  // Fake call duration of 15 seconds
+        });
+
+        // Function for answering the call
+        function answerCall() {
+            alert('Call Answered!');
+            document.getElementById('ringTone').pause();
+            document.getElementById('callScreen').classList.add('hidden');
+        }
+
+        // Function for declining the call
+        function declineCall() {
+            alert('Call Declined!');
+            document.getElementById('ringTone').pause();
+            document.getElementById('callScreen').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
