@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اپلیکیشن To-Do List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        :root {
+            --hue: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            height: 100vh;
+            color: hsl(var(--hue), 100%, 20%);
+            background-color: hsl(var(--hue), 100%, 90%);
+            transition: background-color 1s ease, color 1s ease;
+            animation: backgroundChange 20s infinite;
+        }
+
+        @keyframes backgroundChange {
+            0% { --hue: 0; }
+            25% { --hue: 90; }
+            50% { --hue: 180; }
+            75% { --hue: 270; }
+            100% { --hue: 360; }
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: calc(100% - 99px);
+            height: calc(100% - 99px);
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 1s ease;
+            overflow-y: auto;
+            animation: containerFadeIn 1s ease-in-out;
+        }
+
+        @keyframes containerFadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .container:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            margin-bottom: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            animation: textColorChange 10s infinite;
+        }
+
+        @keyframes textColorChange {
+            0% { color: hsl(var(--hue), 100%, 40%); }
+            50% { color: hsl(var(--hue), 100%, 60%); }
+            100% { color: hsl(var(--hue), 100%, 40%); }
+        }
+
+        form {
+            display: flex;
+            margin-bottom: 10px;
+            animation: formFadeIn 1s ease-in-out;
+        }
+
+        @keyframes formFadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            outline: none;
+            font-size: 16px;
+            transition: background-color 0.3s, box-shadow 0.3s, color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            background-color: #f0f0f0;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            color: #333;
+        }
+
+        button {
+            padding: 0 20px;
+            border: none;
+            background-color: hsl(var(--hue), 100%, 40%);
+            color: #fff;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s, transform 0.3s, color 0.3s;
+        }
+
+        button:hover {
+            background-color: hsl(var(--hue), 100%, 50%);
+            transform: scale(1.1);
+            color: #fff;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            max-height: calc(100% - 100px);
+            overflow-y: auto;
+            animation: listFadeIn 1s ease-in-out;
+        }
+
+        @keyframes listFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        li {
+            background-color: rgba(249, 249, 249, 0.9);
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            transition: transform 0.2s, background-color 1s ease, box-shadow 0.2s, color 1s ease;
+            animation: listItemFadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes listItemFadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        li:hover {
+            transform: translateX(10px);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            color: #333;
+        }
+
+        button.delete {
+            background-color: #dc3545;
+            padding: 8px 12px;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s, color 0.3s;
+        }
+
+        button.delete:hover {
+            background-color: #c82333;
+            transform: scale(1.1);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>لیست کارها</h1>
+        <form id="todo-form">
+            <input type="text" id="todo-input" placeholder="کار جدید را وارد کنید...">
+            <button type="submit"><i class="fas fa-plus"></i></button>
+        </form>
+        <ul id="todo-list"></ul>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const todoForm = document.getElementById('todo-form');
+            const todoInput = document.getElementById('todo-input');
+            const todoList = document.getElementById('todo-list');
+
+            // Load todos from localStorage
+            const savedTodos = JSON.parse(localStorage.getItem('todos')) || [];
+            savedTodos.forEach(todo => addTodoItem(todo));
+
+            todoForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const todoText = todoInput.value.trim();
+                if (todoText !== '') {
+                    addTodoItem(todoText);
+                    saveTodoItem(todoText);
+                    todoInput.value = '';
+                }
+            });
+
+            function addTodoItem(todoText) {
+                const li = document.createElement('li');
+                li.textContent = todoText;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                deleteButton.classList.add('delete');
+                deleteButton.addEventListener('click', () => {
+                    if (confirm('تموم کردی ؟؟ !')) {
+                        li.remove();
+                        removeTodoItem(todoText);
+                        alert('افرین عزیزم 💜');
+                    }
+                });
+
+                li.appendChild(deleteButton);
+                todoList.appendChild(li);
+            }
+
+            function saveTodoItem(todoText) {
+                const todos = JSON.parse(localStorage.getItem('todos')) || [];
+                todos.push(todoText);
+                localStorage.setItem('todos', JSON.stringify(todos));
+            }
+
+            function removeTodoItem(todoText) {
+                let todos = JSON.parse(localStorage.getItem('todos')) || [];
+                todos = todos.filter(todo => todo !== todoText);
+                localStorage.setItem('todos', JSON.stringify(todos));
+            }
+
+            // Function to gradually change colors
+            function changeColors() {
+                const hue = Math.floor(Math.random() * 360);
+                document.documentElement.style.setProperty('--hue', hue);
+            }
+
+            // Change colors every 5 seconds
+            setInterval(changeColors, 50000);
+        });
+    </script>
+</body>
+</html>
