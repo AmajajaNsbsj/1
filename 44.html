@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Web IDE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background: #000;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #header {
+            display: flex;
+            justify-content: center;
+            background-color: var(--header-bg, #2c3e50);
+            padding: 10px;
+            z-index: 1000;
+        }
+
+        #header button {
+            flex: 1;
+            border: none;
+            background-color: transparent;
+            color: var(--header-button-color, white);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        #header button:hover {
+            background-color: var(--header-button-hover-bg, #34495e);
+        }
+
+        #header button.active {
+            background-color: var(--header-button-active-bg, #3498db);
+        }
+
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            height: calc(100vh - 120px);
+        }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+            border: none;
+            font-family: var(--editor-font, 'Consolas', monospace);
+            padding: 20px;
+            resize: none;
+            background-color: var(--editor-bg, #1e1e1e);
+            color: var(--editor-color, #ffffff);
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        textarea:focus {
+            outline: none;
+        }
+
+        iframe {
+            flex: 1;
+            width: 100%;
+            height: 100vh;
+            border: none;
+            background-color: white;
+        }
+
+        #controls {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background-color: var(--controls-bg, #2c3e50);
+        }
+
+        #run-button, #exit-button {
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        #run-button {
+            background-color: var(--run-button-bg, #27ae60);
+            color: white;
+            flex: 1;
+        }
+
+        #run-button:hover {
+            background-color: var(--run-button-hover-bg, #219a52);
+        }
+
+        #exit-button {
+            background-color: var(--exit-button-bg, #e74c3c);
+            color: white;
+            display: none;
+        }
+
+        #exit-button:hover {
+            background-color: var(--exit-button-hover-bg, #c0392b);
+        }
+
+        #prev-change, #next-change {
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            background-color: var(--controls-bg, #2c3e50);
+            color: white;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .editor-wrapper {
+            position: relative;
+            height: 100%;
+            background-color: var(--editor-bg, #1e1e1e);
+            display: flex;
+        }
+
+        .line-numbers {
+            width: 50px;
+            padding: 20px 10px;
+            background-color: var(--line-numbers-bg, #252526);
+            color: var(--line-numbers-color, #858585);
+            font-family: var(--editor-font, 'Consolas', monospace);
+            font-size: 16px;
+            line-height: 1.5;
+            text-align: right;
+            user-select: none;
+        }
+
+        #save-version, #version-select, #delete-version, #delete-all-versions {
+            padding: 10px;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        textarea::placeholder {
+            color: var(--editor-placeholder-color, #666);
+        }
+
+        textarea::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        textarea::-webkit-scrollbar-track {
+            background: var(--scrollbar-track-bg, #1e1e1e);
+        }
+
+        textarea::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb-bg, #424242);
+            border-radius: 6px;
+        }
+
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: var(--scrollbar-thumb-hover-bg, #4f4f4f);
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 110px;
+            left: 10px;
+            background-color: var(--dropdown-bg, #2c3e50);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+            animation: slide-down 0.3s ease-in-out;
+        }
+
+        .dropdown-menu button {
+            background-color: var(--dropdown-button-bg, #34495e);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 5px;
+            margin: 5px 0;
+            width: 100%;
+            top: 21px;
+            border-radius: 3px;
+        }
+
+        .dropdown-menu button:hover {
+            background-color: var(--dropdown-button-hover-bg, #3b5998);
+            
+        }
+
+        .dropdown-trigger {
+            background-color: var(--dropdown-trigger-bg, #2c3e50);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 5px;
+            margin: 5px 10px;
+            border-radius: 3px;
+             
+        }
+
+        .version-control-trigger, .style-trigger {
+            position: fixed;
+            width: 5px;
+            height: 100vh;
+            background-color: var(--trigger-bg, #2c3e50);
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .version-control-trigger {
+            left: 0;
+        }
+
+        .style-trigger {
+            right: 0;
+        }
+
+        @keyframes slide-down {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        body.default {
+            --editor-bg: #1e1e1e;
+            --editor-color: #ffffff;
+            --scrollbar-track-bg: #1e1e1e;
+            --scrollbar-thumb-bg: #424242;
+            --scrollbar-thumb-hover-bg: #4f4f4f;
+            --header-bg: #2c3e50;
+            --header-button-color: white;
+            --header-button-hover-bg: #34495e;
+            --header-button-active-bg: #3498db;
+            --controls-bg: #2c3e50;
+            --run-button-bg: #27ae60;
+            --run-button-hover-bg: #219a52;
+            --exit-button-bg: #e74c3c;
+            --exit-button-hover-bg: #c0392b;
+            --line-numbers-bg: #252526;
+            --line-numbers-color: #858585;
+            --editor-placeholder-color: #666;
+            --dropdown-bg: #2c3e50;
+            --dropdown-button-bg: #34495e;
+            --dropdown-button-hover-bg: #3b5998;
+            --dropdown-trigger-bg: #2c3e50;
+            --trigger-bg: #2c3e50;
+        }
+
+        body.dark {
+            --editor-bg: #1e1e1e;
+            --editor-color: #ffffff;
+            --scrollbar-track-bg: #1e1e1e;
+            --scrollbar-thumb-bg: #424242;
+            --scrollbar-thumb-hover-bg: #4f4f4f;
+            --header-bg: #1e1e1e;
+            --header-button-color: white;
+            --header-button-hover-bg: #424242;
+            --header-button-active-bg: #3498db;
+            --controls-bg: #1e1e1e;
+            --run-button-bg: #27ae60;
+            --run-button-hover-bg: #219a52;
+            --exit-button-bg: #e74c3c;
+            --exit-button-hover-bg: #c0392b;
+            --line-numbers-bg: #252526;
+            --line-numbers-color: #858585;
+            --editor-placeholder-color: #666;
+            --dropdown-bg: #1e1e1e;
+            --dropdown-button-bg: #424242;
+            --dropdown-button-hover-bg: #3b5998;
+            --dropdown-trigger-bg: #1e1e1e;
+            --trigger-bg: #1e1e1e;
+        }
+
+        body.light {
+            --editor-bg: #f5f5f5;
+            --editor-color: #333;
+            --scrollbar-track-bg: #e0e0e0;
+            --scrollbar-thumb-bg: #c0c0c0;
+            --scrollbar-thumb-hover-bg: #a0a0a0;
+            --header-bg: #f5f5f5;
+            --header-button-color: #333;
+            --header-button-hover-bg: #e0e0e0;
+            --header-button-active-bg: #3498db;
+            --controls-bg: #f5f5f5;
+            --run-button-bg: #27ae60;
+            --run-button-hover-bg: #219a52;
+            --exit-button-bg: #e74c3c;
+            --exit-button-hover-bg: #c0392b;
+            --line-numbers-bg: #e0e0e0;
+            --line-numbers-color: #333;
+            --editor-placeholder-color: #666;
+            --dropdown-bg: #f5f5f5;
+            --dropdown-button-bg: #e0e0e0;
+            --dropdown-button-hover-bg: #3b5998;
+            --dropdown-trigger-bg: #f5f5f5;
+            --trigger-bg: #f5f5f5;
+        }
+
+        body.monokai {
+            --editor-bg: #272822;
+            --editor-color: #f8f8f2;
+            --scrollbar-track-bg: #3e3d32;
+            --scrollbar-thumb-bg: #75715e;
+            --scrollbar-thumb-hover-bg: #a59f85;
+            --header-bg: #272822;
+            --header-button-color: #f8f8f2;
+            --header-button-hover-bg: #3e3d32;
+            --header-button-active-bg: #3498db;
+            --controls-bg: #272822;
+            --run-button-bg: #27ae60;
+            --run-button-hover-bg: #219a52;
+            --exit-button-bg: #e74c3c;
+            --exit-button-hover-bg: #c0392b;
+            --line-numbers-bg: #3e3d32;
+            --line-numbers-color: #f8f8f2;
+            --editor-placeholder-color: #f8f8f2;
+            --dropdown-bg: #272822;
+            --dropdown-button-bg: #3e3d32;
+            --dropdown-button-hover-bg: #3b5998;
+            --dropdown-trigger-bg: #272822;
+            --trigger-bg: #272822;
+        }
+
+        body.solarized-dark {
+            --editor-bg: #073642;
+            --editor-color: #839496;
+            --scrollbar-track-bg: #002b36;
+            --scrollbar-thumb-bg: #586e75;
+            --scrollbar-thumb-hover-bg: #657b83;
+            --header-bg: #073642;
+            --header-button-color: #839496;
+            --header-button-hover-bg: #002b36;
+            --header-button-active-bg: #3498db;
+            --controls-bg: #073642;
+            --run-button-bg: #27ae60;
+            --run-button-hover-bg: #219a52;
+            --exit-button-bg: #e74c3c;
+            --exit-button-hover-bg: #c0392b;
+            --line-numbers-bg: #002b36;
+            --line-numbers-color: #839496;
+            --editor-placeholder-color: #839496;
+            --dropdown-bg: #073642;
+            --dropdown-button-bg: #002b36;
+            --dropdown-button-hover-bg: #3b5998;
+            --dropdown-trigger-bg: #073642;
+            --trigger-bg: #073642;
+        }
+
+        body.solarized-light {
+            --editor-bg: #fdf6e3;
+            --editor-color: #657b83;
+            --scrollbar-track-bg: #eee8d5;
+            --scrollbar-thumb-bg: #93a1a1;
+            --scrollbar-thumb-hover-bg: #839496;
+            --header-bg: #fdf6e3;
+            --header-button-color: #657b83;
+            --header-button-hover-bg: #eee8d5;
+            --header-button-active-bg: #3498db;
+            --controls-bg: #fdf6e3;
+            --run-button-bg: #27ae60;
+            --run-button-hover-bg: #219a52;
+            --exit-button-bg: #e74c3c;
+            --exit-button-hover-bg: #c0392b;
+            --line-numbers-bg: #eee8d5;
+            --line-numbers-color: #657b83;
+            --editor-placeholder-color: #657b83;
+            --dropdown-bg: #fdf6e3;
+            --dropdown-button-bg: #eee8d5;
+            --dropdown-button-hover-bg: #3b5998;
+            --dropdown-trigger-bg: #fdf6e3;
+            --trigger-bg: #fdf6e3;
+        }
+
+        body.dracula {
+            --editor-bg: #282a36;
+            --editor-color: #f8f8f2;
+            --scrollbar-track-bg: #44475a;
+            --scrollbar-thumb-bg: #6272a4;
+            --scrollbar-thumb-hover-bg: #7081b9;
+            --header-bg: #282a36;
+            --header-button-color: #f8f8f2;
+            --header-button-hover-bg: #44475a;
+            --header-button-active-bg: #3498db;
+            --controls-bg: #282a36;
+            --run-button-bg: #27ae60;
+            --run-button-hover-bg: #219a52;
+            --exit-button-bg: #e74c3c;
+            --exit-button-hover-bg: #c0392b;
+            --line-numbers-bg: #44475a;
+            --line-numbers-color: #f8f8f2;
+            --editor-placeholder-color: #f8f8f2;
+            --dropdown-bg: #282a36;
+            --dropdown-button-bg: #44475a;
+            --dropdown-button-hover-bg: #3b5998;
+            --dropdown-trigger-bg: #282a36;
+            --trigger-bg: #282a36;
+        }
+
+        body.eclipse {
+            --editor-bg: #ffffff;
+            --editor-color: #000000;
+            --scrollbar-track-bg: #f0f0f0;
+            --scrollbar-thumb-bg: #c0c0c0;
+            --scrollbar-thumb-hover-bg: #a0a0a0;
+            --header-bg: #3c3f41;
+            --header-button-color: #ffffff;
+            --header-button-hover-bg: #4c4f51;
+            --header-button-active-bg: #5c5f61;
+            --controls-bg: #3c3f41;
+            --run-button-bg: #27ae60;
+            --run-button-hover-bg: #219a52;
+            --exit-button-bg: #e74c3c;
+            --exit-button-hover-bg: #c0392b;
+            --line-numbers-bg: #f0f0f0;
+            --line-numbers-color: #000000;
+            --editor-placeholder-color: #b0b0b0;
+            --dropdown-bg: #3c3f41;
+            --dropdown-button-bg: #4c4f51;
+            --dropdown-button-hover-bg: #5c5f61;
+            --dropdown-trigger-bg: #3c3f41;
+            --trigger-bg: #3c3f41;
+        }
+
+        body.terminal {
+            --editor-bg: #000000;
+            --editor-color: #00ff00;
+            --scrollbar-track-bg: #333333;
+            --scrollbar-thumb-bg: #555555;
+            --scrollbar-thumb-hover-bg: #777777;
+            --header-bg: #000000;
+            --header-button-color: #00ff00;
+            --header-button-hover-bg: #111111;
+            --header-button-active-bg: #222222;
+            --controls-bg: #000000;
+            --run-button-bg: #00ff00;
+            --run-button-hover-bg: #00cc00;
+            --exit-button-bg: #ff0000;
+            --exit-button-hover-bg: #cc0000;
+            --line-numbers-bg: #333333;
+            --line-numbers-color: #00ff00;
+            --editor-placeholder-color: #00ff00;
+            --dropdown-bg: #000000;
+            --dropdown-button-bg: #111111;
+            --dropdown-button-hover-bg: #222222;
+            --dropdown-trigger-bg: #000000;
+            --trigger-bg: #000000;
+        }
+
+        body.visual-studio {
+            --editor-bg: #1e1e1e;
+            --editor-color: #dcdcdc;
+            --scrollbar-track-bg: #2a2d2e;
+            --scrollbar-thumb-bg: #3e3e3e;
+            --scrollbar-thumb-hover-bg: #4e4e4e;
+            --header-bg: #007acc;
+            --header-button-color: #ffffff;
+            --header-button-hover-bg: #005f9e;
+            --header-button-active-bg: #004d80;
+            --controls-bg: #007acc;
+            --exit-button-bg: #e74c3c;
+            --exit-button-hover-bg: #c0392b;
+            --line-numbers-bg: #2a2d2e;
+            --line-numbers-color: #dcdcdc;
+            --editor-placeholder-color: #dcdcdc;
+            --dropdown-bg: #007acc;
+            --dropdown-button-bg: #005f9e;
+            --dropdown-button-hover-bg: #004d80;
+            --dropdown-trigger-bg: #007acc;
+            --trigger-bg: #007acc;
+        }
+        body.oceanic {
+    --editor-bg: #1b2b34;
+    --editor-color: #d8dee9;
+    --scrollbar-track-bg: #343d46;
+    --scrollbar-thumb-bg: #4f5b66;
+    --scrollbar-thumb-hover-bg: #65737e;
+    --header-bg: #1b2b34;
+    --header-button-color: #d8dee9;
+    --header-button-hover-bg: #343d46;
+    --header-button-active-bg: #6699cc;
+    --controls-bg: #1b2b34;
+    --run-button-bg: #99c794;
+    --run-button-hover-bg: #85b383;
+    --exit-button-bg: #ec5f67;
+    --exit-button-hover-bg: #d04f57;
+    --line-numbers-bg: #343d46;
+    --line-numbers-color: #65737e;
+    --editor-placeholder-color: #65737e;
+    --dropdown-bg: #1b2b34;
+    --dropdown-button-bg: #343d46;
+    --dropdown-button-hover-bg: #4f5b66;
+    --dropdown-trigger-bg: #1b2b34;
+    --trigger-bg: #1b2b34;
+}
+body.dark-purple {
+    --editor-bg: #1a1025;
+    --editor-color: #e2d9f3;
+    --scrollbar-track-bg: #2d1f3d;
+    --scrollbar-thumb-bg: #4a2d6a;
+    --scrollbar-thumb-hover-bg: #613b8c;
+    --header-bg: #2d1f3d;
+    --header-button-color: #e2d9f3;
+    --header-button-hover-bg: #4a2d6a;
+    --header-button-active-bg: #8a4fff;
+    --controls-bg: #2d1f3d;
+    --run-button-bg: #9d4edd;
+    --run-button-hover-bg: #7b2cbf;
+    --exit-button-bg: #ff4d6d;
+    --exit-button-hover-bg: #d83a56;
+    --line-numbers-bg: #2d1f3d;
+    --line-numbers-color: #9d8bb0;
+    --editor-placeholder-color: #9d8bb0;
+    --dropdown-bg: #2d1f3d;
+    --dropdown-button-bg: #4a2d6a;
+    --dropdown-button-hover-bg: #613b8c;
+    --dropdown-trigger-bg: #2d1f3d;
+    --trigger-bg: #2d1f3d;
+}
+body.dark-crimson {
+    --editor-bg: #1a0f0f;
+    --editor-color: #fff1f1;
+    --scrollbar-track-bg: #2a1515;
+    --scrollbar-thumb-bg: #461919;
+    --scrollbar-thumb-hover-bg: #621f1f;
+    --header-bg: #2a1515;
+    --header-button-color: #fff1f1;
+    --header-button-hover-bg: #461919;
+    --header-button-active-bg: #c41e3a;
+    --controls-bg: #2a1515;
+    --run-button-bg: #dc143c;
+    --run-button-hover-bg: #b0102f;
+    --exit-button-bg: #8b0000;
+    --exit-button-hover-bg: #660000;
+    --line-numbers-bg: #2a1515;
+    --line-numbers-color: #a65d5d;
+    --editor-placeholder-color: #a65d5d;
+    --dropdown-bg: #2a1515;
+    --dropdown-button-bg: #461919;
+    --dropdown-button-hover-bg: #621f1f;
+    --dropdown-trigger-bg: #2a1515;
+    --trigger-bg: #2a1515;
+}
+body.neon-night {
+    --editor-bg: #0d0d14;
+    --editor-color: #e0f7ff;
+    --scrollbar-track-bg: #15152b;
+    --scrollbar-thumb-bg: #1f1f42;
+    --scrollbar-thumb-hover-bg: #2a2a5a;
+    --header-bg: #15152b;
+    --header-button-color: #e0f7ff;
+    --header-button-hover-bg: #1f1f42;
+    --header-button-active-bg: #00ffff;
+    --controls-bg: #15152b;
+    --run-button-bg: #00c3ff;
+    --run-button-hover-bg: #0099ff;
+    --exit-button-bg: #ff006c;
+    --exit-button-hover-bg: #cc0056;
+    --line-numbers-bg: #15152b;
+    --line-numbers-color: #4d4d8f;
+    --editor-placeholder-color: #4d4d8f;
+    --dropdown-bg: #15152b;
+    --dropdown-button-bg: #1f1f42;
+    --dropdown-button-hover-bg: #2a2a5a;
+    --dropdown-trigger-bg: #15152b;
+    --trigger-bg: #15152b;
+}
+body.shadow-blood {
+    --editor-bg: #000000;
+    --editor-color: #ff3333;
+    --scrollbar-track-bg: #000000;
+    --scrollbar-thumb-bg: #330000;
+    --scrollbar-thumb-hover-bg: #400000;
+    --header-bg: #000000;
+    --header-button-color: #ff3333;
+    --header-button-hover-bg: #330000;
+    --header-button-active-bg: #ff0000;
+    --controls-bg: #000000;
+    --run-button-bg: #330000;
+    --run-button-hover-bg: #400000;
+    --exit-button-bg: #330000;
+    --exit-button-hover-bg: #400000;
+    --line-numbers-bg: #000000;
+    --line-numbers-color: #ff3333;
+    --editor-placeholder-color: #ff3333;
+    --dropdown-bg: #000000;
+    --dropdown-button-bg: #330000;
+    --dropdown-button-hover-bg: #400000;
+    --dropdown-trigger-bg: #000000;
+    --trigger-bg: #000000;
+}
+body.cyber-glow {
+    --editor-bg: #000000;
+    --editor-color: #00ffff;
+    --scrollbar-track-bg: #000000;
+    --scrollbar-thumb-bg: #003333;
+    --scrollbar-thumb-hover-bg: #004444;
+    --header-bg: #000000;
+    --header-button-color: #00ffff;
+    --header-button-hover-bg: #003333;
+    --header-button-active-bg: #00ffff;
+    --controls-bg: #000000;
+    --run-button-bg: #003333;
+    --run-button-hover-bg: #004444;
+    --exit-button-bg: #003333;
+    --exit-button-hover-bg: #004444;
+    --line-numbers-bg: #000000;
+    --line-numbers-color: #00ffff;
+    --editor-placeholder-color: #00ffff;
+    --dropdown-bg: #000000;
+    --dropdown-button-bg: #003333;
+    --dropdown-button-hover-bg: #004444;
+    --dropdown-trigger-bg: #000000;
+    --trigger-bg: #000000;
+}
+body.sunset-orange {
+    --editor-bg: #000000;
+    --editor-color: #ff6600;
+    --scrollbar-track-bg: #000000;
+    --scrollbar-thumb-bg: #331100;
+    --scrollbar-thumb-hover-bg: #442200;
+    --header-bg: #000000;
+    --header-button-color: #ff6600;
+    --header-button-hover-bg: #331100;
+    --header-button-active-bg: #ff6600;
+    --controls-bg: #000000;
+    --run-button-bg: #331100;
+    --run-button-hover-bg: #442200;
+    --exit-button-bg: #331100;
+    --exit-button-hover-bg: #442200;
+    --line-numbers-bg: #000000;
+    --line-numbers-color: #ff6600;
+    --editor-placeholder-color: #ff6600;
+    --dropdown-bg: #000000;
+    --dropdown-button-bg: #331100;
+    --dropdown-button-hover-bg: #442200;
+    --dropdown-trigger-bg: #000000;
+    --trigger-bg: #000000;
+}body.ocean-depth {
+    --editor-bg: #000000;
+    --editor-color: #0088ff;
+    --scrollbar-track-bg: #000000;
+    --scrollbar-thumb-bg: #001133;
+    --scrollbar-thumb-hover-bg: #002244;
+    --header-bg: #000000;
+    --header-button-color: #0088ff;
+    --header-button-hover-bg: #001133;
+    --header-button-active-bg: #0088ff;
+    --controls-bg: #000000;
+    --run-button-bg: #001133;
+    --run-button-hover-bg: #002244;
+    --exit-button-bg: #001133;
+    --exit-button-hover-bg: #002244;
+    --line-numbers-bg: #000000;
+    --line-numbers-color: #0088ff;
+    --editor-placeholder-color: #0088ff;
+    --dropdown-bg: #000000;
+    --dropdown-button-bg: #001133;
+    --dropdown-button-hover-bg: #002244;
+    --dropdown-trigger-bg: #000000;
+    --trigger-bg: #000000;
+}body.golden-code {
+    --editor-bg: #000000;
+    --editor-color: #ffd700;
+    --scrollbar-track-bg: #000000;
+    --scrollbar-thumb-bg: #332200;
+    --scrollbar-thumb-hover-bg: #443300;
+    --header-bg: #000000;
+    --header-button-color: #ffd700;
+    --header-button-hover-bg: #332200;
+    --header-button-active-bg: #ffd700;
+    --controls-bg: #000000;
+    --run-button-bg: #332200;
+    --run-button-hover-bg: #443300;
+    --exit-button-bg: #332200;
+    --exit-button-hover-bg: #443300;
+    --line-numbers-bg: #000000;
+    --line-numbers-color: #ffd700;
+    --editor-placeholder-color: #ffd700;
+    --dropdown-bg: #000000;
+    --dropdown-button-bg: #332200;
+    --dropdown-button-hover-bg: #443300;
+    --dropdown-trigger-bg: #000000;
+    --trigger-bg: #000000;
+}body.amethyst-dreams {
+    --editor-bg: #000000;
+    --editor-color: #bf00ff;
+    --scrollbar-track-bg: #000000;
+    --scrollbar-thumb-bg: #330044;
+    --scrollbar-thumb-hover-bg: #440066;
+    --header-bg: #000000;
+    --header-button-color: #bf00ff;
+    --header-button-hover-bg: #330044;
+    --header-button-active-bg: #bf00ff;
+    --controls-bg: #000000;
+    --run-button-bg: #330044;
+    --run-button-hover-bg: #440066;
+    --exit-button-bg: #330044;
+    --exit-button-hover-bg: #440066;
+    --line-numbers-bg: #000000;
+    --line-numbers-color: #bf00ff;
+    --editor-placeholder-color: #bf00ff;
+    --dropdown-bg: #000000;
+    --dropdown-button-bg: #330044;
+    --dropdown-button-hover-bg: #440066;
+    --dropdown-trigger-bg: #000000;
+    --trigger-bg: #000000;
+}body.emerald-night {
+    --editor-bg: #000000;
+    --editor-color: #00ff9d;
+    --scrollbar-track-bg: #000000;
+    --scrollbar-thumb-bg: #003322;
+    --scrollbar-thumb-hover-bg: #004433;
+    --header-bg: #000000;
+    --header-button-color: #00ff9d;
+    --header-button-hover-bg: #003322;
+    --header-button-active-bg: #00ff9d;
+    --controls-bg: #000000;
+    --run-button-bg: #003322;
+    --run-button-hover-bg: #004433;
+    --exit-button-bg: #003322;
+    --exit-button-hover-bg: #004433;
+    --line-numbers-bg: #000000;
+    --line-numbers-color: #00ff9d;
+    --editor-placeholder-color: #00ff9d;
+    --dropdown-bg: #000000;
+    --dropdown-button-bg: #003322;
+    --dropdown-button-hover-bg: #004433;
+    --dropdown-trigger-bg: #000000;
+    --trigger-bg: #000000;
+}
+/* اضافه کردن به بخش style */
+.suggestions-container {
+    position: absolute;
+    background: var(--editor-bg);
+    border: 2px solid var(--header-button-active-bg);
+    border-radius: 8px;
+    max-height: 300px;
+    min-width: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(5px);
+    animation: suggestionsAppear 0.2s ease-out;
+}
+
+@keyframes suggestionsAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.suggestion-item {
+    padding: 8px 15px;
+    cursor: pointer;
+    color: var(--editor-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover, .suggestion-item.selected {
+    background-color: var(--header-button-active-bg);
+    color: #ffffff;
+    transform: translateX(5px);
+}
+
+.suggestion-key {
+    font-weight: bold;
+    margin-right: 10px;
+    color: var(--run-button-bg);
+}
+
+.suggestion-value {
+    color: var(--editor-color);
+    opacity: 0.8;
+    font-size: 0.9em;
+}
+
+.suggestion-item:hover .suggestion-key,
+.suggestion-item:hover .suggestion-value,
+.suggestion-item.selected .suggestion-key,
+.suggestion-item.selected .suggestion-value {
+    color: #ffffff;
+    opacity: 1;
+}
+
+.suggestions-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.suggestions-container::-webkit-scrollbar-track {
+    background: var(--scrollbar-track-bg);
+    border-radius: 4px;
+}
+
+.suggestions-container::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb-bg);
+    border-radius: 4px;
+}
+
+.suggestions-container::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover-bg);
+}
+
+.suggestion-category {
+    padding: 5px 10px;
+    font-size: 0.8em;
+    background: var(--header-bg);
+    color: var(--editor-color);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+        /* New Font Themes */
+        body.font-arial {
+            --editor-font: 'Arial', sans-serif;
+        }
+
+        body.font-consolas {
+            --editor-font: 'Consolas', monospace;
+        }
+
+        body.font-courier {
+            --editor-font: 'Courier New', monospace;
+        }
+
+        body.font-georgia {
+            --editor-font: 'Georgia', serif;
+        }
+
+        body.font-verdana {
+            --editor-font: 'Verdana', sans-serif;
+        }
+    </style>
+</head>
+<body>
+	<button class="dropdown-trigger" data-target="font-menu"></button>
+    <div id="header">
+        <button id="css-tab">CSS</button>
+        <button id="html-tab" class="active">HTML</button>
+        <button id="js-tab">JavaScript</button>
+    </div>
+    
+    <div class="editor-container">
+        <div id="html-editor" class="editor-wrapper">
+            <div class="line-numbers"></div>
+            <textarea id="html-code" placeholder="Write your HTML code here..."></textarea>
+        </div>
+        <div id="css-editor" class="editor-wrapper hidden">
+            <div class="line-numbers"></div>
+            <textarea id="css-code" placeholder="Write your CSS code here..."></textarea>
+        </div>
+        <div id="js-editor" class="editor-wrapper hidden">
+            <div class="line-numbers"></div>
+            <textarea id="js-code" placeholder="Write your JavaScript code here..."></textarea>
+        </div>
+    </div>
+
+    <div id="controls">
+        <button id="run-button">Run Fullscreen</button>
+        <button id="exit-button">Exit Fullscreen</button>
+        <button id="prev-change" title="Previous Change">&larr;</button>
+        <button id="next-change" title="Next Change">&rarr;</button>
+    </div>
+    
+    <iframe id="output" class="hidden"></iframe>
+
+    <div class="dropdown-menu" id="version-control-menu">
+        <button id="save-version">Save Version</button>
+        <select id="version-select"></select>
+        <button id="delete-version">Delete Version</button>
+        <button id="delete-all-versions">Delete All Versions</button>
+    </div>
+
+    <div class="dropdown-menu" id="style-menu">
+        <button data-style="default" style="background: linear-gradient(45deg, #2c3e50 50%, #34495e 50%);">Default</button>
+        <button data-style="monokai" style="background: linear-gradient(45deg, #272822 50%, #75715e 50%);">Monokai</button>
+        <button data-style="solarized-dark" style="background: linear-gradient(45deg, #073642 50%, #586e75 50%);">Solarized Dark</button>
+        <button data-style="solarized-light" style="background: linear-gradient(45deg, #fdf6e3 50%, #93a1a1 50%); color: #657b83;">Solarized Light</button>
+        <button data-style="emerald-night" style="background: linear-gradient(45deg, #000000 50%, #00ff9d 50%);">Emerald Night</button>
+<button data-style="amethyst-dreams" style="background: linear-gradient(45deg, #000000 50%, #bf00ff 50%);">Amethyst Dreams</button>
+<button data-style="golden-code" style="background: linear-gradient(45deg, #000000 50%, #ffd700 50%);">Golden Code</button>
+  <button data-style="dark" style="background: linear-gradient(45deg, #1e1e1e 50%, #424242 50%);">Dark</button>
+        <button data-style="light" style="background: linear-gradient(45deg, #f5f5f5 50%, #c0c0c0 50%); color: #333;">Light</button>
+<button data-style="ocean-depth" style="background: linear-gradient(45deg, #000000 50%, #0088ff 50%);">Ocean Depth</button>
+<button data-style="sunset-orange" style="background: linear-gradient(45deg, #000000 50%, #ff6600 50%);">Sunset Orange</button>
+        <button data-style="dracula" style="background: linear-gradient(45deg, #282a36 50%, #6272a4 50%);">Dracula</button>
+        <button data-style="eclipse" style="background: linear-gradient(45deg, #ffffff 50%, #f0f0f0 50%); color: #000;">Eclipse</button>
+        <button data-style="terminal" style="background: linear-gradient(45deg, #000000 50%, #333333 50%); color: #00ff00;">Terminal</button>
+        <button data-style="visual-studio" style="background: linear-gradient(45deg, #1e1e1e 50%, #007acc 50%); color: #dcdcdc;">Visual Studio</button>
+        <button data-style="oceanic" style="background: linear-gradient(45deg, #1b2b34 50%, #4f5b66 50%);">Oceanic</button>
+        <button data-style="dark-crimson" style="background: linear-gradient(45deg, #1a0f0f 50%, #dc143c 50%);">Dark Crimson</button>
+        <button data-style="neon-night" style="background: linear-gradient(45deg, #0d0d14 50%, #00c3ff 50%);">Neon Night</button>
+        <button data-style="shadow-blood" style="background: linear-gradient(45deg, #000000 50%, #cc0000 50%);">Shadow Blood</button>
+        <button data-style="cyber-glow" style="background: linear-gradient(45deg, #000000 50%, #00ffff 50%);">Cyber Glow</button>
+        
+    </div>
+
+    <div class="dropdown-menu" width=1 id="font-menu">
+        <button data-font="font-arial">Arial</button>
+        <button data-font="font-consolas">Consolas</button>
+        <button data-font="font-courier">Courier New</button>
+        <button data-font="font-georgia">Georgia</button>
+        <button data-font="font-verdana">Verdana</button>
+    </div>
+
+    <div class="version-control-trigger"></div>
+    <div class="style-trigger"></div>
+<script>
+    const htmlCode = document.getElementById('html-code');
+    const cssCode = document.getElementById('css-code');
+    const jsCode = document.getElementById('js-code');
+    const output = document.getElementById('output');
+    const runButton = document.getElementById('run-button');
+    const exitButton = document.getElementById('exit-button');
+    const header = document.getElementById('header');
+    const controls = document.getElementById('controls');
+    const prevChangeButton = document.getElementById('prev-change');
+    const nextChangeButton = document.getElementById('next-change');
+    const tabs = document.querySelectorAll('#header button');
+    const editors = {
+        html: document.getElementById('html-editor'),
+        css: document.getElementById('css-editor'),
+        js: document.getElementById('js-editor')
+    };
+
+    let changeHistory = [];
+    let currentChangeIndex = -1;
+
+    function saveChange() {
+        const change = {
+            html: htmlCode.value,
+            css: cssCode.value,
+            js: jsCode.value
+        };
+        changeHistory = changeHistory.slice(0, currentChangeIndex + 1);
+        changeHistory.push(change);
+        currentChangeIndex = changeHistory.length - 1;
+    }
+
+    function loadChange(index) {
+        const change = changeHistory[index];
+        if (change) {
+            htmlCode.value = change.html;
+            cssCode.value = change.css;
+            jsCode.value = change.js;
+            updateOutput();
+        }
+    }
+
+    prevChangeButton.addEventListener('click', () => {
+        if (currentChangeIndex > 0) {
+            currentChangeIndex--;
+            loadChange(currentChangeIndex);
+        }
+    });
+
+    nextChangeButton.addEventListener('click', () => {
+        if (currentChangeIndex < changeHistory.length - 1) {
+            currentChangeIndex++;
+            loadChange(currentChangeIndex);
+        }
+    });
+
+    function updateLineNumbers(textarea, lineNumbersDiv) {
+        const lines = textarea.value.split('\n').length;
+        lineNumbersDiv.innerHTML = Array(lines).fill(0).map((_, i) => i + 1).join('\n');
+    }
+
+    document.querySelectorAll('textarea').forEach(textarea => {
+        const lineNumbersDiv = textarea.parentElement.querySelector('.line-numbers');
+        updateLineNumbers(textarea, lineNumbersDiv);
+        
+        textarea.addEventListener('input', () => {
+            updateLineNumbers(textarea, lineNumbersDiv);
+            saveChange();
+        });
+
+        textarea.addEventListener('scroll', () => {
+            lineNumbersDiv.scrollTop = textarea.scrollTop;
+        });
+    });
+
+    function updateOutput() {
+        const html = htmlCode.value;
+        const css = `<style>${cssCode.value}</style>`;
+        const js = `<script>${jsCode.value}<\/script>`;
+        const combinedCode = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                ${css}
+            </head>
+            <body>
+                ${html}
+                ${js}
+            </body>
+            </html>
+        `;
+        output.srcdoc = combinedCode;
+    }
+
+    function runFullscreen() {
+        document.querySelectorAll('.editor-container, #header, #run-button').forEach(el => {
+            el.classList.add('hidden');
+        });
+        output.classList.remove('hidden');
+        exitButton.style.display = 'block';
+        output.style.height = '100vh';
+        updateOutput();
+    }
+
+    function exitFullscreen() {
+        document.querySelectorAll('.editor-container, #header, #run-button').forEach(el => {
+            el.classList.remove('hidden');
+        });
+        output.classList.add('hidden');
+        exitButton.style.display = 'none';
+        showTab(currentTab);
+    }
+
+    let currentTab = 'html';
+    function showTab(tab) {
+        currentTab = tab;
+        Object.values(editors).forEach(editor => editor.classList.add('hidden'));
+        editors[tab].classList.remove('hidden');
+        tabs.forEach(t => t.classList.remove('active'));
+        document.getElementById(`${tab}-tab`).classList.add('active');
+    }
+
+    htmlCode.addEventListener('input', updateOutput);
+    cssCode.addEventListener('input', updateOutput);
+    jsCode.addEventListener('input', updateOutput);
+    runButton.addEventListener('click', runFullscreen);
+    exitButton.addEventListener('click', exitFullscreen);
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabId = tab.id.replace('-tab', '');
+            showTab(tabId);
+        });
+    });
+
+    htmlCode.value = `<h1>Welcome to Web IDE</h1>
+<p>Start coding here!</p>`;
+    
+    cssCode.value = `body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+h1 {
+    color: #2c3e50;
+}`;
+    
+    jsCode.value = `console.log('Hello, World!');`;
+
+    showTab('html');
+    updateOutput();
+
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            runFullscreen();
+        }
+        if (e.key === 'Escape' && !output.classList.contains('hidden')) {
+            exitFullscreen();
+        }
+    });
+
+    function saveVersion() {
+        const timestamp = new Date().toISOString();
+        const version = {
+            html: htmlCode.value,
+            css: cssCode.value,
+            js: jsCode.value,
+            timestamp: timestamp
+        };
+        
+        let versions = JSON.parse(localStorage.getItem('versions') || '[]');
+        versions.push(version);
+        localStorage.setItem('versions', JSON.stringify(versions));
+        updateVersionSelect();
+    }
+
+    function loadVersion(index) {
+        const versions = JSON.parse(localStorage.getItem('versions') || '[]');
+        const version = versions[index];
+        if (version) {
+            htmlCode.value = version.html;
+            cssCode.value = version.css;
+            jsCode.value = version.js;
+            updateOutput();
+        }
+    }
+
+    function updateVersionSelect() {
+        const select = document.getElementById('version-select');
+        const versions = JSON.parse(localStorage.getItem('versions') || '[]');
+        select.innerHTML = versions.map((v, i) => 
+            `<option value="${i}">Version ${i + 1} (${new Date(v.timestamp).toLocaleString()})</option>`
+        ).join('');
+    }
+
+    function deleteVersion() {
+        const select = document.getElementById('version-select');
+        const index = select.value;
+        let versions = JSON.parse(localStorage.getItem('versions') || '[]');
+        versions.splice(index, 1);
+        localStorage.setItem('versions', JSON.stringify(versions));
+        updateVersionSelect();
+    }
+
+    function deleteAllVersions() {
+        localStorage.removeItem('versions');
+        updateVersionSelect();
+    }
+
+    document.getElementById('save-version').addEventListener('click', saveVersion);
+    document.getElementById('version-select').addEventListener('change', (e) => {
+        loadVersion(e.target.value);
+    });
+    document.getElementById('delete-version').addEventListener('click', deleteVersion);
+    document.getElementById('delete-all-versions').addEventListener('click', deleteAllVersions);
+
+    updateVersionSelect();
+
+    document.querySelectorAll('.dropdown-trigger').forEach(trigger => {
+        trigger.addEventListener('click', () => {
+            const target = document.getElementById(trigger.getAttribute('data-target'));
+            target.style.display = target.style.display === 'block' ? 'none' : 'block';
+        });
+    });
+
+    document.querySelectorAll('#style-menu button').forEach(button => {
+        button.addEventListener('click', () => {
+            const style = button.getAttribute('data-style');
+            document.body.className = style;
+            localStorage.setItem('selectedStyle', style);
+            // Close the menu after selection
+            document.getElementById('style-menu').style.display = 'none';
+        });
+    });
+
+    document.querySelectorAll('#font-menu button').forEach(button => {
+        button.addEventListener('click', () => {
+            const font = button.getAttribute('data-font');
+            document.body.className = `${document.body.className.split(' ')[0]} ${font}`;
+            localStorage.setItem('selectedFont', font);
+            // Close the menu after selection
+            document.getElementById('font-menu').style.display = 'none';
+        });
+    });
+
+    document.querySelector('.version-control-trigger').addEventListener('click', () => {
+        const menu = document.getElementById('version-control-menu');
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    });
+
+    document.querySelector('.style-trigger').addEventListener('click', () => {
+        const menu = document.getElementById('style-menu');
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    });
+
+    const savedStyle = localStorage.getItem('selectedStyle');
+    if (savedStyle) {
+        document.body.className = savedStyle;
+    }
+
+    const savedFont = localStorage.getItem('selectedFont');
+    if (savedFont) {
+        document.body.className += ` ${savedFont}`;
+    }
+</script>
+</body>
+</html>

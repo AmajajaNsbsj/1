@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جدول تناوبی تعاملی</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: #1a1a1a;
+            color: white;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(18, 1fr);
+            gap: 4px;
+            padding: 10px;
+            max-width: 100vw;
+            
+        }
+
+        .element {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            padding: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .element:hover {
+            transform: scale(1.1);
+            z-index: 1;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .element.metal { background: linear-gradient(45deg, #4a90e2, #357abd); }
+        .element.nonmetal { background: linear-gradient(45deg, #e74c3c, #c0392b); }
+        .element.noble-gas { background: linear-gradient(45deg, #9b59b6, #8e44ad); }
+        .element.alkali { background: linear-gradient(45deg, #f1c40f, #f39c12); }
+        .element.halogen { background: linear-gradient(45deg, #2ecc71, #27ae60); }
+
+        .symbol {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .atomic-number {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 0.7em;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+            position: relative;
+            animation: modalOpen 0.5s ease-out;
+        }
+
+        @keyframes modalOpen {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .element-details {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .element-properties {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .property {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .periodic-table {
+                grid-template-columns: repeat(9, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="periodic-table" id="periodicTable"></div>
+    
+    <div class="modal" id="elementModal">
+        <div class="modal-content">
+            <button class="close-btn">&times;</button>
+            <div class="element-details" id="elementDetails"></div>
+        </div>
+    </div>
+
+ <script>
+	const elements = [
+    { number: 1, symbol: 'H', name: 'هیدروژن', category: 'nonmetal', facts: 'سبک‌ترین عنصر، سوخت خورشید، بیشترین فراوانی در کیهان.' },
+    { number: 2, symbol: 'He', name: 'هلیوم', category: 'noble-gas', facts: 'استفاده در بالن‌ها، ساخته شده در ستارگان، هیچگاه ترکیب نمی‌شود.' },
+    { number: 3, symbol: 'Li', name: 'لیتیوم', category: 'alkali', facts: 'استفاده در باتری‌های لیتیوم-یون، سبک‌ترین فلز.' },
+    { number: 4, symbol: 'Be', name: 'بریلیوم', category: 'alkaline-earth', facts: 'سخت و سبک، استفاده در آلیاژها و ابزارهای فضایی.' },
+    { number: 5, symbol: 'B', name: 'بور', category: 'metalloid', facts: 'کاربرد در شیشه‌های مقاوم به حرارت، ضد عفونی‌کننده.' },
+    { number: 6, symbol: 'C', name: 'کربن', category: 'nonmetal', facts: 'پایه تمام موجودات زنده، الماس و گرافیت دو شکل رایج آن.' },
+    { number: 7, symbol: 'N', name: 'نیتروژن', category: 'nonmetal', facts: '۷۸٪ اتمسفر زمین را تشکیل می‌دهد، استفاده در مواد منفجره.' },
+    { number: 8, symbol: 'O', name: 'اکسیژن', category: 'nonmetal', facts: 'حیاتی برای تنفس موجودات زنده، دومین عنصر فراوان در پوسته زمین.' },
+    { number: 9, symbol: 'F', name: 'فلوئور', category: 'halogen', facts: 'واکنش‌پذیرترین عنصر، استفاده در خمیردندان.' },
+    { number: 10, symbol: 'Ne', name: 'نئون', category: 'noble-gas', facts: 'استفاده در تابلوهای نئون، گاز بی‌اثر.' },
+    { number: 11, symbol: 'Na', name: 'سدیم', category: 'alkali', facts: 'جزء اصلی نمک خوراکی، واکنش پذیر با آب.' },
+    { number: 12, symbol: 'Mg', name: 'منیزیم', category: 'alkaline-earth', facts: 'استفاده در آتش‌بازی، ضروری برای بدن.' },
+    { number: 13, symbol: 'Al', name: 'آلومینیوم', category: 'metal', facts: 'سبک و مقاوم، استفاده در هواپیما و قوطی‌ها.' },
+    { number: 14, symbol: 'Si', name: 'سیلیکون', category: 'metalloid', facts: 'پایه صنایع الکترونیک، تشکیل‌دهنده اصلی شن و ماسه.' },
+    { number: 15, symbol: 'P', name: 'فسفر', category: 'nonmetal', facts: 'ضروری برای زندگی، استفاده در کبریت.' },
+    { number: 16, symbol: 'S', name: 'گوگرد', category: 'nonmetal', facts: 'استفاده در باروت، بوی تخم‌مرغ گندیده.' },
+    { number: 17, symbol: 'Cl', name: 'کلر', category: 'halogen', facts: 'استفاده در ضد عفونی آب، گاز سمی.' },
+    { number: 18, symbol: 'Ar', name: 'آرگون', category: 'noble-gas', facts: 'گاز بی‌اثر، استفاده در لامپ‌های فلورسنت.' },
+    { number: 19, symbol: 'K', name: 'پتاسیم', category: 'alkali', facts: 'ضروری برای بدن، واکنش پذیر با آب.' },
+    { number: 20, symbol: 'Ca', name: 'کلسیم', category: 'alkaline-earth', facts: 'ضروری برای استخوان‌ها و دندان‌ها، استفاده در سیمان.' },
+    { number: 21, symbol: 'Sc', name: 'اسکاندیم', category: 'transition-metal', facts: 'فلز نادر، استفاده در آلیاژهای سبک.' },
+    { number: 22, symbol: 'Ti', name: 'تیتانیوم', category: 'transition-metal', facts: 'مقاوم به خوردگی، استفاده در ایمپلنت‌های پزشکی.' },
+    { number: 23, symbol: 'V', name: 'وانادیوم', category: 'transition-metal', facts: 'استفاده در فولادهای مقاوم، ترکیبات رنگی.' },
+    { number: 24, symbol: 'Cr', name: 'کروم', category: 'transition-metal', facts: 'مقاوم به خوردگی، استفاده در پوشش‌های کروم.' },
+    { number: 25, symbol: 'Mn', name: 'منگنز', category: 'transition-metal', facts: 'استفاده در فولادهای مقاوم، ضروری برای بدن.' },
+    { number: 26, symbol: 'Fe', name: 'آهن', category: 'transition-metal', facts: 'جزء اصلی فولاد، استفاده در ساخت و ساز.' },
+    { number: 27, symbol: 'Co', name: 'کبالت', category: 'transition-metal', facts: 'استفاده در باتری‌های لیتیوم-یون، رنگ‌آمیزی شیشه.' },
+    { number: 28, symbol: 'Ni', name: 'نیکل', category: 'transition-metal', facts: 'مقاوم به خوردگی، استفاده در سکه‌ها و آلیاژها.' },
+    { number: 29, symbol: 'Cu', name: 'مس', category: 'transition-metal', facts: 'رسانای الکتریکی عالی، استفاده در سیم‌ها و لوله‌ها.' },
+    { number: 30, symbol: 'Zn', name: 'روی', category: 'transition-metal', facts: 'استفاده در گالوانیزه کردن، ضروری برای بدن.' },
+    { number: 31, symbol: 'Ga', name: 'گالیوم', category: 'metal', facts: 'ذوب در دمای اتاق، استفاده در الکترونیک.' },
+    { number: 32, symbol: 'Ge', name: 'ژرمانیم', category: 'metalloid', facts: 'استفاده در نیمه‌رساناها، ترکیبات شیمیایی.' },
+    { number: 33, symbol: 'As', name: 'آرسنیک', category: 'metalloid', facts: 'سمی، استفاده در آلیاژها و نیمه‌رساناها.' },
+    { number: 34, symbol: 'Se', name: 'سلنیوم', category: 'nonmetal', facts: 'استفاده در سلول‌های خورشیدی، ضروری برای بدن.' },
+    { number: 35, symbol: 'Br', name: 'برم', category: 'halogen', facts: 'مایع در دمای اتاق، استفاده در ضد عفونی آب.' },
+    { number: 36, symbol: 'Kr', name: 'کریپتون', category: 'noble-gas', facts: 'گاز بی‌اثر، استفاده در لامپ‌های فلورسنت.' },
+    { number: 37, symbol: 'Rb', name: 'روبیدیوم', category: 'alkali', facts: 'واکنش‌پذیر، استفاده در ساعت‌های اتمی.' },
+    { number: 38, symbol: 'Sr', name: 'استرانسیم', category: 'alkaline-earth', facts: 'استفاده در آتش‌بازی، رنگ قرمز آتش‌بازی.' },
+    { number: 39, symbol: 'Y', name: 'ایتریم', category: 'transition-metal', facts: 'استفاده در الکترونیک، ترکیبات فسفرسانس.' },
+    { number: 40, symbol: 'Zr', name: 'زیرکونیوم', category: 'transition-metal', facts: 'مقاوم به خوردگی، استفاده در جواهرات و ایمپلنت‌ها.' },
+    { number: 41, symbol: 'Nb', name: 'نیوبیوم', category: 'transition-metal', facts: 'استفاده در آلیاژهای مقاوم، ترکیبات شیمیایی.' },
+    { number: 42, symbol: 'Mo', name: 'مولیبدن', category: 'transition-metal', facts: 'استفاده در آلیاژهای مقاوم، ضروری برای بدن.' },
+    { number: 43, symbol: 'Tc', name: 'تکنسیوم', category: 'transition-metal', facts: 'رادیواکتیو، استفاده در پزشکی هسته‌ای.' },
+    { number: 44, symbol: 'Ru', name: 'رودیوم', category: 'transition-metal', facts: 'استفاده در کاتالیزورها، آلیاژهای مقاوم.' },
+    { number: 45, symbol: 'Rh', name: 'رودیوم', category: 'transition-metal', facts: 'استفاده در کاتالیزورها، آلیاژهای مقاوم.' },
+    { number: 46, symbol: 'Pd', name: 'پالادیوم', category: 'transition-metal', facts: 'استفاده در کاتالیزورها، آلیاژهای مقاوم.' },
+    { number: 47, symbol: 'Ag', name: 'نقره', category: 'transition-metal', facts: 'رسانای الکتریکی عالی، استفاده در جواهرات و سکه‌ها.' },
+    { number: 48, symbol: 'Cd', name: 'کادمیم', category: 'transition-metal', facts: 'سمی، استفاده در باتری‌ها.' },
+    { number: 49, symbol: 'In', name: 'ایندیم', category: 'metal', facts: 'استفاده در الکترونیک و صفحه‌های لمسی.' },
+    { number: 50, symbol: 'Sn', name: 'قلع', category: 'metal', facts: 'استفاده در لحیم‌کاری و آلیاژها.' },
+    { number: 51, symbol: 'Sb', name: 'آنتیموان', category: 'metalloid', facts: 'استفاده در آلیاژها و نیمه‌رساناها.' },
+    { number: 52, symbol: 'Te', name: 'تلوریم', category: 'metalloid', facts: 'استفاده در نیمه‌رساناها و آلیاژها.' },
+    { number: 53, symbol: 'I', name: 'ید', category: 'halogen', facts: 'ضروری برای تیروئید، استفاده در ضد عفونی.' },
+    { number: 54, symbol: 'Xe', name: 'زنون', category: 'noble-gas', facts: 'گاز بی‌اثر، استفاده در لامپ‌های فلورسنت.' },
+    { number: 55, symbol: 'Cs', name: 'سزیم', category: 'alkali', facts: 'واکنش‌پذیر، استفاده در ساعت‌های اتمی.' },
+    { number: 56, symbol: 'Ba', name: 'باریم', category: 'alkaline-earth', facts: 'استفاده در آتش‌بازی و رنگ سبز آتش‌بازی.' },
+    { number: 57, symbol: 'La', name: 'لانتانیم', category: 'lanthanoid', facts: 'استفاده در آلیاژهای مقاوم و کاتالیزورها.' },
+    { number: 58, symbol: 'Ce', name: 'سریم', category: 'lanthanoid', facts: 'استفاده در کاتالیزورها و شیشه‌های مقاوم.' },
+    { number: 59, symbol: 'Pr', name: 'پرازئودیمیم', category: 'lanthanoid', facts: 'استفاده در آلیاژهای مقاوم و آهنرباها.' },
+    { number: 60, symbol: 'Nd', name: 'نئودیمیم', category: 'lanthanoid', facts: 'استفاده در آهنرباهای قوی و لیزرها.' },
+    { number: 61, symbol: 'Pm', name: 'پرومتیم', category: 'lanthanoid', facts: 'رادیواکتیو، استفاده در باتری‌های هسته‌ای.' },
+    { number: 62, symbol: 'Sm', name: 'ساماریم', category: 'lanthanoid', facts: 'استفاده در آهنرباهای مقاوم و کاتالیزورها.' },
+    { number: 63, symbol: 'Eu', name: 'یوروپیم', category: 'lanthanoid', facts: 'استفاده در فسفرسانس و لیزرها.' },
+    { number: 64, symbol: 'Gd', name: 'گادولینیم', category: 'lanthanoid', facts: 'استفاده در تصویربرداری MRI و کاتالیزورها.' },
+    { number: 65, symbol: 'Tb', name: 'تربیم', category: 'lanthanoid', facts: 'استفاده در فسفرسانس و آهنرباها.' },
+    { number: 66, symbol: 'Dy', name: 'دیسپروزیم', category: 'lanthanoid', facts: 'استفاده در آهنرباهای قوی و کاتالیزورها.' },
+    { number: 67, symbol: 'Ho', name: 'هولمیم', category: 'lanthanoid', facts: 'استفاده در آهنرباهای قوی و لیزرها.' },
+    { number: 68, symbol: 'Er', name: 'اربیم', category: 'lanthanoid', facts: 'استفاده در لیزرها و کاتالیزورها.' },
+    { number: 69, symbol: 'Tm', name: 'تولیوم', category: 'lanthanoid', facts: 'استفاده در لیزرها و کاتالیزورها.' },
+    { number: 70, symbol: 'Yb', name: 'یترتیم', category: 'lanthanoid', facts: 'استفاده در لیزرها و کاتالیزورها.' },
+    { number: 71, symbol: 'Lu', name: 'لوتتیم', category: 'lanthanoid', facts: 'استفاده در کاتالیزورها و تصویربرداری پزشکی.' },
+    { number: 72, symbol: 'Hf', name: 'هافنیوم', category: 'transition-metal', facts: 'مقاوم به خوردگی، استفاده در آلیاژهای مقاوم.' },
+    { number: 73, symbol: 'Ta', name: 'تانتالوم', category: 'transition-metal', facts: 'مقاوم به خوردگی، استفاده در الکترونیک.' },
+    { number: 74, symbol: 'W', name: 'تنگستن', category: 'transition-metal', facts: 'نقطه ذوب بالا، استفاده در لامپ‌های رشته‌ای.' },
+    { number: 75, symbol: 'Re', name: 'رنیوم', category: 'transition-metal', facts: 'استفاده در آلیاژهای مقاوم و کاتالیزورها.' },
+    { number: 76, symbol: 'Os', name: 'اسمیم', category: 'transition-metal', facts: 'چگالی بالا، استفاده در آلیاژهای مقاوم.' },
+    { number: 77, symbol: 'Ir', name: 'ایریدیم', category: 'transition-metal', facts: 'مقاوم به خوردگی، استفاده در آلیاژهای مقاوم.' },
+    { number: 78, symbol: 'Pt', name: 'پلاتین', category: 'transition-metal', facts: 'مقاوم به خوردگی، استفاده در جواهرات و کاتالیزورها.' },
+    { number: 79, symbol: 'Au', name: 'طلا', category: 'transition-metal', facts: 'رسانای عالی، استفاده در جواهرات و الکترونیک.' },
+    { number: 80, symbol: 'Hg', name: 'جیوه', category: 'transition-metal', facts: 'مایع در دمای اتاق، استفاده در دماسنج‌ها.' },
+    { number: 81, symbol: 'Tl', name: 'تالیوم', category: 'metal', facts: 'سمی، استفاده در الکترونیک و شیشه.' },
+    { number: 82, symbol: 'Pb', name: 'سرب', category: 'metal', facts: 'سمی، استفاده در باتری‌ها و لوله‌ها.' },
+    { number: 83, symbol: 'Bi', name: 'بیس‌موت', category: 'metal', facts: 'سنگین‌ترین عنصر پایدار، استفاده در داروها و آلیاژها.' },
+    { number: 84, symbol: 'Po', name: 'پولونیوم', category: 'metalloid', facts: 'رادیواکتیو، استفاده در منابع گرمایی.' },
+    { number: 85, symbol: 'At', name: 'آستاتین', category: 'halogen', facts: 'نادر و رادیواکتیو، استفاده در تحقیقات علمی.' },
+    { number: 86, symbol: 'Rn', name: 'رادون', category: 'noble-gas', facts: 'رادیواکتیو، استفاده در تحقیقات پزشکی.' },
+    { number: 87, symbol: 'Fr', name: 'فرانسیوم', category: 'alkali', facts: 'بسیار نادر و رادیواکتیو، استفاده در تحقیقات علمی.' },
+    { number: 88, symbol: 'Ra', name: 'رادیم', category: 'alkaline-earth', facts: 'رادیواکتیو، استفاده در درمان سرطان.' },
+    { number: 89, symbol: 'Ac', name: 'اکتینیم', category: 'actinoid', facts: 'رادیواکتیو، استفاده در تحقیقات پزشکی.' },
+    { number: 90, symbol: 'Th', name: 'توریم', category: 'actinoid', facts: 'رادیواکتیو، استفاده در راکتورهای هسته‌ای.' },
+    { number: 91, symbol: 'Pa', name: 'پروتاکتینیم', category: 'actinoid', facts: 'رادیواکتیو، استفاده در تحقیقات علمی.' },
+    { number: 92, symbol: 'U', name: 'اورانیوم', category: 'actinoid', facts: 'رادیواکتیو، استفاده در سوخت هسته‌ای.' },
+    { number: 93, symbol: 'Np', name: 'نپتونیم', category: 'actinoid', facts: 'رادیواکتیو، محصول جانبی راکتورهای هسته‌ای.' },
+    { number: 94, symbol: 'Pu', name: 'پلوتونیوم', category: 'actinoid', facts: 'رادیواکتیو، استفاده در سلاح‌های هسته‌ای.' },
+    { number: 95, symbol: 'Am', name: 'آمریکیم', category: 'actinoid', facts: 'رادیواکتیو، استفاده در دتکتورهای دود.' },
+    { number: 96, symbol: 'Cm', name: 'کوریوم', category: 'actinoid', facts: 'رادیواکتیو، نامگذاری شده به افتخار ماری کوری.' },
+    { number: 97, symbol: 'Bk', name: 'برکلیم', category: 'actinoid', facts: 'رادیواکتیو، نامگذاری شده به افتخار دانشگاه برکلی.' },
+    { number: 98, symbol: 'Cf', name: 'کالیفرنیم', category: 'actinoid', facts: 'رادیواکتیو، استفاده در منابع نوترونی.' },
+    { number: 99, symbol: 'Es', name: 'اینشتینیم', category: 'actinoid', facts: 'رادیواکتیو، نامگذاری شده به افتخار آلبرت اینشتین.' },
+    { number: 100, symbol: 'Fm', name: 'فرمیوم', category: 'actinoid', facts: 'رادیواکتیو، نامگذاری شده به افتخار انریکو فرمی.' },
+    { number: 101, symbol: 'Md', name: 'مندلیفیم', category: 'actinoid', facts: 'رادیواکتیو، نامگذاری شده به افتخار دمیتری مندلیف.' },
+    { number: 102, symbol: 'No', name: 'نوبلیم', category: 'actinoid', facts: 'رادیواکتیو، نامگذاری شده به افتخار آلفرد نوبل.' },
+    { number: 103, symbol: 'Lr', name: 'لورنسیم', category: 'actinoid', facts: 'رادیواکتیو، نامگذاری شده به افتخار ارنست لارنس.' },
+    { number: 104, symbol: 'Rf', name: 'رادرفوردیم', category: 'transition-metal', facts: 'رادیواکتیو، نامگذاری شده به افتخار ارنست رادرفورد.' },
+    { number: 105, symbol: 'Db', name: 'دوبنیم', category: 'transition-metal', facts: 'رادیواکتیو، نامگذاری شده به افتخار دوبنا در روسیه.' },
+    { number: 106, symbol: 'Sg', name: 'سیبورگیم', category: 'transition-metal', facts: 'رادیواکتیو، نامگذاری شده به افتخار گلن سیبورگ.' },
+    { number: 107, symbol: 'Bh', name: 'بوهریم', category: 'transition-metal', facts: 'رادیواکتیو، نامگذاری شده به افتخار نیلز بور.' },
+    { number: 108, symbol: 'Hs', name: 'هاسیم', category: 'transition-metal', facts: 'رادیواکتیو، نامگذاری شده به افتخار هسه در آلمان.' },
+    { number: 109, symbol: 'Mt', name: 'مایتنریم', category: 'transition-metal', facts: 'رادیواکتیو، نامگذاری شده به افتخار لیزه مایتنر.' },
+    { number: 110, symbol: 'Ds', name: 'دارمشتادیم', category: 'transition-metal', facts: 'رادیواکتیو، نامگذاری شده به افتخار دارمشتاد در آلمان.' },
+    { number: 111, symbol: 'Rg', name: 'رنتگنیم', category: 'transition-metal', facts: 'رادیواکتیو، نامگذاری شده به افتخار ویلهلم رنتگن.' },
+    { number: 112, symbol: 'Cn', name: 'کوپرنیسیم', category: 'transition-metal', facts: 'رادیواکتیو، نامگذاری شده به افتخار نیکلاس کوپرنیک.' },
+    { number: 113, symbol: 'Nh', name: 'نیهونیم', category: 'post-transition-metal', facts: 'رادیواکتیو، نامگذاری شده به افتخار ژاپن.' },
+    { number: 114, symbol: 'Fl', name: 'فلرویم', category: 'post-transition-metal', facts: 'رادیواکتیو، نامگذاری شده به افتخار فلروی در روسیه.' },
+    { number: 115, symbol: 'Mc', name: 'موسکوویم', category: 'post-transition-metal', facts: 'رادیواکتیو، نامگذاری شده به افتخار مسکو.' },
+    { number: 116, symbol: 'Lv', name: 'لیورموریوم', category: 'post-transition-metal', facts: 'رادیواکتیو، نامگذاری شده به افتخار لیورمور در کالیفرنیا.' },
+    { number: 117, symbol: 'Ts', name: 'تنسین', category: 'halogen', facts: 'رادیواکتیو، نامگذاری شده به افتخار تنسی.' },
+    { number: 118, symbol: 'Og', name: 'اوگانسون', category: 'noble-gas', facts: 'رادیواکتیو، نامگذاری شده به افتخار یوری اوگانسیان.' }
+];
+
+
+function createPeriodicTable() {
+    const table = document.getElementById('periodicTable');
+    elements.forEach(element => {
+        const elementDiv = document.createElement('div');
+        elementDiv.className = `element ${element.category}`;
+        elementDiv.innerHTML = `
+            <span class="atomic-number">${element.number}</span>
+            <span class="symbol">${element.symbol}</span>
+            <span class="name">${element.name}</span>
+        `;
+        elementDiv.onclick = () => showElementDetails(element);
+        table.appendChild(elementDiv);
+    });
+}
+
+function showElementDetails(element) {
+    const modal = document.getElementById('elementModal');
+    const details = document.getElementById('elementDetails');
+    
+    details.innerHTML = `
+        <h2>${element.name} (${element.symbol})</h2>
+        <div class="element-properties">
+            <div class="property">
+                <h3>عدد اتمی</h3>
+                <p>${element.number}</p>
+            </div>
+            <div class="property">
+                <h3>دسته</h3>
+                <p>${element.category}</p>
+            </div>
+            <div class="property">
+                <h3>حقایق جالب</h3>
+                <p>${element.facts}</p>
+            </div>
+        </div>
+    `;
+
+    modal.style.display = 'flex';
+}
+
+document.querySelector('.close-btn').onclick = () => {
+    document.getElementById('elementModal').style.display = 'none';
+};
+
+window.onclick = (event) => {
+    const modal = document.getElementById('elementModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+};
+
+// Initialize the periodic table
+createPeriodicTable();
+</script>
+</body>
+</html>

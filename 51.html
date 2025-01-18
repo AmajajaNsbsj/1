@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>اپلیکیشن کدگذاری و دیکود</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #0d0d0d;
+            color: #0066ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .container {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 90%;
+            max-width: 400px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 102, 255, 0.2);
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .textbox-container {
+            position: relative;
+        }
+
+        .textbox {
+            width: 100%;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            border: 1px solid #0066ff;
+            background: #1a1a1a;
+            color: #0066ff;
+            box-shadow: 0 2px 4px rgba(0, 102, 255, 0.2);
+            transition: box-shadow 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .textbox:focus {
+            box-shadow: 0 4px 8px rgba(0, 102, 255, 0.5);
+            outline: none;
+            border-color: #0066ff;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            padding: 5px;
+            font-size: 12px;
+            border: none;
+            border-radius: 50%;
+            background-color: #0066ff;
+            color: #0d0d0d;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .copy-button:hover {
+            transform: scale(1.1);
+        }
+
+        .button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            background-color: #0066ff;
+            color: #0d0d0d;
+        }
+
+        .button:hover {
+            background-color: #0052cc;
+            transform: scale(1.05);
+        }
+
+        .button:active {
+            transform: scale(1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            overflow: hidden;
+            border-right: .15em solid #0066ff;
+            white-space: nowrap;
+            animation: typing 2s steps(30, end) forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">اپلیکیشن کدگذاری و دیکود</div>
+        <div class="textbox-container">
+            <textarea class="textbox" id="encodeText" rows="4" placeholder="متن برای کدگذاری"></textarea>
+            <button class="copy-button" onclick="copyText('encodeText')">📋</button>
+        </div>
+        <button class="button" onclick="encodeText()">کدگذاری</button>
+        <div class="textbox-container">
+            <textarea class="textbox" id="decodeText" rows="4" placeholder="متن کدگذاری شده"></textarea>
+            <button class="copy-button" onclick="copyText('decodeText')">📋</button>
+        </div>
+        <button class="button" onclick="decodeText()">دیکود</button>
+        <button class="button" onclick="downloadFile()">دانلود فایل دیکود</button>
+        <input type="file" id="fileInput" style="display:none" onchange="uploadFile(event)">
+        <button class="button" onclick="document.getElementById('fileInput').click()">آپلود فایل دیکود</button>
+        <p style="display:none" id="copyTt">این ادرس ولت من است ...</p>
+        <p id="addressText" onclick="copyTt()" style="font-size: 10px; overflow: hidden; white-space: nowrap; cursor: pointer; display:none;">0xd4F1597644eAc27C565b2f39521648a5cB40816e</p>
+    </div>
+
+    <script>
+        const addressText = document.getElementById('addressText');
+        const copyTextElement = document.getElementById('copyTt');
+
+        function showTt() {
+            addressText.style.display = 'block';
+            copyTextElement.style.display = 'block';
+
+            setTimeout(() => {
+                addressText.style.opacity = 1;
+                copyTextElement.style.opacity = 1;
+            }, 2500);
+
+            addressText.style.opacity = 0;
+            copyTextElement.style.opacity = 0;
+
+            addressText.style.transition = 'opacity 2s ease-in-out';
+            copyTextElement.style.transition = 'opacity 2s ease-in-out';
+        }
+
+        function copyTt() {
+            const text = document.getElementById('addressText').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("دمت گرم ستون 💜");
+            }).catch((err) => {
+                alert("خطا در کپی کردن متن: " + err);
+            });
+        }
+
+        const invisibleChars = {
+            // کاراکترهای نامرئی برای حروف فارسی
+            'ا': '\u200B\u200C\u200D',
+            'ب': '\u200C\u200B\u200D',
+            'پ': '\u200D\u200B\u200C',
+            'ت': '\u200C\u200D\u200B',
+            'ث': '\u200D\u200C\u200B',
+            'ج': '\u200B\u200D\u200C',
+            'چ': '\u200B\u200D\u200B',
+            'ح': '\u200C\u200D\u200C',
+            'خ': '\u200D\u200B\u200D',
+            'د': '\u200B\u200C\u200B',
+            'ذ': '\u200C\u200B\u200C',
+            'ر': '\u200D\u200C\u200D',
+            'ز': '\u200B\u200D\u200D',
+            'س': '\u200C\u200D\u200D',
+            'ش': '\u200D\u200B\u200B',
+            'ص': '\u200B\u200C\u200C',
+            'ض': '\u200C\u200B\u200B',
+            'ط': '\u200D\u200C\u200C',
+            'ظ': '\u200B\u200B\u200D',
+            'ع': '\u200C\u200C\u200D',
+            'غ': '\u200D\u200D\u200B',
+            'ف': '\u200B\u200B\u200C',
+            'ق': '\u200C\u200C\u200B',
+            'ک': '\u200D\u200D\u200C',
+            'گ': '\u200B\u200B\u200B',
+            'ل': '\u200C\u200C\u200C',
+            'م': '\u200D\u200D\u200D',
+            'ن': '\u200E\u200B\u200C',
+            'و': '\u200E\u200C\u200B',
+            'ه': '\u200E\u200D\u200B',
+            'ی': '\u200E\u200B\u200D',
+            
+            // کاراکترهای نامرئی برای حروف انگلیسی
+            'a': '\u2061\u200B\u200C',
+            'b': '\u2061\u200C\u200B',
+            'c': '\u2061\u200D\u200B',
+            'd': '\u2061\u200B\u200D',
+            'e': '\u2061\u200C\u200D',
+            'f': '\u2061\u200D\u200C',
+            'g': '\u2062\u200B\u200C',
+            'h': '\u2062\u200C\u200B',
+            'i': '\u2062\u200D\u200B',
+            'j': '\u2062\u200B\u200D',
+            'k': '\u2062\u200C\u200D',
+            'l': '\u2062\u200D\u200C',
+            'm': '\u2063\u200B\u200C',
+            'n': '\u2063\u200C\u200B',
+            'o': '\u2063\u200D\u200B',
+            'p': '\u2063\u200B\u200D',
+            'q': '\u2063\u200C\u200D',
+            'r': '\u2063\u200D\u200C',
+            's': '\u2064\u200B\u200C',
+            't': '\u2064\u200C\u200B',
+            'u': '\u2064\u200D\u200B',
+            'v': '\u2064\u200B\u200D',
+            'w': '\u2064\u200C\u200D',
+            'x': '\u2064\u200D\u200C',
+            'y': '\u2065\u200B\u200C',
+            'z': '\u2065\u200C\u200B',
+            
+            // اعداد
+            '0': '\u206A\u200B\u200C',
+            '1': '\u206A\u200C\u200B',
+            '2': '\u206A\u200D\u200B',
+            '3': '\u206A\u200B\u200D',
+            '4': '\u206A\u200C\u200D',
+            '5': '\u206A\u200D\u200C',
+            '6': '\u206B\u200B\u200C',
+            '7': '\u206B\u200C\u200B',
+            '8': '\u206B\u200D\u200B',
+            '9': '\u206B\u200B\u200D',
+            
+            // فاصله و جداکننده‌ها
+            ' ': '\u061C', // فاصله بین کلمات
+            'charEnd': '\u200F', // پایان هر حرف
+            'wordEnd': '\u200F\u200F' // پایان هر کلمه
+        };
+
+        // ساخت جدول معکوس برای دیکود
+        const reverseInvisibleChars = {};
+        for (let char in invisibleChars) {
+            if (char !== 'charEnd' && char !== 'wordEnd') {
+                reverseInvisibleChars[invisibleChars[char]] = char;
+            }
+        }
+
+        function encodeText() {
+            const input = document.getElementById("encodeText").value.toLowerCase();
+            let encoded = '';
+            const words = input.split(' ');
+            
+            for (let i = 0; i < words.length; i++) {
+                const word = words[i];
+                for (let j = 0; j < word.length; j++) {
+                    if (invisibleChars[word[j]]) {
+                        encoded += invisibleChars[word[j]] + invisibleChars.charEnd;
+                    }
+                }
+                encoded += invisibleChars.wordEnd;
+            }
+            
+            document.getElementById("decodeText").value = encoded;
+        }
+
+        function typeWriterEffect(element, text) {
+            showTt(); 
+            const possibleChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
+            element.value = '';
+            let index = 0;
+            let finalText = text;
+            
+            function addChar() {
+                if (index < finalText.length) {
+                    const randomChar = possibleChars[Math.floor(Math.random() * possibleChars.length)];
+                    element.value = finalText.substring(0, index) + randomChar + finalText.substring(index + 1);
+                    
+                    setTimeout(() => {
+                        element.value = finalText.substring(0, index + 1) + 
+                                      (index < finalText.length - 1 ? '|' : '');
+                        index++;
+                        setTimeout(addChar, Math.random() * 50 + 30);
+                    }, 50);
+                } else {
+                    element.value = finalText;
+                }
+            }
+            
+            addChar();
+        }
+
+        function decodeText() {
+            showTt();
+            const input = document.getElementById("decodeText").value;
+            let decoded = '';
+            let currentChar = '';
+            let currentWord = '';
+            let i = 0;
+            
+            while (i < input.length) {
+                // چک کردن پایان کلمه
+                if (input.substr(i, 2) === invisibleChars.wordEnd) {
+                    if (currentChar && reverseInvisibleChars[currentChar]) {
+                        currentWord += reverseInvisibleChars[currentChar];
+                    }
+                    decoded += currentWord + ' ';
+                    currentWord = '';
+                    currentChar = '';
+                    i += 2;
+                    continue;
+                }
+                
+                // چک کردن پایان حرف
+                if (input[i] === invisibleChars.charEnd) {
+                    if (currentChar && reverseInvisibleChars[currentChar]) {
+                        currentWord += reverseInvisibleChars[currentChar];
+                    }
+                    currentChar = '';
+                    i++;
+                    continue;
+                }
+                
+                // جمع‌آوری کاراکترهای یک حرف
+                currentChar += input[i];
+                i++;
+            }
+            
+            // اضافه کردن آخرین حرف و کلمه
+            if (currentChar && reverseInvisibleChars[currentChar]) {
+                currentWord += reverseInvisibleChars[currentChar];
+            }
+            if (currentWord) {
+                decoded += currentWord;
+            }
+            
+            // حذف فاصله اضافی از انتها
+            decoded = decoded.trim();
+            
+            // اعمال افکت تایپ
+            typeWriterEffect(document.getElementById("encodeText"), decoded);
+        }
+
+        function copyText(textboxId) {
+            const textbox = document.getElementById(textboxId);
+            textbox.select();
+            document.execCommand('copy');
+        }
+
+        function downloadFile() {
+            const text = document.getElementById("decodeText").value;
+            const blob = new Blob([text], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "decoded_text.txt";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function uploadFile(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById("decodeText").value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        // غیرفعال کردن اسکرول و زوم در موبایل
+        document.addEventListener('touchmove', function(event) {
+            event.preventDefault();
+        }, { passive: false });
+
+        document.addEventListener('gesturestart', function(event) {
+            event.preventDefault();
+        });
+    </script>
+</body>
+</html>
