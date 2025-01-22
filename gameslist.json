@@ -493,6 +493,96 @@
       "size": 110,
       "packageName": "ir.iupp.p",
       "type": "web" 
+    }        ,
+    {
+      "id": 52,
+      "name":  "هنر جنگ",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/52.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/52.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }        ,
+    {
+      "id": 53,
+      "name":  "بازی پونگ",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/53.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/53.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }        ,
+    {
+      "id": 54,
+      "name":  "پخاش مافیا",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/54.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/54.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }        ,
+    {
+      "id": 55,
+      "name":  "لغات ساده انگلیسی",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/55.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/55.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }        ,
+    {
+      "id": 56,
+      "name":  "کتاب محدودیت های ai",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/56.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/56.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }        ,
+    {
+      "id": 57,
+      "name":  "کلمات انگلیسی متوسط",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/57.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/57.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }        ,
+    {
+      "id": 58,
+      "name":  "تست سرعت",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/58.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/58.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }        ,
+    {
+      "id": 59,
+      "name":  "نقاشی پیکسی",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/59.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/59.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
+    }        ,
+    {
+      "id": 60,
+      "name":  "تراز بهتر",
+      "description": "",
+      "iconUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/main/60.png",
+      "downloadUrl": "https://raw.githubusercontent.com/AmajajaNsbsj/1/refs/heads/main/60.html",
+      "size": 110,
+      "packageName": "ir.iupp.p",
+      "type": "web" 
     }
   ]
 }
