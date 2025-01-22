@@ -1,0 +1,2186 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستم یادگیری مدرن</title>
+    
+<style>
+:root {
+    --theme-1-primary: #0E000F;
+    --theme-1-secondary: #000208;
+    --theme-2-primary: #200122;
+    --theme-2-secondary: #6f0000;
+    --theme-3-primary: #cc2b5e;
+    --theme-3-secondary: #753a88;
+    --theme-4-primary: #141e30;
+    --theme-4-secondary: #243b55;
+    --theme-5-primary: #000428;
+    --theme-5-secondary: #004e92;
+    --theme-6-primary: #010500;
+    --theme-6-secondary:#000212 ;
+    --theme-7-primary: #000;
+    --theme-7-secondary: #000;
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --neon-glow: 0 0 10px rgba(0, 255, 255, 0.5);
+    --text-glow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+font-size: 18px; /* اندازه دلخواه فونت */
+}
+
+body {
+    min-height: 100vh;
+    background: linear-gradient(45deg, var(--theme-1-primary), var(--theme-1-secondary));
+    color: white;
+    overflow: hidden;
+}
+
+.app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: var(--glass-bg);
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+}
+
+
+.main-container {
+    margin-top: 60px;
+    padding: 20px;
+    min-height: calc(100vh - 60px);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    position: relative;
+}
+
+.card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    min-height: 400px;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.05) 50%, 
+        transparent 100%);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.card:hover::before {
+    transform: translateX(100%);
+}
+
+.card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.word-section {
+    margin-bottom: 20px;
+}
+
+.word-e {
+    font-size: 3em;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: var(--text-glow);
+    margin-bottom: 10px;
+}
+
+.word-qq {
+    font-size: 2em;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 20px;
+}
+
+.qw-section {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 15px;
+    margin-top: 20px;
+}
+
+.controls {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    gap: 15px;
+    z-index: 1000;
+}
+
+.control-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 25px;
+    border: none;
+    background: linear-gradient(45deg, var(--theme-1-primary), var(--theme-1-secondary));
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1em;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.control-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Theme Variations */
+.theme-1 { background: linear-gradient(45deg, var(--theme-1-primary), var(--theme-1-secondary)); }
+.theme-2 { background: linear-gradient(45deg, var(--theme-2-primary), var(--theme-2-secondary)); }
+.theme-3 { background: linear-gradient(45deg, var(--theme-3-primary), var(--theme-3-secondary)); }
+.theme-4 { background: linear-gradient(45deg, var(--theme-4-primary), var(--theme-4-secondary)); }
+.theme-5 { background: linear-gradient(45deg, var(--theme-5-primary), var(--theme-5-secondary)); }
+.theme-6 { background: linear-gradient(45deg, var(--theme-6-primary), var(--theme-6-secondary)); }
+.theme-7 { background: linear-gradient(45deg, var(--theme-7-primary), var(--theme-7-secondary)); }
+
+
+/* Advanced Animations */
+@keyframes floatAnimation {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes glowPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.2); }
+    50% { box-shadow: 0 0 30px rgba(255, 255, 255, 0.4); }
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* Progress Indicator */
+.progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(to right, #00ff99, #00ccff);
+    transition: width 0.3s ease;
+    z-index: 1001;
+}
+
+/* Advanced Card Effects */
+.card-content {
+    position: relative;
+    z-index: 1;
+}
+
+.card-content::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    background: radial-gradient(
+        circle at center,
+        rgba(255, 255, 255, 0.1) 0%,
+        transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+}
+
+.card:hover .card-content::before {
+    opacity: 1;
+}
+
+/* Responsive Design Enhancements */
+@media (max-width: 768px) {
+    .main-container {
+        grid-template-columns: 1fr;
+        padding: 10px;
+    }
+
+    .card {
+        min-height: 300px;
+    }
+
+    .controls {
+        bottom: 20px;
+        right: 20px;
+    }
+
+    
+}
+
+/* Interactive Elements */
+.interactive-element {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.interactive-element::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.interactive-element:hover::after {
+    transform: translateX(100%);
+}
+
+/* More Advanced Effects */
+.glow-effect {
+    position: relative;
+}
+
+.glow-effect::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+    z-index: -1;
+    animation: glowingBorder 20s linear infinite;
+    background-size: 400%;
+    border-radius: 22px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.glow-effect:hover::before {
+    opacity: 1;
+}
+
+@keyframes glowingBorder {
+    0% { background-position: 0 0; }
+    50% { background-position: 400% 0; }
+    100% { background-position: 0 0; }
+}
+
+/* Modern Loading Effects */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid transparent;
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style></head>
+<body>
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <div class="progress-bar" id="progressBar"></div>
+
+    <header class="app-header">
+        
+            
+        </div>
+    </header>
+
+    <div class="main-container" id="mainContainer"></div>
+
+    <div class="controls">
+        <button class="control-btn glow-effect" id="prevBtn">←</button>
+        <button class="control-btn glow-effect" id="themeBtn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+            </svg>
+        </button>
+        <button class="control-btn glow-effect" id="nextBtn">→</button>
+    </div>
+<script>
+const words = [
+	    {
+        e: "بسم الله الرحمن الرحیم",
+        qq: "کتاب لغات ساده انگلیسی در اپلیکیشن جامع المزخرفات",
+        qe: [
+            { qw: "با مثال حفظ کن تا فراموش نکنی", tt: "save your wife by Facking hard and save your knowledge by useimg" },
+            { qw: "به بهانه یک کلمه بیا با یادگیری چند کلمه برو", tt: "knowledge and money had upper gravity" },
+
+        ]
+    },
+    {
+        e: "Apple",
+        qq: "سیب",
+        qe: [
+            { qw: "I eat an apple every day.", tt: "من هر روز یک سیب می‌خورم." },
+            { qw: "The apple is red and juicy.", tt: "سیب قرمز و آبدار است." }
+        ]
+    },
+    {
+        e: "Book",
+        qq: "کتاب",
+        qe: [
+            { qw: "She reads a book every night.", tt: "او هر شب کتاب می‌خواند." },
+            { qw: "This is my favorite book.", tt: "این کتاب مورد علاقه من است." }
+        ]
+    },
+    {
+        e: "Cat",
+        qq: "گربه",
+        qe: [
+            { qw: "The cat is sleeping on the couch.", tt: "گربه روی کاناپه خوابیده است." },
+            { qw: "I have a black cat.", tt: "من یک گربه سیاه دارم." }
+        ]
+    },
+    {
+        e: "Dog",
+        qq: "سگ",
+        qe: [
+            { qw: "The dog is barking loudly.", tt: "سگ با صدای بلند پارس می‌کند." },
+            { qw: "I walk my dog every morning.", tt: "من هر صبح سگم را برای پیاده‌روی می‌برم." }
+        ]
+    },
+    {
+        e: "Egg",
+        qq: "تخم مرغ",
+        qe: [
+            { qw: "She boiled an egg for breakfast.", tt: "او برای صبحانه یک تخم مرغ آب‌پز کرد." },
+            { qw: "I like my eggs scrambled.", tt: "من تخم مرغ‌های هم‌زده را دوست دارم." }
+        ]
+    },
+    {
+        e: "Fish",
+        qq: "ماهی",
+        qe: [
+            { qw: "We caught a big fish in the lake.", tt: "ما یک ماهی بزرگ در دریاچه گرفتیم." },
+            { qw: "Fish is a healthy food.", tt: "ماهی یک غذای سالم است." }
+        ]
+    },
+    {
+        e: "Goat",
+        qq: "بز",
+        qe: [
+            { qw: "The goat is eating grass.", tt: "بز در حال خوردن علف است." },
+            { qw: "Goats can climb steep hills.", tt: "بزها می‌توانند از تپه‌های شیب‌دار بالا بروند." }
+        ]
+    },
+    {
+        e: "House",
+        qq: "خانه",
+        qe: [
+            { qw: "They live in a big house.", tt: "آن‌ها در یک خانه بزرگ زندگی می‌کنند." },
+            { qw: "The house is white with a red roof.", tt: "خانه سفید با سقف قرمز است." }
+        ]
+    },
+    {
+        e: "Ice",
+        qq: "یخ",
+        qe: [
+            { qw: "The ice is melting.", tt: "یخ در حال ذوب شدن است." },
+            { qw: "She put ice in her drink.", tt: "او در نوشیدنی‌اش یخ گذاشت." }
+        ]
+    },
+    {
+        e: "Jam",
+        qq: "مربا",
+        qe: [
+            { qw: "I like strawberry jam on my toast.", tt: "من مربای توت‌فرنگی روی نان تست را دوست دارم." },
+            { qw: "She made homemade jam.", tt: "او مربای خانگی درست کرد." }
+        ]
+    },
+    {
+        e: "Kite",
+        qq: "بادبادک",
+        qe: [
+            { qw: "The children are flying a kite.", tt: "بچه‌ها در حال بادبادک‌بازی هستند." },
+            { qw: "It was a perfect day for flying a kite.", tt: "روز بسیار خوبی برای بادبادک‌بازی بود." }
+        ]
+    },
+    {
+        e: "Lion",
+        qq: "شیر",
+        qe: [
+            { qw: "The lion is the king of the jungle.", tt: "شیر پادشاه جنگل است." },
+            { qw: "We saw a lion at the zoo.", tt: "ما در باغ وحش یک شیر دیدیم." }
+        ]
+    },
+    {
+        e: "Moon",
+        qq: "ماه",
+        qe: [
+            { qw: "The moon is bright tonight.", tt: "امشب ماه روشن است." },
+            { qw: "They watched the moon rise.", tt: "آن‌ها طلوع ماه را تماشا کردند." }
+        ]
+    },
+    {
+        e: "Nest",
+        qq: "لانه",
+        qe: [
+            { qw: "The bird is building a nest.", tt: "پرنده در حال ساختن لانه است." },
+            { qw: "The nest is in the tree.", tt: "لانه در درخت است." }
+        ]
+    },
+    {
+        e: "Orange",
+        qq: "پرتقال",
+        qe: [
+            { qw: "He peeled an orange.", tt: "او یک پرتقال پوست کند." },
+            { qw: "Oranges are rich in vitamin C.", tt: "پرتقال‌ها سرشار از ویتامین C هستند." }
+        ]
+    },
+    {
+        e: "Pen",
+        qq: "خودکار",
+        qe: [
+            { qw: "She writes with a blue pen.", tt: "او با خودکار آبی می‌نویسد." },
+            { qw: "I lost my pen.", tt: "من خودکارم را گم کردم." }
+        ]
+    },
+    {
+        e: "Queen",
+        qq: "ملکه",
+        qe: [
+            { qw: "The queen wore a beautiful crown.", tt: "ملکه تاج زیبایی بر سر داشت." },
+            { qw: "They watched the queen's speech.", tt: "آن‌ها سخنرانی ملکه را تماشا کردند." }
+        ]
+    },
+    {
+        e: "Rose",
+        qq: "رز",
+        qe: [
+            { qw: "She gave me a red rose.", tt: "او به من یک رز قرمز داد." },
+            { qw: "Roses have a sweet smell.", tt: "رزها بوی شیرینی دارند." }
+        ]
+    },
+    {
+        e: "Sun",
+        qq: "خورشید",
+        qe: [
+            { qw: "The sun is shining brightly.", tt: "خورشید درخشان می‌تابد." },
+            { qw: "They enjoyed the sun at the beach.", tt: "آن‌ها از آفتاب در ساحل لذت بردند." }
+        ]
+    },
+    {
+        e: "Tree",
+        qq: "درخت",
+        qe: [
+            { qw: "The tree is full of apples.", tt: "درخت پر از سیب است." },
+            { qw: "They planted a tree in the garden.", tt: "آن‌ها در باغ یک درخت کاشتند." }
+        ]
+    },
+    {
+        e: "Umbrella",
+        qq: "چتر",
+        qe: [
+            { qw: "She carried an umbrella because it was raining.", tt: "او به دلیل باران چتری همراه داشت." },
+            { qw: "The umbrella protected them from the sun.", tt: "چتر آن‌ها را از آفتاب محافظت کرد." }
+        ]
+    },
+    {
+        e: "Van",
+        qq: "ون",
+        qe: [
+            { qw: "They traveled in a van.", tt: "آن‌ها با یک ون سفر کردند." },
+            { qw: "The van is parked outside.", tt: "ون بیرون پارک شده است." }
+        ]
+    },
+    {
+        e: "Water",
+        qq: "آب",
+        qe: [
+            { qw: "She drank a glass of water.", tt: "او یک لیوان آب نوشید." },
+            { qw: "Water is essential for life.", tt: "آب برای زندگی ضروری است." }
+        ]
+    },
+    {
+        e: "Xylophone",
+        qq: "زیلوفون",
+        qe: [
+            { qw: "The child played the xylophone.", tt: "کودک زیلوفون نواخت." },
+            { qw: "A xylophone is a musical instrument.", tt: "زیلوفون یک ساز موسیقی است." }
+        ]
+    },
+    {
+        e: "Yogurt",
+        qq: "ماست",
+        qe: [
+            { qw: "She ate yogurt with honey.", tt: "او ماست با عسل خورد." },
+            { qw: "Yogurt is good for digestion.", tt: "ماست برای گوارش مفید است." }
+        ]
+    },
+    {
+        e: "Zebra",
+        qq: "گورخر",
+        qe: [
+            { qw: "They saw a zebra at the zoo.", tt: "آن‌ها در باغ وحش یک گورخر دیدند." },
+            { qw: "Zebras have black and white stripes.", tt: "گورخرها نوارهای سیاه و سفید دارند." }
+        ]
+    },
+    {
+        e: "Ant",
+        qq: "مورچه",
+        qe: [
+            { qw: "The ant is carrying a leaf.", tt: "مورچه در حال حمل یک برگ است." },
+            { qw: "Ants live in colonies.", tt: "مورچه‌ها در کلونی‌ها زندگی می‌کنند." }
+        ]
+    },
+    {
+        e: "Ball",
+        qq: "توپ",
+        qe: [
+            { qw: "The children are playing with a ball.", tt: "بچه‌ها با توپ بازی می‌کنند." },
+            { qw: "He kicked the ball into the goal.", tt: "او توپ را به سمت دروازه شوت کرد." }
+        ]
+    },
+    {
+        e: "Cake",
+        qq: "کیک",
+        qe: [
+            { qw: "She baked a chocolate cake.", tt: "او یک کیک شکلاتی پخت." },
+            { qw: "The cake is delicious.", tt: "کیک خوشمزه است." }
+        ]
+    },
+    {
+        e: "Duck",
+        qq: "اردک",
+        qe: [
+            { qw: "The duck is swimming in the pond.", tt: "اردک در حال شنا کردن در برکه است." },
+            { qw: "They fed the duck bread.", tt: "آن‌ها به اردک نان دادند." }
+        ]
+    },
+    {
+        e: "Elephant",
+        qq: "فیل",
+        qe: [
+            { qw: "The elephant is the largest land animal.", tt: "فیل بزرگ‌ترین حیوان زمینی است." },
+            { qw: "We saw an elephant at the safari.", tt: "ما در سافاری یک فیل دیدیم." }
+        ]
+    },
+    {
+        e: "Frog",
+        qq: "قورباغه",
+        qe: [
+            { qw: "The frog jumped into the water.", tt: "قورباغه به داخل آب پرید." },
+            { qw: "Frogs have long legs.", tt: "قورباغه‌ها پاهای بلندی دارند." }
+        ]
+    },
+    {
+        e: "Giraffe",
+        qq: "زرافه",
+        qe: [
+            { qw: "The giraffe has a long neck.", tt: "زرافه گردن بلندی دارد." },
+            { qw: "We saw a giraffe at the zoo.", tt: "ما در باغ وحش یک زرافه دیدیم." }
+        ]
+    },
+    {
+        e: "Hat",
+        qq: "کلاه",
+        qe: [
+            { qw: "He wore a hat to protect himself from the sun.", tt: "او برای محافظت از خود در برابر آفتاب کلاه بر سر گذاشت." },
+            { qw: "She bought a new hat.", tt: "او یک کلاه جدید خرید." }
+        ]
+    },
+    {
+        e: "Ink",
+        qq: "جوهر",
+        qe: [
+            { qw: "The pen ran out of ink.", tt: "جوهر خودکار تمام شد." },
+            { qw: "He spilled ink on the paper.", tt: "او جوهر را روی کاغذ ریخت." }
+        ]
+    },
+    {
+        e: "Juice",
+        qq: "آب‌میوه",
+        qe: [
+            { qw: "She drank a glass of orange juice.", tt: "او یک لیوان آب پرتقال نوشید." },
+            { qw: "Juice is a healthy drink.", tt: "آب‌میوه یک نوشیدنی سالم است." }
+        ]
+    },
+    {
+        e: "Key",
+        qq: "کلید",
+        qe: [
+            { qw: "He lost his car key.", tt: "او کلید ماشینش را گم کرد." },
+            { qw: "The key opened the door.", tt: "کلید در را باز کرد." }
+        ]
+    },
+    {
+        e: "Lamp",
+        qq: "لامپ",
+        qe: [
+            { qw: "She turned on the lamp.", tt: "او لامپ را روشن کرد." },
+            { qw: "The lamp is on the table.", tt: "لامپ روی میز است." }
+        ]
+    },
+    {
+        e: "Mouse",
+        qq: "موش",
+        qe: [
+            { qw: "The mouse is small and fast.", tt: "موش کوچک و سریع است." },
+            { qw: "She saw a mouse in the kitchen.", tt: "او یک موش در آشپزخانه دید." }
+        ]
+    },
+    {
+        e: "Nest",
+        qq: "لانه",
+        qe: [
+            { qw: "The bird is building a nest.", tt: "پرنده در حال ساختن لانه است." },
+            { qw: "The nest is in the tree.", tt: "لانه در درخت است." }
+        ]
+    },
+    {
+        e: "Owl",
+        qq: "جغد",
+        qe: [
+            { qw: "The owl hooted in the night.", tt: "جغد در شب هوهو کرد." },
+            { qw: "Owls can see in the dark.", tt: "جغدها می‌توانند در تاریکی ببینند." }
+        ]
+    },
+    {
+        e: "Pig",
+        qq: "خوک",
+        qe: [
+            { qw: "The pig is rolling in the mud.", tt: "خوک در حال غلطیدن در گل است." },
+            { qw: "Pigs are intelligent animals.", tt: "خوک‌ها حیوانات باهوشی هستند." }
+        ]
+    },
+    {
+        e: "Queen",
+        qq: "ملکه",
+        qe: [
+            { qw: "The queen wore a beautiful crown.", tt: "ملکه تاج زیبایی بر سر داشت." },
+            { qw: "They watched the queen's speech.", tt: "آن‌ها سخنرانی ملکه را تماشا کردند." }
+        ]
+    },
+    {
+        e: "Ring",
+        qq: "حلقه",
+        qe: [
+            { qw: "She wore a diamond ring.", tt: "او یک حلقه الماس بر دست داشت." },
+            { qw: "The ring was a gift.", tt: "حلقه یک هدیه بود." }
+        ]
+    },
+    {
+        e: "Snake",
+        qq: "مار",
+        qe: [
+            { qw: "The snake slithered through the grass.", tt: "مار از میان علف‌ها خزید." },
+            { qw: "Snakes can be dangerous.", tt: "مارها می‌توانند خطرناک باشند." }
+        ]
+    },
+    {
+        e: "Tiger",
+        qq: "ببر",
+        qe: [
+            { qw: "The tiger is a powerful predator.", tt: "ببر یک شکارچی قدرتمند است." },
+            { qw: "We saw a tiger at the zoo.", tt: "ما در باغ وحش یک ببر دیدیم." }
+        ]
+    },
+    {
+        e: "Umbrella",
+        qq: "چتر",
+        qe: [
+            { qw: "She carried an umbrella because it was raining.", tt: "او به دلیل باران چتری همراه داشت." },
+            { qw: "The umbrella protected them from the sun.", tt: "چتر آن‌ها را از آفتاب محافظت کرد." }
+        ]
+    },
+    {
+        e: "Vase",
+        qq: "گلدان",
+        qe: [
+            { qw: "She put flowers in the vase.", tt: "او گل‌ها را در گلدان گذاشت." },
+            { qw: "The vase is on the shelf.", tt: "گلدان روی قفسه است." }
+        ]
+    },
+    {
+        e: "Whale",
+        qq: "نهنگ",
+        qe: [
+            { qw: "The whale is the largest animal in the ocean.", tt: "نهنگ بزرگ‌ترین حیوان در دریا است." },
+            { qw: "They saw a whale during their boat trip.", tt: "آن‌ها در سفر قایقی‌شان یک نهنگ دیدند." }
+        ]
+    },
+    {
+        e: "X-ray",
+        qq: "اشعه ایکس",
+        qe: [
+            { qw: "The doctor took an X-ray of her arm.", tt: "دکتر از دست او یک اشعه ایکس گرفت." },
+            { qw: "X-rays are used to see inside the body.", tt: "اشعه‌های ایکس برای دیدن داخل بدن استفاده می‌شوند." }
+        ]
+    },
+    {
+        e: "Yacht",
+        qq: "قایق بادبانی",
+        qe: [
+            { qw: "They sailed the yacht along the coast.", tt: "آن‌ها قایق بادبانی را در امتداد ساحل راندند." },
+            { qw: "The yacht is anchored in the harbor.", tt: "قایق بادبانی در بندر لنگر انداخته است." }
+        ]
+    },
+    
+    {
+        e: "Balloon",
+        qq: "بادکنک",
+        qe: [
+            { qw: "The balloon is floating in the air.", tt: "بادکنک در هوا معلق است." },
+            { qw: "She gave him a red balloon.", tt: "او به او یک بادکنک قرمز داد." }
+        ]
+    },
+    {
+        e: "Cup",
+        qq: "فنجان",
+        qe: [
+            { qw: "He drank tea from a cup.", tt: "او از یک فنجان چای نوشید." },
+            { qw: "The cup is on the table.", tt: "فنجان روی میز است." }
+        ]
+    },
+    {
+        e: "Door",
+        qq: "در",
+        qe: [
+            { qw: "She opened the door.", tt: "او در را باز کرد." },
+            { qw: "The door is blue.", tt: "در آبی است." }
+        ]
+    },
+    {
+        e: "Eggplant",
+        qq: "بادمجان",
+        qe: [
+            { qw: "She cooked eggplant for dinner.", tt: "او برای شام بادمجان پخت." },
+            { qw: "Eggplant is a purple vegetable.", tt: "بادمجان یک سبزی بنفش است." }
+        ]
+    },
+    {
+        e: "Flower",
+        qq: "گل",
+        qe: [
+            { qw: "The flower is blooming.", tt: "گل در حال شکوفه دادن است." },
+            { qw: "He picked a flower for her.", tt: "او برای او یک گل چید." }
+        ]
+    },
+    {
+        e: "Grapes",
+        qq: "انگور",
+        qe: [
+            { qw: "She ate a bunch of grapes.", tt: "او یک دسته انگور خورد." },
+            { qw: "Grapes are sweet and juicy.", tt: "انگورها شیرین و آبدار هستند." }
+        ]
+    },
+    {
+        e: "Hat",
+        qq: "کلاه",
+        qe: [
+            { qw: "He wore a hat to protect from the sun.", tt: "او برای محافظت از آفتاب کلاه بر سر گذاشت." },
+            { qw: "The hat is blue.", tt: "کلاه آبی است." }
+        ]
+    },
+    {
+        e: "Igloo",
+        qq: "ایگلو",
+        qe: [
+            { qw: "They built an igloo out of snow.", tt: "آن‌ها از برف یک ایگلو ساختند." },
+            { qw: "An igloo is a house made of ice.", tt: "ایگلو یک خانه ساخته شده از یخ است." }
+        ]
+    },
+    {
+        e: "Jacket",
+        qq: "ژاکت",
+        qe: [
+            { qw: "She wore a warm jacket.", tt: "او یک ژاکت گرم پوشید." },
+            { qw: "The jacket is hanging on the hook.", tt: "ژاکت روی قلاب آویزان است." }
+        ]
+    },
+    {
+        e: "Kangaroo",
+        qq: "کانگورو",
+        qe: [
+            { qw: "The kangaroo jumped high.", tt: "کانگورو بلند پرید." },
+            { qw: "We saw a kangaroo in Australia.", tt: "ما در استرالیا یک کانگورو دیدیم." }
+        ]
+    },
+    {
+        e: "Lemon",
+        qq: "لیمو",
+        qe: [
+            { qw: "She squeezed a lemon into the tea.", tt: "او لیمو را در چای فشرد." },
+            { qw: "Lemons are sour.", tt: "لیموها ترش هستند." }
+        ]
+    },
+    {
+        e: "Mango",
+        qq: "انبه",
+        qe: [
+            { qw: "He loves the taste of mango.", tt: "او طعم انبه را دوست دارد." },
+            { qw: "Mangoes are sweet and tropical.", tt: "انبه‌ها شیرین و گرمسیری هستند." }
+        ]
+    },
+    {
+        e: "Nut",
+        qq: "آجیل",
+        qe: [
+            { qw: "She ate a handful of nuts.", tt: "او یک مشت آجیل خورد." },
+            { qw: "Nuts are a healthy snack.", tt: "آجیل یک میان‌وعده سالم است." }
+        ]
+    },
+    {
+        e: "Oven",
+        qq: "فر",
+        qe: [
+            { qw: "She baked cookies in the oven.", tt: "او کوکی‌ها را در فر پخت." },
+            { qw: "The oven is hot.", tt: "فر داغ است." }
+        ]
+    },
+    {
+        e: "Pencil",
+        qq: "مداد",
+        qe: [
+            { qw: "He wrote with a pencil.", tt: "او با مداد نوشت." },
+            { qw: "The pencil is sharp.", tt: "مداد تیز است." }
+        ]
+    },
+    {
+        e: "Quilt",
+        qq: "لحاف",
+        qe: [
+            { qw: "She made a quilt from old clothes.", tt: "او از لباس‌های قدیمی یک لحاف درست کرد." },
+            { qw: "The quilt is warm and cozy.", tt: "لحاف گرم و راحت است." }
+        ]
+    },
+    {
+        e: "Rabbit",
+        qq: "خرگوش",
+        qe: [
+            { qw: "The rabbit is hopping in the garden.", tt: "خرگوش در باغ می‌جهد." },
+            { qw: "Rabbits have long ears.", tt: "خرگوش‌ها گوش‌های بلندی دارند." }
+        ]
+    },
+    {
+        e: "Shoe",
+        qq: "کفش",
+        qe: [
+            { qw: "He bought a new pair of shoes.", tt: "او یک جفت کفش جدید خرید." },
+            { qw: "The shoe is too tight.", tt: "کفش خیلی تنگ است." }
+        ]
+    },
+    {
+        e: "Table",
+        qq: "میز",
+        qe: [
+            { qw: "They ate dinner at the table.", tt: "آن‌ها شام را روی میز خوردند." },
+            { qw: "The table is made of wood.", tt: "میز از چوب ساخته شده است." }
+        ]
+    },
+    {
+        e: "Umbrella",
+        qq: "چتر",
+        qe: [
+            { qw: "She carried an umbrella because it was raining.", tt: "او به دلیل باران چتری همراه داشت." },
+            { qw: "The umbrella protected them from the sun.", tt: "چتر آن‌ها را از آفتاب محافظت کرد." }
+        ]
+    },
+    {
+        e: "Violin",
+        qq: "ویولن",
+        qe: [
+            { qw: "She played a beautiful tune on the violin.", tt: "او آهنگی زیبا با ویولن نواخت." },
+            { qw: "The violin is a string instrument.", tt: "ویولن یک ساز زهی است." }
+        ]
+    },
+    {
+        e: "Window",
+        qq: "پنجره",
+        qe: [
+            { qw: "She looked out the window.", tt: "او از پنجره بیرون را نگاه کرد." },
+            { qw: "The window is open.", tt: "پنجره باز است." }
+        ]
+    },
+    {
+        e: "Xylophone",
+        qq: "زیلوفون",
+        qe: [
+            { qw: "The child played the xylophone.", tt: "کودک زیلوفون نواخت." },
+            { qw: "A xylophone is a musical instrument.", tt: "زیلوفون یک ساز موسیقی است." }
+        ]
+    },
+    {
+        e: "Yogurt",
+        qq: "ماست",
+        qe: [
+            { qw: "She ate yogurt with honey.", tt: "او ماست با عسل خورد." },
+            { qw: "Yogurt is good for digestion.", tt: "ماست برای گوارش مفید است." }
+        ]
+    },
+    {
+        e: "Zebra",
+        qq: "گورخر",
+        qe: [
+            { qw: "They saw a zebra at the zoo.", tt: "آن‌ها در باغ وحش یک گورخر دیدند." },
+            { qw: "Zebras have black and white stripes.", tt: "گورخرها نوارهای سیاه و سفید دارند." }
+        ]
+    },
+    {
+        e: "Ant",
+        qq: "مورچه",
+        qe: [
+            { qw: "The ant is carrying a leaf.", tt: "مورچه در حال حمل یک برگ است." },
+            { qw: "Ants live in colonies.", tt: "مورچه‌ها در کلونی‌ها زندگی می‌کنند." }
+        ]
+    },
+    {
+        e: "Ball",
+        qq: "توپ",
+        qe: [
+            { qw: "The children are playing with a ball.", tt: "بچه‌ها با توپ بازی می‌کنند." },
+            { qw: "He kicked the ball into the goal.", tt: "او توپ را به سمت دروازه شوت کرد." }
+        ]
+    },
+    {
+        e: "Cake",
+        qq: "کیک",
+        qe: [
+            { qw: "She baked a chocolate cake.", tt: "او یک کیک شکلاتی پخت." },
+            { qw: "The cake is delicious.", tt: "کیک خوشمزه است." }
+        ]
+    },
+    {
+        e: "Duck",
+        qq: "اردک",
+        qe: [
+            { qw: "The duck is swimming in the pond.", tt: "اردک در حال شنا کردن در برکه است." },
+            { qw: "They fed the duck bread.", tt: "آن‌ها به اردک نان دادند." }
+        ]
+    },
+    {
+        e: "Elephant",
+        qq: "فیل",
+        qe: [
+            { qw: "The elephant is the largest land animal.", tt: "فیل بزرگ‌ترین حیوان زمینی است." },
+            { qw: "We saw an elephant at the safari.", tt: "ما در سافاری یک فیل دیدیم." }
+        ]
+    },
+    {
+        e: "Frog",
+        qq: "قورباغه",
+        qe: [
+            { qw: "The frog jumped into the water.", tt: "قورباغه به داخل آب پرید." },
+            { qw: "Frogs have long legs.", tt: "قورباغه‌ها پاهای بلندی دارند." }
+        ]
+    },
+    {
+        e: "Giraffe",
+        qq: "زرافه",
+        qe: [
+            { qw: "The giraffe has a long neck.", tt: "زرافه گردن بلندی دارد." },
+            { qw: "We saw a giraffe at the zoo.", tt: "ما در باغ وحش یک زرافه دیدیم." }
+        ]
+    },
+    {
+        e: "Hat",
+        qq: "کلاه",
+        qe: [
+            { qw: "He wore a hat to protect himself from the sun.", tt: "او برای محافظت از خود در برابر آفتاب کلاه بر سر گذاشت." },
+            { qw: "She bought a new hat.", tt: "او یک کلاه جدید خرید." }
+        ]
+    },
+    {
+        e: "Ink",
+        qq: "جوهر",
+        qe: [
+            { qw: "The pen ran out of ink.", tt: "جوهر خودکار تمام شد." },
+            { qw: "He spilled ink on the paper.", tt: "او جوهر را روی کاغذ ریخت." }
+        ]
+    },
+    {
+        e: "Juice",
+        qq: "آب‌میوه",
+        qe: [
+            { qw: "She drank a glass of orange juice.", tt: "او یک لیوان آب پرتقال نوشید." },
+            { qw: "Juice is a healthy drink.", tt: "آب‌میوه یک نوشیدنی سالم است." }
+        ]
+    },
+    {
+        e: "Key",
+        qq: "کلید",
+        qe: [
+            { qw: "He lost his car key.", tt: "او کلید ماشینش را گم کرد." },
+            { qw: "The key opened the door.", tt: "کلید در را باز کرد." }
+        ]
+    },
+    {
+        e: "Lamp",
+        qq: "لامپ",
+        qe: [
+            { qw: "She turned on the lamp.", tt: "او لامپ را روشن کرد." },
+            { qw: "The lamp is on the table.", tt: "لامپ روی میز است." }
+        ]
+    },
+    {
+        e: "Mouse",
+        qq: "موش",
+        qe: [
+            { qw: "The mouse is small and fast.", tt: "موش کوچک و سریع است." },
+            { qw: "She saw a mouse in the kitchen.", tt: "او یک موش در آشپزخانه دید." }
+        ]
+    },
+    {
+        e: "Nest",
+        qq: "لانه",
+        qe: [
+            { qw: "The bird is building a nest.", tt: "پرنده در حال ساختن لانه است." },
+            { qw: "The nest is in the tree.", tt: "لانه در درخت است." }
+        ]
+    },
+    {
+        e: "Owl",
+        qq: "جغد",
+        qe: [
+            { qw: "The owl hooted in the night.", tt: "جغد در شب هوهو کرد." },
+            { qw: "Owls can see in the dark.", tt: "جغدها می‌توانند در تاریکی ببینند." }
+        ]
+    },
+    {
+        e: "Pig",
+        qq: "خوک",
+        qe: [
+            { qw: "The pig is rolling in the mud.", tt: "خوک در حال غلطیدن در گل است." },
+            { qw: "Pigs are intelligent animals.", tt: "خوک‌ها حیوانات باهوشی هستند." }
+        ]
+    },
+    {
+        e: "Queen",
+        qq: "ملکه",
+        qe: [
+            { qw: "The queen wore a beautiful crown.", tt: "ملکه تاج زیبایی بر سر داشت." },
+            { qw: "They watched the queen's speech.", tt: "آن‌ها سخنرانی ملکه را تماشا کردند." }
+        ]
+    },
+    {
+        e: "Ring",
+        qq: "حلقه",
+        qe: [
+            { qw: "She wore a diamond ring.", tt: "او یک حلقه الماس بر دست داشت." },
+            { qw: "The ring was a gift.", tt: "حلقه یک هدیه بود." }
+        ]
+    },
+    {
+        e: "Snake",
+        qq: "مار",
+        qe: [
+            { qw: "The snake slithered through the grass.", tt: "مار از میان علف‌ها خزید." },
+            { qw: "Snakes can be dangerous.", tt: "مارها می‌توانند خطرناک باشند." }
+        ]
+    },
+    {
+        e: "Tiger",
+        qq: "ببر",
+        qe: [
+            { qw: "The tiger is a powerful predator.", tt: "ببر یک شکارچی قدرتمند است." },
+            { qw: "We saw a tiger at the zoo.", tt: "ما در باغ وحش یک ببر دیدیم." }
+        ]
+    },
+    {
+        e: "Umbrella",
+        qq: "چتر",
+        qe: [
+            { qw: "She carried an umbrella because it was raining.", tt: "او به دلیل باران چتری همراه داشت." },
+            { qw: "The umbrella protected them from the sun.", tt: "چتر آن‌ها را از آفتاب محافظت کرد." }
+        ]
+    },
+    {
+        e: "Vase",
+        qq: "گلدان",
+        qe: [
+            { qw: "She put flowers in the vase.", tt: "او گل‌ها را در گلدان گذاشت." },
+            { qw: "The vase is on the shelf.", tt: "گلدان روی قفسه است." }
+        ]
+    },
+    {
+        e: "Whale",
+        qq: "نهنگ",
+        qe: [
+            { qw: "The whale is the largest animal in the ocean.", tt: "نهنگ بزرگ‌ترین حیوان در دریا است." },
+            { qw: "They saw a whale during their boat trip.", tt: "آن‌ها در سفر قایقی‌شان یک نهنگ دیدند." }
+        ]
+    },
+    {
+        e: "X-ray",
+        qq: "اشعه ایکس",
+        qe: [
+            { qw: "The doctor took an X-ray of her arm.", tt: "دکتر از دست او یک اشعه ایکس گرفت." },
+            { qw: "X-rays are used to see inside the body.", tt: "اشعه‌های ایکس برای دیدن داخل بدن استفاده می‌شوند." }
+        ]
+    },
+    {
+        e: "Yacht",
+        qq: "قایق بادبانی",
+        qe: [
+            { qw: "They sailed the yacht along the coast.", tt: "آن‌ها قایق بادبانی را در امتداد ساحل راندند." },
+            { qw: "The yacht is anchored in the harbor.", tt: "قایق بادبانی در بندر لنگر انداخته است." }
+        ]
+    },
+    {
+        e: "Zipper",
+        qq: "زیپ",
+        qe: [
+            { qw: "She zipped up her jacket.", tt: "او زیپ ژاکتش را بست." },
+            { qw: "The zipper is stuck.", tt: "زیپ گیر کرده است." }
+        ]
+    },
+   
+    {
+        e: "Banana",
+        qq: "موز",
+        qe: [
+            { qw: "She peeled a banana for breakfast.", tt: "او برای صبحانه یک موز پوست کند." }
+        ]
+    },
+    {
+        e: "Cheese",
+        qq: "پنیر",
+        qe: [
+            { qw: "She put cheese on her sandwich.", tt: "او پنیر روی ساندویچش گذاشت." }
+        ]
+    },
+    {
+        e: "Drum",
+        qq: "طبل",
+        qe: [
+            { qw: "He played the drum in the band.", tt: "او در گروه موسیقی طبل نواخت." }
+        ]
+    },
+    {
+        e: "Elephant",
+        qq: "فیل",
+        qe: [
+            { qw: "The elephant is the largest land animal.", tt: "فیل بزرگ‌ترین حیوان زمینی است." }
+        ]
+    },
+    {
+        e: "Flower",
+        qq: "گل",
+        qe: [
+            { qw: "The flower is blooming.", tt: "گل در حال شکوفه دادن است." }
+        ]
+    },
+    {
+        e: "Guitar",
+        qq: "گیتار",
+        qe: [
+            { qw: "He played a song on his guitar.", tt: "او با گیتارش یک آهنگ نواخت." }
+        ]
+    },
+    {
+        e: "Helicopter",
+        qq: "هلیکوپتر",
+        qe: [
+            { qw: "The helicopter landed safely.", tt: "هلیکوپتر به‌سلامت فرود آمد." }
+        ]
+    },
+    {
+        e: "Ice cream",
+        qq: "بستنی",
+        qe: [
+            { qw: "She loves chocolate ice cream.", tt: "او بستنی شکلاتی دوست دارد." }
+        ]
+    },
+    {
+        e: "Jacket",
+        qq: "ژاکت",
+        qe: [
+            { qw: "She wore a warm jacket.", tt: "او یک ژاکت گرم پوشید." }
+        ]
+    },
+    {
+        e: "Kangaroo",
+        qq: "کانگورو",
+        qe: [
+            { qw: "The kangaroo jumped high.", tt: "کانگورو بلند پرید." }
+        ]
+    },
+    {
+        e: "Lemon",
+        qq: "لیمو",
+        qe: [
+            { qw: "She squeezed a lemon into her tea.", tt: "او لیمو را در چایش فشرد." }
+        ]
+    },
+    {
+        e: "Mango",
+        qq: "انبه",
+        qe: [
+            { qw: "He loves the taste of mango.", tt: "او طعم انبه را دوست دارد." }
+        ]
+    },
+    {
+        e: "Notebook",
+        qq: "دفترچه",
+        qe: [
+            { qw: "She wrote her notes in the notebook.", tt: "او یادداشت‌هایش را در دفترچه نوشت." }
+        ]
+    },
+    {
+        e: "Octopus",
+        qq: "اختاپوس",
+        qe: [
+            { qw: "The octopus has eight arms.", tt: "اختاپوس هشت بازو دارد." }
+        ]
+    },
+    {
+        e: "Piano",
+        qq: "پیانو",
+        qe: [
+            { qw: "She played a beautiful tune on the piano.", tt: "او یک آهنگ زیبا با پیانو نواخت." }
+        ]
+    },
+    {
+        e: "Quilt",
+        qq: "لحاف",
+        qe: [
+            { qw: "She made a quilt from old clothes.", tt: "او از لباس‌های قدیمی یک لحاف درست کرد." }
+        ]
+    },
+    {
+        e: "Rainbow",
+        qq: "رنگین‌کمان",
+        qe: [
+            { qw: "A rainbow appeared after the rain.", tt: "بعد از باران یک رنگین‌کمان ظاهر شد." }
+        ]
+    },
+    {
+        e: "Socks",
+        qq: "جوراب",
+        qe: [
+            { qw: "He wore warm socks in winter.", tt: "او در زمستان جوراب‌های گرم پوشید." }
+        ]
+    },
+    {
+        e: "Telephone",
+        qq: "تلفن",
+        qe: [
+            { qw: "She answered the telephone quickly.", tt: "او به‌سرعت به تلفن جواب داد." }
+        ]
+    },
+    {
+        e: "Umbrella",
+        qq: "چتر",
+        qe: [
+            { qw: "She carried an umbrella because it was raining.", tt: "او به دلیل باران چتری همراه داشت." }
+        ]
+    },
+    {
+        e: "Violin",
+        qq: "ویولن",
+        qe: [
+            { qw: "She played a beautiful tune on the violin.", tt: "او آهنگی زیبا با ویولن نواخت." }
+        ]
+    },
+    {
+        e: "Window",
+        qq: "پنجره",
+        qe: [
+            { qw: "She looked out the window.", tt: "او از پنجره بیرون را نگاه کرد." }
+        ]
+    },
+    {
+        e: "Xylophone",
+        qq: "زیلوفون",
+        qe: [
+            { qw: "The child played the xylophone.", tt: "کودک زیلوفون نواخت." }
+        ]
+    },
+    {
+        e: "Yogurt",
+        qq: "ماست",
+        qe: [
+            { qw: "She ate yogurt with honey.", tt: "او ماست با عسل خورد." }
+        ]
+    },
+    {
+        e: "Zebra",
+        qq: "گورخر",
+        qe: [
+            { qw: "They saw a zebra at the zoo.", tt: "آن‌ها در باغ وحش یک گورخر دیدند." }
+        ]
+    },
+    {
+        e: "Ant",
+        qq: "مورچه",
+        qe: [
+            { qw: "The ant is carrying a leaf.", tt: "مورچه در حال حمل یک برگ است." }
+        ]
+    },
+    {
+        e: "Ball",
+        qq: "توپ",
+        qe: [
+            { qw: "The children are playing with a ball.", tt: "بچه‌ها با توپ بازی می‌کنند." }
+        ]
+    },
+    {
+        e: "Cake",
+        qq: "کیک",
+        qe: [
+            { qw: "She baked a chocolate cake.", tt: "او یک کیک شکلاتی پخت." }
+        ]
+    },
+    {
+        e: "Duck",
+        qq: "اردک",
+        qe: [
+            { qw: "The duck is swimming in the pond.", tt: "اردک در حال شنا کردن در برکه است." }
+        ]
+    },
+    {
+        e: "Elephant",
+        qq: "فیل",
+        qe: [
+            { qw: "The elephant is the largest land animal.", tt: "فیل بزرگ‌ترین حیوان زمینی است." }
+        ]
+    },
+    {
+        e: "Frog",
+        qq: "قورباغه",
+        qe: [
+            { qw: "The frog jumped into the water.", tt: "قورباغه به داخل آب پرید." }
+        ]
+    },
+    {
+        e: "Giraffe",
+        qq: "زرافه",
+        qe: [
+            { qw: "The giraffe has a long neck.", tt: "زرافه گردن بلندی دارد." }
+        ]
+    },
+    {
+        e: "Hat",
+        qq: "کلاه",
+        qe: [
+            { qw: "He wore a hat to protect himself from the sun.", tt: "او برای محافظت از خود در برابر آفتاب کلاه بر سر گذاشت." }
+        ]
+    },
+    {
+        e: "Ink",
+        qq: "جوهر",
+        qe: [
+            { qw: "The pen ran out of ink.", tt: "جوهر خودکار تمام شد." }
+        ]
+    },
+    {
+        e: "Juice",
+        qq: "آب‌میوه",
+        qe: [
+            { qw: "She drank a glass of orange juice.", tt: "او یک لیوان آب پرتقال نوشید." }
+        ]
+    },
+    {
+        e: "Key",
+        qq: "کلید",
+        qe: [
+            { qw: "He lost his car key.", tt: "او کلید ماشینش را گم کرد." }
+        ]
+    },
+    {
+        e: "Lamp",
+        qq: "لامپ",
+        qe: [
+            { qw: "She turned on the lamp.", tt: "او لامپ را روشن کرد." }
+        ]
+    },
+    {
+        e: "Mouse",
+        qq: "موش",
+        qe: [
+            { qw: "The mouse is small and fast.", tt: "موش کوچک و سریع است." }
+        ]
+    },
+    {
+        e: "Nest",
+        qq: "لانه",
+        qe: [
+            { qw: "The bird is building a nest.", tt: "پرنده در حال ساختن لانه است." }
+        ]
+    },
+    {
+        e: "Bridge",
+        qq: "پل",
+        qe: [
+            { qw: "They crossed the bridge over the river.", tt: "آن‌ها از پل روی رودخانه عبور کردند." },
+            { qw: "The bridge connects two cities.", tt: "پل دو شهر را به هم متصل می‌کند." }
+        ]
+    },
+    {
+        e: "Cloud",
+        qq: "ابر",
+        qe: [
+            { qw: "White clouds float in the sky.", tt: "ابرهای سفید در آسمان شناورند." }
+        ]
+    },
+    {
+        e: "Diamond",
+        qq: "الماس",
+        qe: [
+            { qw: "The diamond sparkled in the light.", tt: "الماس در نور می‌درخشید." }
+        ]
+    },
+    {
+        e: "Earth",
+        qq: "زمین",
+        qe: [
+            { qw: "The Earth revolves around the sun.", tt: "زمین به دور خورشید می‌چرخد." },
+            { qw: "We must protect the Earth.", tt: "ما باید از زمین محافظت کنیم." }
+        ]
+    },
+    {
+        e: "Factory",
+        qq: "کارخانه",
+        qe: [
+            { qw: "He works in a car factory.", tt: "او در یک کارخانه ماشین‌سازی کار می‌کند." }
+        ]
+    },
+    {
+        e: "Garden",
+        qq: "باغ",
+        qe: [
+            { qw: "She grows vegetables in her garden.", tt: "او در باغش سبزیجات می‌کارد." }
+        ]
+    },
+    {
+        e: "Honey",
+        qq: "عسل",
+        qe: [
+            { qw: "Bees make honey.", tt: "زنبورها عسل درست می‌کنند." },
+            { qw: "He likes honey in his tea.", tt: "او عسل در چایش دوست دارد." }
+        ]
+    },
+    {
+        e: "Internet",
+        qq: "اینترنت",
+        qe: [
+            { qw: "She uses the internet to study.", tt: "او از اینترنت برای مطالعه استفاده می‌کند." }
+        ]
+    },
+    {
+        e: "Jungle",
+        qq: "جنگل انبوه",
+        qe: [
+            { qw: "Many animals live in the jungle.", tt: "حیوانات زیادی در جنگل انبوه زندگی می‌کنند." }
+        ]
+    },
+    {
+        e: "Kitchen",
+        qq: "آشپزخانه",
+        qe: [
+            { qw: "She cooks dinner in the kitchen.", tt: "او در آشپزخانه شام درست می‌کند." }
+        ]
+    },
+    {
+        e: "Library",
+        qq: "کتابخانه",
+        qe: [
+            { qw: "Students study at the library.", tt: "دانشجویان در کتابخانه مطالعه می‌کنند." },
+            { qw: "The library has many books.", tt: "کتابخانه کتاب‌های زیادی دارد." }
+        ]
+    },
+    {
+        e: "Market",
+        qq: "بازار",
+        qe: [
+            { qw: "She buys fresh fruit at the market.", tt: "او از بازار میوه تازه می‌خرد." }
+        ]
+    },
+    {
+        e: "Nurse",
+        qq: "پرستار",
+        qe: [
+            { qw: "The nurse helped the patient.", tt: "پرستار به بیمار کمک کرد." }
+        ]
+    },
+    {
+        e: "Ocean",
+        qq: "اقیانوس",
+        qe: [
+            { qw: "The ocean is deep and blue.", tt: "اقیانوس عمیق و آبی است." },
+            { qw: "They sailed across the ocean.", tt: "آن‌ها از عرض اقیانوس عبور کردند." }
+        ]
+    },
+    {
+        e: "Palace",
+        qq: "کاخ",
+        qe: [
+            { qw: "The king lives in a palace.", tt: "پادشاه در یک کاخ زندگی می‌کند." }
+        ]
+    },
+    {
+        e: "Radio",
+        qq: "رادیو",
+        qe: [
+            { qw: "She listens to the radio every morning.", tt: "او هر صبح به رادیو گوش می‌دهد." }
+        ]
+    },
+    {
+        e: "School",
+        qq: "مدرسه",
+        qe: [
+            { qw: "Children go to school to learn.", tt: "بچه‌ها برای یادگیری به مدرسه می‌روند." }
+        ]
+    },
+    {
+        e: "Train",
+        qq: "قطار",
+        qe: [
+            { qw: "The train travels between cities.", tt: "قطار بین شهرها حرکت می‌کند." }
+        ]
+    },
+    {
+        e: "University",
+        qq: "دانشگاه",
+        qe: [
+            { qw: "She studies at the university.", tt: "او در دانشگاه تحصیل می‌کند." },
+            { qw: "The university is very old.", tt: "دانشگاه بسیار قدیمی است." }
+        ]
+    },
+    {
+        e: "Village",
+        qq: "روستا",
+        qe: [
+            { qw: "They live in a small village.", tt: "آن‌ها در یک روستای کوچک زندگی می‌کنند." }
+        ]
+    },
+    {
+        e: "Winter",
+        qq: "زمستان",
+        qe: [
+            { qw: "It snows in winter.", tt: "در زمستان برف می‌بارد." }
+        ]
+    },
+    {
+        e: "Youth",
+        qq: "جوانی",
+        qe: [
+            { qw: "Youth is full of energy.", tt: "جوانی پر از انرژی است." }
+        ]
+    },
+    {
+        e: "Autumn",
+        qq: "پاییز",
+        qe: [
+            { qw: "Leaves fall in autumn.", tt: "برگ‌ها در پاییز می‌ریزند." }
+        ]
+    },
+    {
+        e: "Beach",
+        qq: "ساحل",
+        qe: [
+            { qw: "They play on the beach.", tt: "آن‌ها در ساحل بازی می‌کنند." }
+        ]
+    },
+    {
+        e: "Camera",
+        qq: "دوربین",
+        qe: [
+            { qw: "She takes pictures with her camera.", tt: "او با دوربینش عکس می‌گیرد." }
+        ]
+    },
+    {
+        e: "Desert",
+        qq: "بیابان",
+        qe: [
+            { qw: "The desert is very hot.", tt: "بیابان بسیار گرم است." }
+        ]
+    },
+    {
+        e: "Forest",
+        qq: "جنگل",
+        qe: [
+            { qw: "Many trees grow in the forest.", tt: "درختان زیادی در جنگل رشد می‌کنند." }
+        ]
+    },
+    {
+        e: "Hotel",
+        qq: "هتل",
+        qe: [
+            { qw: "They stayed at a nice hotel.", tt: "آن‌ها در یک هتل خوب اقامت کردند." }
+        ]
+    },
+    {
+        e: "Island",
+        qq: "جزیره",
+        qe: [
+            { qw: "The island is surrounded by water.", tt: "جزیره توسط آب احاطه شده است." }
+        ]
+    },
+    {
+        e: "Lake",
+        qq: "دریاچه",
+        qe: [
+            { qw: "The lake is very deep.", tt: "دریاچه بسیار عمیق است." }
+        ]
+    },
+    {
+        e: "Mountain",
+        qq: "کوه",
+        qe: [
+            { qw: "They climbed the mountain.", tt: "آن‌ها از کوه بالا رفتند." }
+        ]
+    },
+    {
+        e: "Nature",
+        qq: "طبیعت",
+        qe: [
+            { qw: "We must protect nature.", tt: "ما باید از طبیعت محافظت کنیم." }
+        ]
+    },
+    {
+        e: "Office",
+        qq: "دفتر",
+        qe: [
+            { qw: "He works in an office.", tt: "او در یک دفتر کار می‌کند." }
+        ]
+    },
+    {
+        e: "Park",
+        qq: "پارک",
+        qe: [
+            { qw: "Children play in the park.", tt: "بچه‌ها در پارک بازی می‌کنند." }
+        ]
+    },
+    {
+        e: "Restaurant",
+        qq: "رستوران",
+        qe: [
+            { qw: "We ate dinner at a restaurant.", tt: "ما در یک رستوران شام خوردیم." }
+        ]
+    },
+    {
+        e: "Spring",
+        qq: "بهار",
+        qe: [
+            { qw: "Flowers bloom in spring.", tt: "گل‌ها در بهار شکوفه می‌دهند." }
+        ]
+    },
+    {
+        e: "Summer",
+        qq: "تابستان",
+        qe: [
+            { qw: "It is hot in summer.", tt: "در تابستان هوا گرم است." }
+        ]
+    },
+    {
+        e: "Teacher",
+        qq: "معلم",
+        qe: [
+            { qw: "The teacher helps students learn.", tt: "معلم به دانش‌آموزان در یادگیری کمک می‌کند." }
+        ]
+    },
+    {
+        e: "Weather",
+        qq: "آب و هوا",
+        qe: [
+            { qw: "The weather is nice today.", tt: "امروز هوا خوب است." }
+        ]
+    },
+    {
+        e: "Airport",
+        qq: "فرودگاه",
+        qe: [
+            { qw: "We arrived at the airport early.", tt: "ما زود به فرودگاه رسیدیم." }
+        ]
+    },
+    {
+        e: "Bakery",
+        qq: "نانوایی",
+        qe: [
+            { qw: "She buys fresh bread from the bakery.", tt: "او از نانوایی نان تازه می‌خرد." }
+        ]
+    },
+    {
+        e: "Cinema",
+        qq: "سینما",
+        qe: [
+            { qw: "We watched a movie at the cinema.", tt: "ما در سینما یک فیلم تماشا کردیم." }
+        ]
+    },
+    {
+        e: "Doctor",
+        qq: "دکتر",
+        qe: [
+            { qw: "The doctor helped the sick child.", tt: "دکتر به کودک بیمار کمک کرد." }
+        ]
+    },
+    {
+        e: "Engineer",
+        qq: "مهندس",
+        qe: [
+            { qw: "He works as an engineer.", tt: "او به عنوان مهندس کار می‌کند." }
+        ]
+    },
+    {
+        e: "Festival",
+        qq: "جشنواره",
+        qe: [
+            { qw: "Many people attend the music festival.", tt: "افراد زیادی در جشنواره موسیقی شرکت می‌کنند." }
+        ]
+    },
+    {
+        e: "Galaxy",
+        qq: "کهکشان",
+        qe: [
+            { qw: "Our solar system is in the Milky Way galaxy.", tt: "منظومه شمسی ما در کهکشان راه شیری است." }
+        ]
+    },
+    {
+        e: "Highway",
+        qq: "بزرگراه",
+        qe: [
+            { qw: "We drove on the highway to the city.", tt: "ما در بزرگراه به سمت شهر رانندگی کردیم." }
+        ]
+    },
+    {
+        e: "Industry",
+        qq: "صنعت",
+        qe: [
+            { qw: "The car industry is very important.", tt: "صنعت خودرو بسیار مهم است." }
+        ]
+    },
+    {
+        e: "Jewelry",
+        qq: "جواهرات",
+        qe: [
+            { qw: "She keeps her jewelry in a box.", tt: "او جواهراتش را در یک جعبه نگه می‌دارد." }
+        ]
+    },
+    {
+        e: "Keyboard",
+        qq: "صفحه‌کلید",
+        qe: [
+            { qw: "He types on the keyboard.", tt: "او روی صفحه‌کلید تایپ می‌کند." }
+        ]
+    },
+    {
+        e: "Laboratory",
+        qq: "آزمایشگاه",
+        qe: [
+            { qw: "Scientists work in the laboratory.", tt: "دانشمندان در آزمایشگاه کار می‌کنند." }
+        ]
+    },
+    {
+        e: "Magazine",
+        qq: "مجله",
+        qe: [
+            { qw: "She reads fashion magazines.", tt: "او مجله‌های مد می‌خواند." }
+        ]
+    },
+    {
+        e: "Newspaper",
+        qq: "روزنامه",
+        qe: [
+            { qw: "He reads the newspaper every morning.", tt: "او هر صبح روزنامه می‌خواند." }
+        ]
+    },
+    {
+        e: "Orchestra",
+        qq: "ارکستر",
+        qe: [
+            { qw: "The orchestra played beautiful music.", tt: "ارکستر موسیقی زیبایی نواخت." }
+        ]
+    },
+    {
+        e: "Pharmacy",
+        qq: "داروخانه",
+        qe: [
+            { qw: "She went to the pharmacy to buy medicine.", tt: "او برای خرید دارو به داروخانه رفت." }
+        ]
+    },
+    {
+        e: "Quantity",
+        qq: "مقدار",
+        qe: [
+            { qw: "We need a large quantity of food.", tt: "ما به مقدار زیادی غذا نیاز داریم." }
+        ]
+    },
+    {
+        e: "River",
+        qq: "رودخانه",
+        qe: [
+            { qw: "The river flows through the city.", tt: "رودخانه از میان شهر جریان دارد." }
+        ]
+    },
+    {
+        e: "Stadium",
+        qq: "ورزشگاه",
+        qe: [
+            { qw: "The football match is at the stadium.", tt: "مسابقه فوتبال در ورزشگاه است." }
+        ]
+    },
+    {
+        e: "Technology",
+        qq: "فناوری",
+        qe: [
+            { qw: "Modern technology changes quickly.", tt: "فناوری مدرن به سرعت تغییر می‌کند." }
+        ]
+    },
+    {
+        e: "University",
+        qq: "دانشگاه",
+        qe: [
+            { qw: "She studies at the university.", tt: "او در دانشگاه تحصیل می‌کند." }
+        ]
+    },
+    {
+        e: "Vegetable",
+        qq: "سبزیجات",
+        qe: [
+            { qw: "Eat your vegetables to stay healthy.", tt: "برای سالم ماندن سبزیجات بخورید." }
+        ]
+    },
+    {
+        e: "Website",
+        qq: "وب‌سایت",
+        qe: [
+            { qw: "I visited their website yesterday.", tt: "من دیروز از وب‌سایت آنها بازدید کردم." }
+        ]
+    },
+    {
+        e: "Yogurt",
+        qq: "ماست",
+        qe: [
+            { qw: "She eats yogurt for breakfast.", tt: "او برای صبحانه ماست می‌خورد." }
+        ]
+    },
+    {
+        e: "Zoo",
+        qq: "باغ وحش",
+        qe: [
+            { qw: "We saw many animals at the zoo.", tt: "ما حیوانات زیادی در باغ وحش دیدیم." }
+        ]
+    },
+    {
+        e: "Battery",
+        qq: "باتری",
+        qe: [
+            { qw: "My phone battery is low.", tt: "باتری تلفن من کم است." }
+        ]
+    },
+    {
+        e: "Coffee",
+        qq: "قهوه",
+        qe: [
+            { qw: "He drinks coffee every morning.", tt: "او هر صبح قهوه می‌نوشد." }
+        ]
+    },
+    {
+        e: "Dictionary",
+        qq: "فرهنگ لغت",
+        qe: [
+            { qw: "She looked up the word in the dictionary.", tt: "او کلمه را در فرهنگ لغت جستجو کرد." }
+        ]
+    },
+    {
+        e: "Evening",
+        qq: "عصر",
+        qe: [
+            { qw: "We go for walks in the evening.", tt: "ما عصرها به پیاده‌روی می‌رویم." }
+        ]
+    },
+    {
+        e: "Fountain",
+        qq: "فواره",
+        qe: [
+            { qw: "The fountain in the park is beautiful.", tt: "فواره در پارک زیباست." }
+        ]
+    },
+    {
+        e: "Grandmother",
+        qq: "مادربزرگ",
+        qe: [
+            { qw: "My grandmother bakes delicious cookies.", tt: "مادربزرگم کلوچه‌های خوشمزه‌ای می‌پزد." }
+        ]
+    },
+    {
+        e: "Headphones",
+        qq: "هدفون",
+        qe: [
+            { qw: "He listens to music with headphones.", tt: "او با هدفون به موسیقی گوش می‌دهد." }
+        ]
+    },
+    {
+        e: "Insurance",
+        qq: "بیمه",
+        qe: [
+            { qw: "Car insurance is important.", tt: "بیمه ماشین مهم است." }
+        ]
+    },
+    {
+        e: "Journey",
+        qq: "سفر",
+        qe: [
+            { qw: "They went on a long journey.", tt: "آنها به یک سفر طولانی رفتند." }
+        ]
+    },
+    {
+        e: "Kitchen",
+        qq: "آشپزخانه",
+        qe: [
+            { qw: "She cooks in the kitchen.", tt: "او در آشپزخانه آشپزی می‌کند." }
+        ]
+    },
+    {
+        e: "Language",
+        qq: "زبان",
+        qe: [
+            { qw: "She speaks three languages.", tt: "او به سه زبان صحبت می‌کند." }
+        ]
+    },
+    {
+        e: "Message",
+        qq: "پیام",
+        qe: [
+            { qw: "He sent me a message.", tt: "او به من یک پیام فرستاد." }
+        ]
+    },
+    {
+        e: "Network",
+        qq: "شبکه",
+        qe: [
+            { qw: "The internet is a global network.", tt: "اینترنت یک شبکه جهانی است." }
+        ]
+    },
+    {
+        e: "Oxygen",
+        qq: "اکسیژن",
+        qe: [
+            { qw: "Plants produce oxygen.", tt: "گیاهان اکسیژن تولید می‌کنند." }
+        ]
+    },
+    {
+        e: "Password",
+        qq: "رمز عبور",
+        qe: [
+            { qw: "Don't forget your password.", tt: "رمز عبور خود را فراموش نکنید." }
+        ]
+    },
+    {
+        e: "Quality",
+        qq: "کیفیت",
+        qe: [
+            { qw: "This product has good quality.", tt: "این محصول کیفیت خوبی دارد." }
+        ]
+    }
+];
+
+class LanguageLearningApp {
+    constructor() {
+        this.currentIndex = 0;
+        this.currentTheme = 1;
+        this.isLoading = false;
+        this.initialize();
+    }
+
+    initialize() {
+        this.attachEventListeners();
+        this.loadLastState();
+        this.renderContent();
+        this.startAutoUpdate();
+        this.showLoadingEffect();
+    }
+
+    showLoadingEffect() {
+        const overlay = document.querySelector('.loading-overlay');
+        overlay.style.opacity = '1';
+        overlay.style.pointerEvents = 'all';
+        
+        setTimeout(() => {
+            overlay.style.opacity = '0';
+            overlay.style.pointerEvents = 'none';
+        }, 1500);
+    }
+
+    attachEventListeners() {
+        document.getElementById('prevBtn').addEventListener('click', () => this.navigate(-1));
+        document.getElementById('nextBtn').addEventListener('click', () => this.navigate(1));
+        document.getElementById('themeBtn').addEventListener('click', () => this.cycleTheme());
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') this.navigate(-1);
+            if (e.key === 'ArrowRight') this.navigate(1);
+        });
+
+        window.addEventListener('resize', () => this.updateLayout());
+    }
+
+    navigate(direction) {
+        this.currentIndex = (this.currentIndex + direction + words.length) % words.length;
+        this.saveState();
+        this.renderContent(true);
+    }
+
+    cycleTheme() {
+        this.currentTheme = (this.currentTheme % 7) + 1;
+        document.body.className = `theme-${this.currentTheme}`;
+        this.saveState();
+    }
+
+    createWordCard(word) {
+        const card = document.createElement('div');
+        card.className = 'card interactive-element glow-effect';
+        const qeHtml = word.qe.map(ex => `
+            <div class="qw-section">
+                <div class="qw-e">${ex.qw}</div>
+                <div class="qw-qq">${ex.tt}</div>
+            </div>
+        `).join('');
+        
+        card.innerHTML = `
+            <div class="card-content">
+                <div class="word-section">
+                    <div class="word-e">${word.e}</div>
+                    <div class="word-qq">${word.qq}</div>
+                </div>
+                ${qeHtml}
+            </div>
+        `;
+        return card;
+    }
+
+    renderContent(animate = false) {
+        const container = document.getElementById('mainContainer');
+        container.innerHTML = '';
+        
+        const card = this.createWordCard(words[this.currentIndex]);
+        if (animate) {
+            card.style.animation = 'floatAnimation 0.5s ease-out';
+        }
+        container.appendChild(card);
+        
+        this.updateProgressBar();
+    }
+
+    updateProgressBar() {
+        const progress = ((this.currentIndex + 1) / words.length) * 100;
+        document.getElementById('progressBar').style.width = `${progress}%`;
+    }
+
+    updateDateTime() {
+        const now = new Date();
+        const formatted = now.toISOString().replace('T', ' ').substr(0, 19);
+        document.getElementById('datetime').textContent = formatted;
+    }
+
+    startAutoUpdate() {
+        setInterval(() => this.updateDateTime(), 1000);
+    }
+
+    loadLastState() {
+        const savedState = localStorage.getItem('languageLearningState');
+        if (savedState) {
+            const state = JSON.parse(savedState);
+            this.currentIndex = state.index || 0;
+            this.currentTheme = state.theme || 1;
+            document.body.className = `theme-${this.currentTheme}`;
+        }
+    }
+
+    saveState() {
+        localStorage.setItem('languageLearningState', JSON.stringify({
+            index: this.currentIndex,
+            theme: this.currentTheme
+        }));
+    }
+
+    updateLayout() {
+        const isMobile = window.innerWidth <= 768;
+        document.body.classList.toggle('mobile-view', isMobile);
+    }
+}
+window.addEventListener('DOMContentLoaded', () => {
+    const app = new LanguageLearningApp();
+});
+</script>
+</body>
+</html>

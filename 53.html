@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vertical Pong</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #000;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        #gameCanvas {
+            background: linear-gradient(to bottom, #000022, #002244);
+            border: 3px solid #4488ff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(68, 136, 255, 0.5);
+        }
+
+        #score {
+            position: absolute;
+            top: 20px;
+            color: #4488ff;
+            font-size: 24px;
+            text-shadow: 0 0 10px rgba(68, 136, 255, 0.7);
+        }
+
+        #gameOver {
+            display: none;
+            position: absolute;
+            color: #4488ff;
+            font-size: 36px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #4488ff;
+        }
+    </style>
+</head>
+<body>
+    <div id="score">0 - 0</div>
+    <canvas id="gameCanvas"></canvas>
+    <div id="gameOver">Game Over<br>Tap to Restart</div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const gameOverElement = document.getElementById('gameOver');
+
+        let gameWidth = Math.min(window.innerWidth * 0.95, 4000);
+        let gameHeight = window.innerHeight * 0.99;
+        canvas.width = gameWidth;
+        canvas.height = gameHeight;
+
+        const paddleWidth = gameWidth / 5;
+        const paddleHeight = gameHeight / 30;
+        const ballSize = gameWidth / 30;
+        const initialBallSpeed = gameHeight / 190;
+
+        let particles = [];
+        let powerUps = [];
+        let gameActive = true;
+        let combo = 0;
+        let difficulty = 1;
+
+        const game = {
+            player: {
+    x: gameWidth / 2 - paddleWidth / 2,
+    y: gameHeight - paddleHeight - 20, // 20 پیکسل فاصله از پایین صفحه
+    score: 0,
+    powerUp: null
+},
+            computer: {
+                x: gameWidth / 2 - paddleWidth / 2,
+                y: paddleHeight,
+                score: 0,
+                powerUp: null
+            },
+            ball: {
+                x: gameWidth / 2,
+                y: gameHeight / 2,
+                dx: initialBallSpeed,
+                dy: initialBallSpeed,
+                trail: []
+            }
+        };
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.size = Math.random() * 3 + 2;
+                this.speedX = (Math.random() - 0.5) * 8;
+                this.speedY = (Math.random() - 0.5) * 8;
+                this.life = 1;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life -= 0.02;
+                this.size = Math.max(0, this.size - 0.1);
+            }
+
+            draw() {
+                ctx.fillStyle = `rgba(${this.color}, ${this.life})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        class PowerUp {
+            constructor() {
+                this.x = Math.random() * (gameWidth - 20) + 10;
+                this.y = Math.random() * (gameHeight - 100) + 50;
+                this.type = Math.random() < 0.5 ? 'size' : 'speed';
+                this.size = 15;
+                this.active = true;
+                this.color = this.type === 'size' ? '68, 136, 255' : '255, 136, 68';
+            }
+
+            draw() {
+                ctx.fillStyle = `rgb(${this.color})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function createExplosion(x, y, color) {
+            for (let i = 0; i < 20; i++) {
+                particles.push(new Particle(x, y, color));
+            }
+        }
+
+        function handleTouch(e) {
+            e.preventDefault();
+            if (!gameActive) {
+                resetGame();
+                return;
+            }
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            game.player.x = Math.max(0, Math.min(touch.clientX - rect.left - paddleWidth / 2, gameWidth - paddleWidth));
+        }
+
+        function updateBall() {
+            game.ball.x += game.ball.dx * difficulty;
+            game.ball.y += game.ball.dy * difficulty;
+            game.ball.trail.push({x: game.ball.x, y: game.ball.y});
+            if (game.ball.trail.length > 5) game.ball.trail.shift();
+
+            if (game.ball.x <= 0 || game.ball.x >= gameWidth) {
+                game.ball.dx *= -1;
+                createExplosion(game.ball.x, game.ball.y, '68, 136, 255');
+            }
+
+            if (game.ball.y <= game.computer.y + paddleHeight &&
+                game.ball.x >= game.computer.x &&
+                game.ball.x <= game.computer.x + paddleWidth) {
+                game.ball.dy = Math.abs(game.ball.dy);
+                combo++;
+                difficulty = Math.min(2, 1 + combo * 0.1);
+                createExplosion(game.ball.x, game.ball.y, '255, 68, 68');
+            }
+
+            if (game.ball.y >= game.player.y &&
+                game.ball.x >= game.player.x &&
+                game.ball.x <= game.player.x + paddleWidth) {
+                game.ball.dy = -Math.abs(game.ball.dy);
+                combo++;
+                difficulty = Math.min(2, 1 + combo * 0.1);
+                createExplosion(game.ball.x, game.ball.y, '68, 255, 68');
+            }
+
+            if (game.ball.y <= 0) {
+                game.player.score++;
+                resetBall();
+            } else if (game.ball.y >= gameHeight) {
+                game.computer.score++;
+                resetBall();
+            }
+        }
+
+        function updateComputer() {
+            const target = game.ball.x - paddleWidth / 2;
+            const diff = target - game.computer.x;
+            game.computer.x += diff * 0.3;
+            game.computer.x = Math.max(0, Math.min(game.computer.x, gameWidth - paddleWidth));
+        }
+
+        function updatePowerUps() {
+            if (Math.random() < 0.002) powerUps.push(new PowerUp());
+
+            powerUps = powerUps.filter(pu => {
+                if (!pu.active) return false;
+                const ballDist = Math.hypot(game.ball.x - pu.x, game.ball.y - pu.y);
+                if (ballDist < pu.size + ballSize/2) {
+                    if (pu.type === 'size') {
+                        game.player.powerUp = {type: 'size', duration: 300};
+                    } else {
+                        game.ball.dx *= 1.5;
+                        game.ball.dy *= 1.5;
+                    }
+                    pu.active = false;
+                    createExplosion(pu.x, pu.y, pu.color);
+                    return false;
+                }
+                return true;
+            });
+        }
+
+        function resetBall() {
+            game.ball.x = gameWidth / 2;
+            game.ball.y = gameHeight / 2;
+            game.ball.dx = initialBallSpeed * (Math.random() > 0.5 ? 1 : -1);
+            game.ball.dy = initialBallSpeed * (Math.random() > 0.5 ? 1 : -1);
+            game.ball.trail = [];
+            combo = 0;
+            difficulty = 1;
+
+            if (Math.max(game.player.score, game.computer.score) >= 5) {
+                gameActive = false;
+                gameOverElement.style.display = 'block';
+            }
+        }
+
+        function resetGame() {
+            game.player.score = 0;
+            game.computer.score = 0;
+            game.player.powerUp = null;
+            game.computer.powerUp = null;
+            particles = [];
+            powerUps = [];
+            gameActive = true;
+            gameOverElement.style.display = 'none';
+            resetBall();
+        }
+
+        function draw() {
+            ctx.fillStyle = '#000022';
+            ctx.fillRect(0, 0, gameWidth, gameHeight);
+
+            particles.forEach(p => p.draw());
+            powerUps.forEach(pu => pu.draw());
+
+            ctx.fillStyle = '#4488ff';
+            const playerWidth = game.player.powerUp?.type === 'size' ? paddleWidth * 1.5 : paddleWidth;
+            ctx.fillRect(game.player.x, game.player.y, playerWidth, paddleHeight);
+            ctx.fillRect(game.computer.x, game.computer.y, paddleWidth, paddleHeight);
+
+            ctx.strokeStyle = 'rgba(68, 136, 255, 0.3)';
+            ctx.setLineDash([5, 15]);
+            ctx.beginPath();
+            ctx.moveTo(0, gameHeight / 2);
+            ctx.lineTo(gameWidth, gameHeight / 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            game.ball.trail.forEach((pos, i) => {
+                ctx.fillStyle = `rgba(68, 136, 255, ${i / 5})`;
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, ballSize / 2, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            ctx.fillStyle = '#4488ff';
+            ctx.beginPath();
+            ctx.arc(game.ball.x, game.ball.y, ballSize / 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function update() {
+            if (!gameActive) return;
+
+            particles = particles.filter(p => p.life > 0);
+            particles.forEach(p => p.update());
+
+            updateBall();
+            updateComputer();
+            updatePowerUps();
+
+            if (game.player.powerUp) {
+                game.player.powerUp.duration--;
+                if (game.player.powerUp.duration <= 0) {
+                    game.player.powerUp = null;
+                }
+            }
+
+            scoreElement.textContent = `${game.player.score} - ${game.computer.score}`;
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        canvas.addEventListener('touchmove', handleTouch);
+        canvas.addEventListener('touchstart', handleTouch);
+        window.addEventListener('resize', () => {
+            gameWidth = Math.min(window.innerWidth * 0.95, 40000);
+            gameHeight = window.innerHeight * 0.98;
+            canvas.width = gameWidth;
+            canvas.height = gameHeight;
+            resetGame();
+        });
+
+        gameLoop();
+    </script>
+</body>
+</html>

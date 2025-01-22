@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <style>
+        * { margin: 0; padding: 0; }
+        body { 
+            background: #000;
+            color: #fff;
+            font-family: -apple-system;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #level {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 250px;
+            height: 250px;
+            border: 1px solid #333;
+            border-radius: 50%;
+        }
+        #bubble {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: #30d158;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #angle {
+            position: fixed;
+            bottom: 80px;
+            width: 100%;
+            text-align: center;
+            font-size: 72px;
+            font-weight: 200;
+        }
+    </style>
+</head>
+<body>
+    <div id="level">
+        <div id="bubble"></div>
+    </div>
+    <div id="angle">0°</div>
+    <script>
+        const bubble = document.getElementById('bubble');
+        const angle = document.getElementById('angle');
+
+        function handleTilt(e) {
+            let x = e.gamma * 2;
+            let y = e.beta * 2;
+            
+            x = Math.min(Math.max(x, -90), 90);
+            y = Math.min(Math.max(y, -90), 90);
+            
+            bubble.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+            
+            const tilt = Math.round(Math.sqrt(x*x + y*y)/2);
+            angle.textContent = tilt + '°';
+            
+            bubble.style.background = tilt < 1 ? '#30d158' : '#ff453a';
+        }
+
+        if (typeof DeviceOrientationEvent?.requestPermission === 'function') {
+            document.body.addEventListener('click', () => {
+                DeviceOrientationEvent.requestPermission()
+                    .then(r => r === 'granted' && window.addEventListener('deviceorientation', handleTilt));
+            }, {once: true});
+        } else {
+            window.addEventListener('deviceorientation', handleTilt);
+        }
+    </script>
+</body>
+</html>

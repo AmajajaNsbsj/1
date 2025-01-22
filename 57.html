@@ -1,0 +1,2600 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستم یادگیری مدرن</title>
+    
+<style>
+:root {
+    --theme-1-primary: #0E000F;
+    --theme-1-secondary: #000208;
+    --theme-2-primary: #200122;
+    --theme-2-secondary: #6f0000;
+    --theme-3-primary: #cc2b5e;
+    --theme-3-secondary: #753a88;
+    --theme-4-primary: #141e30;
+    --theme-4-secondary: #243b55;
+    --theme-5-primary: #000428;
+    --theme-5-secondary: #004e92;
+    --theme-6-primary: #010500;
+    --theme-6-secondary:#000212 ;
+    --theme-7-primary: #000;
+    --theme-7-secondary: #000;
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --neon-glow: 0 0 10px rgba(0, 255, 255, 0.5);
+    --text-glow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+font-size: 18px; /* اندازه دلخواه فونت */
+}
+
+body {
+    min-height: 100vh;
+    background: linear-gradient(45deg, var(--theme-1-primary), var(--theme-1-secondary));
+    color: white;
+    overflow: hidden;
+}
+
+.app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: var(--glass-bg);
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+}
+
+
+.main-container {
+    margin-top: 60px;
+    padding: 20px;
+    min-height: calc(100vh - 60px);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    position: relative;
+}
+
+.card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    min-height: 400px;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.05) 50%, 
+        transparent 100%);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.card:hover::before {
+    transform: translateX(100%);
+}
+
+.card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.word-section {
+    margin-bottom: 20px;
+}
+
+.word-e {
+    font-size: 3em;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: var(--text-glow);
+    margin-bottom: 10px;
+}
+
+.word-qq {
+    font-size: 2em;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 20px;
+}
+
+.qw-section {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 15px;
+    margin-top: 20px;
+}
+
+.controls {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    gap: 15px;
+    z-index: 1000;
+}
+
+.control-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 25px;
+    border: none;
+    background: linear-gradient(45deg, var(--theme-1-primary), var(--theme-1-secondary));
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1em;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.control-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Theme Variations */
+.theme-1 { background: linear-gradient(45deg, var(--theme-1-primary), var(--theme-1-secondary)); }
+.theme-2 { background: linear-gradient(45deg, var(--theme-2-primary), var(--theme-2-secondary)); }
+.theme-3 { background: linear-gradient(45deg, var(--theme-3-primary), var(--theme-3-secondary)); }
+.theme-4 { background: linear-gradient(45deg, var(--theme-4-primary), var(--theme-4-secondary)); }
+.theme-5 { background: linear-gradient(45deg, var(--theme-5-primary), var(--theme-5-secondary)); }
+.theme-6 { background: linear-gradient(45deg, var(--theme-6-primary), var(--theme-6-secondary)); }
+.theme-7 { background: linear-gradient(45deg, var(--theme-7-primary), var(--theme-7-secondary)); }
+
+
+/* Advanced Animations */
+@keyframes floatAnimation {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes glowPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.2); }
+    50% { box-shadow: 0 0 30px rgba(255, 255, 255, 0.4); }
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* Progress Indicator */
+.progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(to right, #00ff99, #00ccff);
+    transition: width 0.3s ease;
+    z-index: 1001;
+}
+
+/* Advanced Card Effects */
+.card-content {
+    position: relative;
+    z-index: 1;
+}
+
+.card-content::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    background: radial-gradient(
+        circle at center,
+        rgba(255, 255, 255, 0.1) 0%,
+        transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+}
+
+.card:hover .card-content::before {
+    opacity: 1;
+}
+
+/* Responsive Design Enhancements */
+@media (max-width: 768px) {
+    .main-container {
+        grid-template-columns: 1fr;
+        padding: 10px;
+    }
+
+    .card {
+        min-height: 300px;
+    }
+
+    .controls {
+        bottom: 20px;
+        right: 20px;
+    }
+
+    
+}
+
+/* Interactive Elements */
+.interactive-element {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.interactive-element::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.interactive-element:hover::after {
+    transform: translateX(100%);
+}
+
+/* More Advanced Effects */
+.glow-effect {
+    position: relative;
+}
+
+.glow-effect::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+    z-index: -1;
+    animation: glowingBorder 20s linear infinite;
+    background-size: 400%;
+    border-radius: 22px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.glow-effect:hover::before {
+    opacity: 1;
+}
+
+@keyframes glowingBorder {
+    0% { background-position: 0 0; }
+    50% { background-position: 400% 0; }
+    100% { background-position: 0 0; }
+}
+
+/* Modern Loading Effects */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid transparent;
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+</head>
+<body>
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <div class="progress-bar" id="progressBar"></div>
+
+    <header class="app-header">
+        </div>
+    </header>
+
+    <div class="main-container" id="mainContainer"></div>
+
+    <div class="controls">
+        <button class="control-btn glow-effect" id="prevBtn">←</button>
+        <button class="control-btn glow-effect" id="themeBtn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+            </svg>
+        </button>
+        <button class="control-btn glow-effect" id="nextBtn">→</button>
+    </div>
+    
+<script>
+function createRainOverlay() {
+  // کانتینر مجزا برای باران
+  const rainContainer = document.createElement('div');
+  rainContainer.id = 'rain-overlay';
+  rainContainer.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+    background: transparent;
+  `;
+
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = `
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.7;
+  `;
+
+  rainContainer.appendChild(canvas);
+  document.body.appendChild(rainContainer);
+
+  const ctx = canvas.getContext('2d', { alpha: true });
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  // کلاس قطرات باران
+  class RainDrop {
+    constructor() {
+      this.reset();
+    }
+
+    reset() {
+      this.x = Math.random() * canvas.width;
+      this.y = -10;
+      this.length = Math.random() * 20 + 10;
+      this.speed = Math.random() * 1 + 1;
+      this.thickness = Math.random() * 1.5 + 0.5;
+      this.opacity = Math.random() * 0.4 + 0.2;
+      this.angle = Math.random() * 2 - 1; // باد
+    }
+
+    update() {
+      this.y += this.speed;
+      this.x += this.angle;
+
+      if (this.y > canvas.height) {
+        this.reset();
+      }
+    }
+
+    draw(ctx) {
+      ctx.beginPath();
+      ctx.strokeStyle = `rgba(170,210,255,${this.opacity})`;
+      ctx.lineWidth = this.thickness;
+      
+      ctx.moveTo(this.x, this.y);
+      ctx.lineTo(this.x + this.angle, this.y + this.length);
+      
+      ctx.stroke();
+    }
+  }
+
+  // مدیریت قطرات
+  const raindrops = Array.from({ length: 100 }, () => new RainDrop());
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    raindrops.forEach(drop => {
+      drop.update();
+      drop.draw(ctx);
+    });
+
+    requestAnimationFrame(animate);
+  }
+
+  // رویدادها
+  resize();
+  window.addEventListener('resize', resize);
+  animate();
+
+  // متد برای کنترل و حذف
+  return {
+    destroy: () => {
+      window.removeEventListener('resize', resize);
+      rainContainer.remove();
+    },
+    setIntensity: (intensity) => {
+      // تغییر تراکم قطرات
+      raindrops.length = Math.max(10, Math.min(300, intensity));
+    }
+  };
+}
+
+// استفاده
+const rainEffect = createRainOverlay();
+
+// برای توقف
+// rainEffect.destroy();
+
+// برای تغییر شدت
+rainEffect.setIntensity(2);
+
+const words = [
+    {
+        e: "بسم الله الرحمن الرحیم",
+        qq: "کتاب لغات  انگلیسی در اپلیکیشن جامع المزخرفات",
+        qe: [
+            { qw: "با مثال حفظ کن تا فراموش نکنی", tt: "save your wife by Facking hard and save your knowledge by useimg" },
+            { qw: "به بهانه یک کلمه بیا با یادگیری چند کلمه برو", tt: "knowledge and money had upper gravity" }
+        ]
+    },
+    {
+        e: "Architecture",
+        qq: "معماری",
+        qe: [
+            { qw: "The architecture of this building is modern.", tt: "معماری این ساختمان مدرن است." },
+            { qw: "She studies architecture at university.", tt: "او در دانشگاه معماری می‌خواند." },
+            { qw: "Ancient architecture fascinates many people.", tt: "معماری باستانی بسیاری از مردم را مجذوب می‌کند." }
+        ]
+    },
+    {
+        e: "Civilization",
+        qq: "تمدن",
+        qe: [
+            { qw: "Ancient civilizations built great monuments.", tt: "تمدن‌های باستانی بناهای بزرگی ساختند." },
+            { qw: "Every civilization has its own culture.", tt: "هر تمدن فرهنگ خاص خود را دارد." }
+        ]
+    },
+    {
+        e: "Democracy",
+        qq: "دموکراسی",
+        qe: [
+            { qw: "Democracy gives people the right to vote.", tt: "دموکراسی به مردم حق رأی می‌دهد." },
+            { qw: "They fought for democracy.", tt: "آن‌ها برای دموکراسی مبارزه کردند." },
+            { qw: "Modern democracy began in ancient Greece.", tt: "دموکراسی مدرن در یونان باستان آغاز شد." },
+            { qw: "Democracy requires active participation.", tt: "دموکراسی نیازمند مشارکت فعال است." }
+        ]
+    },
+    {
+        e: "Environment",
+        qq: "محیط زیست",
+        qe: [
+            { qw: "We must protect our environment.", tt: "ما باید از محیط زیست خود محافظت کنیم." }
+        ]
+    },
+    {
+        e: "Philosophy",
+        qq: "فلسفه",
+        qe: [
+            { qw: "She teaches philosophy at university.", tt: "او در دانشگاه فلسفه تدریس می‌کند." },
+            { qw: "Greek philosophy influenced modern thought.", tt: "فلسفه یونان بر تفکر مدرن تأثیر گذاشت." }
+        ]
+    },
+    {
+        e: "Psychology",
+        qq: "روانشناسی",
+        qe: [
+            { qw: "Psychology helps us understand behavior.", tt: "روانشناسی به ما در درک رفتار کمک می‌کند." },
+            { qw: "He studies psychology.", tt: "او روانشناسی می‌خواند." }
+        ]
+    },
+    {
+        e: "Revolution",
+        qq: "انقلاب",
+        qe: [
+            { qw: "The industrial revolution changed society.", tt: "انقلاب صنعتی جامعه را تغییر داد." },
+            { qw: "Digital revolution affects our daily lives.", tt: "انقلاب دیجیتال بر زندگی روزمره ما تأثیر می‌گذارد." },
+            { qw: "Every revolution brings change.", tt: "هر انقلاب تغییر به همراه می‌آورد." }
+        ]
+    },
+    {
+        e: "Astronomy",
+        qq: "ستاره‌شناسی",
+        qe: [
+            { qw: "Astronomy is the study of space.", tt: "ستاره‌شناسی مطالعه فضا است." }
+        ]
+    },
+    {
+        e: "Chemistry",
+        qq: "شیمی",
+        qe: [
+            { qw: "Chemistry is an important science.", tt: "شیمی یک علم مهم است." },
+            { qw: "She experiments in chemistry lab.", tt: "او در آزمایشگاه شیمی آزمایش می‌کند." }
+        ]
+    },
+    {
+        e: "Economics",
+        qq: "اقتصاد",
+        qe: [
+            { qw: "He studies economics at university.", tt: "او در دانشگاه اقتصاد می‌خواند." },
+            { qw: "Global economics affects everyone.", tt: "اقتصاد جهانی بر همه تأثیر می‌گذارد." },
+            { qw: "Economics is about money management.", tt: "اقتصاد درباره مدیریت پول است." }
+        ]
+    },
+    {
+        e: "Literature",
+        qq: "ادبیات",
+        qe: [
+            { qw: "She loves classical literature.", tt: "او ادبیات کلاسیک را دوست دارد." }
+        ]
+    },
+    {
+        e: "Mathematics",
+        qq: "ریاضیات",
+        qe: [
+            { qw: "Mathematics is used in daily life.", tt: "ریاضیات در زندگی روزمره استفاده می‌شود." },
+            { qw: "He teaches mathematics.", tt: "او ریاضیات تدریس می‌کند." }
+        ]
+    },
+    {
+        e: "Technology",
+        qq: "فناوری",
+        qe: [
+            { qw: "Modern technology changes quickly.", tt: "فناوری مدرن سریع تغییر می‌کند." },
+            { qw: "We use technology every day.", tt: "ما هر روز از فناوری استفاده می‌کنیم." },
+            { qw: "Technology makes life easier.", tt: "فناوری زندگی را آسان‌تر می‌کند." }
+        ]
+    },
+    {
+        e: "Communication",
+        qq: "ارتباطات",
+        qe: [
+            { qw: "Good communication is important.", tt: "ارتباطات خوب مهم است." },
+            { qw: "Modern communication is fast.", tt: "ارتباطات مدرن سریع است." }
+        ]
+    },
+    {
+        e: "Agriculture",
+        qq: "کشاورزی",
+        qe: [
+            { qw: "Agriculture provides our food.", tt: "کشاورزی غذای ما را تأمین می‌کند." }
+        ]
+    },
+    {
+        e: "Government",
+        qq: "دولت",
+        qe: [
+            { qw: "The government makes laws.", tt: "دولت قوانین را وضع می‌کند." },
+            { qw: "Every country has a government.", tt: "هر کشوری یک دولت دارد." }
+        ]
+    },
+    {
+        e: "Industry",
+        qq: "صنعت",
+        qe: [
+            { qw: "The car industry is important.", tt: "صنعت خودرو مهم است." },
+            { qw: "Industry provides many jobs.", tt: "صنعت شغل‌های زیادی ایجاد می‌کند." },
+            { qw: "Modern industry uses machines.", tt: "صنعت مدرن از ماشین‌ها استفاده می‌کند." }
+        ]
+    },
+    {
+        e: "Medicine",
+        qq: "پزشکی",
+        qe: [
+            { qw: "She studies medicine.", tt: "او پزشکی می‌خواند." }
+        ]
+    },
+    {
+        e: "Photography",
+        qq: "عکاسی",
+        qe: [
+            { qw: "Photography is his hobby.", tt: "عکاسی سرگرمی او است." },
+            { qw: "Digital photography is popular.", tt: "عکاسی دیجیتال محبوب است." }
+        ]
+    },
+    {
+        e: "Climate",
+        qq: "اقلیم",
+        qe: [
+            { qw: "Climate change affects the Earth.", tt: "تغییرات اقلیمی بر زمین تأثیر می‌گذارد." },
+            { qw: "Different regions have different climates.", tt: "مناطق مختلف اقلیم‌های متفاوتی دارند." },
+            { qw: "Climate influences agriculture.", tt: "اقلیم بر کشاورزی تأثیر می‌گذارد." }
+        ]
+    },
+    {
+        e: "Engineering",
+        qq: "مهندسی",
+        qe: [
+            { qw: "Engineering solves problems.", tt: "مهندسی مشکلات را حل می‌کند." }
+        ]
+    },
+    {
+        e: "History",
+        qq: "تاریخ",
+        qe: [
+            { qw: "History teaches us about the past.", tt: "تاریخ درباره گذشته به ما می‌آموزد." },
+            { qw: "We learn from history.", tt: "ما از تاریخ می‌آموزیم." }
+        ]
+    },
+    {
+        e: "Journalism",
+        qq: "روزنامه‌نگاری",
+        qe: [
+            { qw: "Journalism reports news.", tt: "روزنامه‌نگاری اخبار را گزارش می‌کند." },
+            { qw: "Good journalism is important.", tt: "روزنامه‌نگاری خوب مهم است." },
+            { qw: "He works in journalism.", tt: "او در روزنامه‌نگاری کار می‌کند." }
+        ]
+    },
+    {
+        e: "Language",
+        qq: "زبان",
+        qe: [
+            { qw: "Language connects people.", tt: "زبان مردم را به هم متصل می‌کند." }
+        ]
+    },
+    {
+        e: "Music",
+        qq: "موسیقی",
+        qe: [
+            { qw: "Music is universal.", tt: "موسیقی جهانی است." },
+            { qw: "She studies music.", tt: "او موسیقی می‌خواند." }
+        ]
+    },
+    {
+        e: "Politics",
+        qq: "سیاست",
+        qe: [
+            { qw: "Politics affects our lives.", tt: "سیاست بر زندگی ما تأثیر می‌گذارد." },
+            { qw: "She works in politics.", tt: "او در سیاست کار می‌کند." },
+            { qw: "International politics is complex.", tt: "سیاست بین‌الملل پیچیده است." }
+        ]
+    },
+    {
+        e: "Research",
+        qq: "تحقیق",
+        qe: [
+            { qw: "Research leads to discovery.", tt: "تحقیق به کشف منجر می‌شود." }
+        ]
+    },
+    {
+        e: "Science",
+        qq: "علم",
+        qe: [
+            { qw: "Science explains nature.", tt: "علم طبیعت را توضیح می‌دهد." },
+            { qw: "He loves science.", tt: "او علم را دوست دارد." }
+        ]
+    },
+    {
+        e: "Society",
+        qq: "جامعه",
+        qe: [
+            { qw: "Society changes over time.", tt: "جامعه در طول زمان تغییر می‌کند." },
+            { qw: "Modern society is complex.", tt: "جامعه مدرن پیچیده است." },
+            { qw: "We live in society.", tt: "ما در جامعه زندگی می‌کنیم." }
+        ]
+    },
+    {
+        e: "Adaptation",
+        qq: "انطباق",
+        qe: [
+            { qw: "Adaptation to new environments is crucial.", tt: "انطباق با محیط‌های جدید حیاتی است." },
+            { qw: "The movie is an adaptation of a famous novel.", tt: "فیلم اقتباسی از یک رمان معروف است." }
+        ]
+    },
+    {
+        e: "Ambition",
+        qq: "جاه‌طلبی",
+        qe: [
+            { qw: "Her ambition is to become a doctor.", tt: "جاه‌طلبی او این است که دکتر شود." },
+            { qw: "Ambition can drive people to achieve great things.", tt: "جاه‌طلبی می‌تواند مردم را به دستیابی به چیزهای بزرگ سوق دهد." }
+        ]
+    },
+    {
+        e: "Analysis",
+        qq: "تحلیل",
+        qe: [
+            { qw: "She conducted a thorough analysis of the data.", tt: "او تحلیل دقیقی از داده‌ها انجام داد." },
+            { qw: "The analysis revealed some interesting patterns.", tt: "تحلیل الگوهای جالبی را نشان داد." }
+        ]
+    },
+    {
+        e: "Application",
+        qq: "کاربرد",
+        qe: [
+            { qw: "The application of this theory is widespread.", tt: "کاربرد این نظریه گسترده است." },
+            { qw: "She filled out the job application form.", tt: "او فرم درخواست شغل را پر کرد." }
+        ]
+    },
+    {
+        e: "Aspiration",
+        qq: "آرزو",
+        qe: [
+            { qw: "Her aspiration is to travel the world.", tt: "آرزوی او این است که به دور دنیا سفر کند." },
+            { qw: "Many people have high aspirations for their future.", tt: "بسیاری از مردم برای آینده خود آرزوهای بزرگی دارند." }
+        ]
+    },
+    {
+        e: "Competition",
+        qq: "رقابت",
+        qe: [
+            { qw: "Competition in the market is fierce.", tt: "رقابت در بازار شدید است." },
+            { qw: "They entered a competition to win a prize.", tt: "آن‌ها در یک مسابقه برای بردن جایزه شرکت کردند." }
+        ]
+    },
+    {
+        e: "Compromise",
+        qq: "سازش",
+        qe: [
+            { qw: "They reached a compromise on the issue.", tt: "آن‌ها در مورد مسئله به سازش رسیدند." },
+            { qw: "Compromise is often necessary in negotiations.", tt: "سازش در مذاکرات اغلب ضروری است." }
+        ]
+    },
+    {
+        e: "Confidence",
+        qq: "اعتماد به نفس",
+        qe: [
+            { qw: "She has a lot of confidence in her abilities.", tt: "او به توانایی‌های خود اعتماد به نفس زیادی دارد." },
+            { qw: "Confidence can help you succeed.", tt: "اعتماد به نفس می‌تواند به شما در موفقیت کمک کند." }
+        ]
+    },
+    {
+        e: "Consequence",
+        qq: "نتیجه",
+        qe: [
+            { qw: "Every action has a consequence.", tt: "هر عملی نتیجه‌ای دارد." },
+            { qw: "The consequence of his decision was significant.", tt: "نتیجه تصمیم او قابل توجه بود." }
+        ]
+    },
+    {
+        e: "Dedication",
+        qq: "تلاش",
+        qe: [
+            { qw: "Her dedication to her work is admirable.", tt: "تلاش او برای کارش قابل تحسین است." },
+            { qw: "Dedication is key to success.", tt: "تلاش کلید موفقیت است." }
+        ]
+    },
+    {
+        e: "Determination",
+        qq: "عزم",
+        qe: [
+            { qw: "His determination helped him overcome obstacles.", tt: "عزم او به او کمک کرد تا موانع را پشت سر بگذارد." },
+            { qw: "Determination is important in achieving goals.", tt: "عزم در دستیابی به اهداف مهم است." }
+        ]
+    },
+    {
+        e: "Efficiency",
+        qq: "کارآمدی",
+        qe: [
+            { qw: "Efficiency is important in the workplace.", tt: "کارآمدی در محیط کار مهم است." },
+            { qw: "They improved their efficiency by using new tools.", tt: "آن‌ها با استفاده از ابزارهای جدید کارآمدی خود را بهبود دادند." }
+        ]
+    },
+    {
+        e: "Empathy",
+        qq: "همدلی",
+        qe: [
+            { qw: "Empathy helps build strong relationships.", tt: "همدلی به ایجاد روابط قوی کمک می‌کند." },
+            { qw: "She showed great empathy towards her friend.", tt: "او همدلی زیادی نسبت به دوستش نشان داد." }
+        ]
+    },
+    {
+        e: "Evolution",
+        qq: "تکامل",
+        qe: [
+            { qw: "Evolution is a natural process.", tt: "تکامل یک فرآیند طبیعی است." },
+            { qw: "The evolution of technology is rapid.", tt: "تکامل فناوری سریع است." }
+        ]
+    },
+    {
+        e: "Experience",
+        qq: "تجربه",
+        qe: [
+            { qw: "Experience is the best teacher.", tt: "تجربه بهترین معلم است." },
+            { qw: "She has a lot of experience in her field.", tt: "او در زمینه کاری خود تجربه زیادی دارد." }
+        ]
+    },
+    {
+        e: "Flexibility",
+        qq: "انعطاف‌پذیری",
+        qe: [
+            { qw: "Flexibility is important in the workplace.", tt: "انعطاف‌پذیری در محیط کار مهم است." },
+            { qw: "They showed flexibility in adapting to new situations.", tt: "آن‌ها در انطباق با شرایط جدید انعطاف‌پذیری نشان دادند." }
+        ]
+    },
+    {
+        e: "Inspiration",
+        qq: "الهام",
+        qe: [
+            { qw: "She finds inspiration in nature.", tt: "او از طبیعت الهام می‌گیرد." },
+            { qw: "His speech was a great source of inspiration.", tt: "سخنرانی او منبع بزرگی از الهام بود." }
+        ]
+    },
+    {
+        e: "Integration",
+        qq: "ادغام",
+        qe: [
+            { qw: "Integration of new systems can be challenging.", tt: "ادغام سیستم‌های جدید می‌تواند چالش‌برانگیز باشد." },
+            { qw: "They worked on the integration of different technologies.", tt: "آن‌ها بر روی ادغام فناوری‌های مختلف کار کردند." }
+        ]
+    },
+    {
+        e: "Innovation",
+        qq: "نوآوری",
+        qe: [
+            { qw: "Innovation drives progress.", tt: "نوآوری باعث پیشرفت می‌شود." },
+            { qw: "She is known for her innovative ideas.", tt: "او به خاطر ایده‌های نوآورانه‌اش شناخته شده است." }
+        ]
+    },
+    {
+        e: "Motivation",
+        qq: "انگیزه",
+        qe: [
+            { qw: "Motivation is key to achieving goals.", tt: "انگیزه کلید دستیابی به اهداف است." },
+            { qw: "His speech provided a lot of motivation.", tt: "سخنرانی او انگیزه زیادی ایجاد کرد." }
+        ]
+    },
+    {
+        e: "Observation",
+        qq: "مشاهده",
+        qe: [
+            { qw: "Observation is an important skill.", tt: "مشاهده یک مهارت مهم است." },
+            { qw: "They made some interesting observations.", tt: "آن‌ها مشاهدات جالبی انجام دادند." }
+        ]
+    },
+    {
+        e: "Perception",
+        qq: "ادراک",
+        qe: [
+            { qw: "Perception can vary from person to person.", tt: "ادراک می‌تواند از فردی به فرد دیگر متفاوت باشد." },
+            { qw: "Her perception of the situation was different.", tt: "ادراک او از وضعیت متفاوت بود." }
+        ]
+    },
+    {
+        e: "Persistence",
+        qq: "پایداری",
+        qe: [
+            { qw: "Persistence is essential for success.", tt: "پایداری برای موفقیت ضروری است." },
+            { qw: "He showed great persistence in his studies.", tt: "او در مطالعه‌های خود پایداری زیادی نشان داد." }
+        ]
+    },
+    {
+        e: "Proficiency",
+        qq: "مهارت",
+        qe: [
+            { qw: "Proficiency in multiple languages is valuable.", tt: "مهارت در چندین زبان با ارزش است." },
+            { qw: "She demonstrated proficiency in her work.", tt: "او در کار خود مهارت نشان داد." }
+        ]
+    },
+    {
+        e: "Resilience",
+        qq: "تاب‌آوری",
+        qe: [
+            { qw: "Resilience helps you recover from setbacks.", tt: "تاب‌آوری به شما کمک می‌کند تا از شکست‌ها بهبود یابید." },
+            { qw: "They showed resilience in the face of adversity.", tt: "آن‌ها در مواجهه با مشکلات تاب‌آوری نشان دادند." }
+        ]
+    },
+    {
+        e: "Responsibility",
+        qq: "مسئولیت",
+        qe: [
+            { qw: "Taking responsibility is important.", tt: "پذیرفتن مسئولیت مهم است." },
+            { qw: "She showed responsibility in her actions.", tt: "او در اقدامات خود مسئولیت نشان داد." }
+        ]
+    },
+    {
+        e: "Strategy",
+        qq: "استراتژی",
+        qe: [
+            { qw: "A good strategy can lead to success.", tt: "یک استراتژی خوب می‌تواند به موفقیت منجر شود." },
+            { qw: "They developed a new business strategy.", tt: "آن‌ها یک استراتژی کسب و کار جدید توسعه دادند." }
+        ]
+    },
+    {
+        e: "Synergy",
+        qq: "هم‌افزایی",
+        qe: [
+            { qw: "Synergy between teams can lead to great results.", tt: "هم‌افزایی بین تیم‌ها می‌تواند به نتایج بزرگی منجر شود." },
+            { qw: "They achieved synergy through collaboration.", tt: "آن‌ها از طریق همکاری هم‌افزایی ایجاد کردند." }
+        ]
+    },
+    {
+        e: "Tolerance",
+        qq: "مدارا",
+        qe: [
+            { qw: "Tolerance is important in a diverse society.", tt: "مدارا در یک جامعه متنوع مهم است." },
+            { qw: "She showed tolerance towards different opinions.", tt: "او نسبت به نظرات مختلف مدارا نشان داد." }
+        ]
+    },
+    {
+        e: "Transformation",
+        qq: "تحول",
+        qe: [
+            { qw: "Transformation is a key aspect of growth.", tt: "تحول یک جنبه کلیدی رشد است." },
+            { qw: "They underwent a significant transformation.", tt: "آن‌ها دچار یک تحول قابل توجه شدند." }
+        ]
+    },
+    {
+        e: "Transparency",
+        qq: "شفافیت",
+        qe: [
+            { qw: "Transparency builds trust.", tt: "شفافیت اعتماد ایجاد می‌کند." },
+            { qw: "They emphasized the importance of transparency.", tt: "آن‌ها بر اهمیت شفافیت تأکید کردند." }
+        ]
+    },
+    {
+        e: "Versatility",
+        qq: "چندکاره بودن",
+        qe: [
+            { qw: "Versatility is a valuable trait.", tt: "چندکاره بودن یک ویژگی با ارزش است." },
+            { qw: "She demonstrated versatility in her work.", tt: "او در کار خود چندکاره بودن نشان داد." }
+        ]
+    },
+    {
+        e: "Vision",
+        qq: "چشم‌انداز",
+        qe: [
+            { qw: "A clear vision can guide you to success.", tt: "یک چشم‌انداز واضح می‌تواند شما را به موفقیت هدایت کند." },
+            { qw: "They shared their vision for the future.", tt: "آن‌ها چشم‌انداز خود برای آینده را به اشتراک گذاشتند." }
+        ]
+    },
+    {
+        e: "Wisdom",
+        qq: "حکمت",
+        qe: [
+            { qw: "Wisdom comes with experience.", tt: "حکمت با تجربه می‌آید." },
+            { qw: "She is known for her wisdom.", tt: "او به خاطر حکمتش شناخته شده است." }
+        ]
+    },
+    {
+        e: "Achievement",
+        qq: "دستاورد",
+        qe: [
+            { qw: "Winning the award was a great achievement.", tt: "بردن جایزه یک دستاورد بزرگ بود." },
+            { qw: "Her achievements in science are remarkable.", tt: "دستاوردهای او در علم قابل توجه است." }
+        ]
+    },
+    {
+        e: "Agreement",
+        qq: "توافق",
+        qe: [
+            { qw: "They reached an agreement after long discussions.", tt: "آن‌ها پس از بحث‌های طولانی به توافق رسیدند." },
+            { qw: "The agreement was beneficial for both parties.", tt: "توافق برای هر دو طرف سودمند بود." }
+        ]
+    },
+    {
+        e: "Assessment",
+        qq: "ارزیابی",
+        qe: [
+            { qw: "The assessment of the project was positive.", tt: "ارزیابی پروژه مثبت بود." },
+            { qw: "She received a high score on the assessment.", tt: "او نمره بالایی در ارزیابی گرفت." }
+        ]
+    },
+    {
+        e: "Assumption",
+        qq: "فرض",
+        qe: [
+            { qw: "Their assumption was incorrect.", tt: "فرض آن‌ها نادرست بود." },
+            { qw: "He made an assumption based on the evidence.", tt: "او بر اساس شواهد فرضیه‌ای مطرح کرد." }
+        ]
+    },
+    {
+        e: "Authority",
+        qq: "اقتدار",
+        qe: [
+            { qw: "The teacher has authority over the students.", tt: "معلم بر دانش‌آموزان اقتدار دارد." },
+            { qw: "He is an authority on ancient history.", tt: "او در تاریخ باستان دارای اقتدار است." }
+        ]
+    },
+    {
+        e: "Bias",
+        qq: "تعصب",
+        qe: [
+            { qw: "They tried to avoid bias in their research.", tt: "آن‌ها سعی کردند در تحقیقات خود از تعصب دوری کنند." },
+            { qw: "His bias affected his judgment.", tt: "تعصب او بر قضاوتش تأثیر گذاشت." }
+        ]
+    },
+    {
+        e: "Challenge",
+        qq: "چالش",
+        qe: [
+            { qw: "Climbing the mountain was a big challenge.", tt: "صعود به کوه یک چالش بزرگ بود." },
+            { qw: "She enjoys taking on new challenges.", tt: "او از پذیرفتن چالش‌های جدید لذت می‌برد." }
+        ]
+    },
+    {
+        e: "Commitment",
+        qq: "تعهد",
+        qe: [
+            { qw: "Her commitment to the project was admirable.", tt: "تعهد او به پروژه قابل تحسین بود." },
+            { qw: "Commitment is essential for success.", tt: "تعهد برای موفقیت ضروری است." }
+        ]
+    },
+    {
+        e: "Community",
+        qq: "جامعه",
+        qe: [
+            { qw: "The community came together to support the cause.", tt: "جامعه برای حمایت از هدف گرد هم آمد." },
+            { qw: "She is an active member of the community.", tt: "او عضو فعالی از جامعه است." }
+        ]
+    },
+    {
+        e: "Concept",
+        qq: "مفهوم",
+        qe: [
+            { qw: "The concept of time is difficult to understand.", tt: "مفهوم زمان دشوار است." },
+            { qw: "She explained the concept clearly.", tt: "او مفهوم را به وضوح توضیح داد." }
+        ]
+    },
+    {
+        e: "Confidence",
+        qq: "اعتماد به نفس",
+        qe: [
+            { qw: "He has a lot of confidence in his skills.", tt: "او به توانایی‌هایش اعتماد به نفس زیادی دارد." },
+            { qw: "Confidence can help you succeed.", tt: "اعتماد به نفس می‌تواند به شما در موفقیت کمک کند." }
+        ]
+    },
+    {
+        e: "Conflict",
+        qq: "تضاد",
+        qe: [
+            { qw: "The conflict between the two countries lasted for years.", tt: "تضاد بین دو کشور سال‌ها طول کشید." },
+            { qw: "They resolved the conflict through negotiation.", tt: "آن‌ها تضاد را از طریق مذاکره حل کردند." }
+        ]
+    },
+    {
+        e: "Connection",
+        qq: "ارتباط",
+        qe: [
+            { qw: "There is a strong connection between the two concepts.", tt: "ارتباط قوی بین دو مفهوم وجود دارد." },
+            { qw: "She felt a connection to the place.", tt: "او احساس ارتباط با آن مکان داشت." }
+        ]
+    },
+    {
+        e: "Contribution",
+        qq: "کمک",
+        qe: [
+            { qw: "Her contribution to the project was significant.", tt: "کمک او به پروژه قابل توجه بود." },
+            { qw: "Everyone’s contribution is important.", tt: "کمک همه مهم است." }
+        ]
+    },
+    {
+        e: "Creativity",
+        qq: "خلاقیت",
+        qe: [
+            { qw: "Creativity is essential for innovation.", tt: "خلاقیت برای نوآوری ضروری است." },
+            { qw: "She has a lot of creativity.", tt: "او خلاقیت زیادی دارد." }
+        ]
+    },
+    {
+        e: "Curiosity",
+        qq: "کنجکاوی",
+        qe: [
+            { qw: "Curiosity drives learning.", tt: "کنجکاوی باعث یادگیری می‌شود." },
+            { qw: "He has a natural curiosity about the world.", tt: "او کنجکاوی طبیعی نسبت به جهان دارد." }
+        ]
+    },
+    {
+        e: "Decision",
+        qq: "تصمیم",
+        qe: [
+            { qw: "Making a decision can be difficult.", tt: "گرفتن تصمیم می‌تواند دشوار باشد." },
+            { qw: "She made a decision to change her career.", tt: "او تصمیم گرفت شغل خود را تغییر دهد." }
+        ]
+    },
+    {
+        e: "Definition",
+        qq: "تعریف",
+        qe: [
+            { qw: "The definition of the word was unclear.", tt: "تعریف کلمه نامشخص بود." },
+            { qw: "She gave a clear definition of the term.", tt: "او تعریف واضحی از اصطلاح ارائه داد." }
+        ]
+    },
+    {
+        e: "Diversity",
+        qq: "تنوع",
+        qe: [
+            { qw: "Diversity in the workplace is important.", tt: "تنوع در محیط کار مهم است." },
+            { qw: "The city is known for its cultural diversity.", tt: "شهر به خاطر تنوع فرهنگی خود شناخته شده است." }
+        ]
+    },
+    {
+        e: "Education",
+        qq: "آموزش",
+        qe: [
+            { qw: "Education is essential for personal growth.", tt: "آموزش برای رشد شخصی ضروری است." },
+            { qw: "She is pursuing higher education.", tt: "او تحصیلات عالی را دنبال می‌کند." }
+        ]
+    },
+    {
+        e: "Efficiency",
+        qq: "کارآمدی",
+        qe: [
+            { qw: "Efficiency is important in the workplace.", tt: "کارآمدی در محیط کار مهم است." },
+            { qw: "They improved their efficiency by using new tools.", tt: "آن‌ها با استفاده از ابزارهای جدید کارآمدی خود را بهبود دادند." }
+        ]
+    },
+    {
+        e: "Empowerment",
+        qq: "توانمندسازی",
+        qe: [
+            { qw: "Empowerment of employees leads to better performance.", tt: "توانمندسازی کارکنان منجر به عملکرد بهتر می‌شود." },
+            { qw: "She works on projects related to women's empowerment.", tt: "او بر روی پروژه‌های مرتبط با توانمندسازی زنان کار می‌کند." }
+        ]
+    },
+    {
+        e: "Engagement",
+        qq: "مشارکت",
+        qe: [
+            { qw: "Employee engagement is crucial for company success.", tt: "مشارکت کارکنان برای موفقیت شرکت حیاتی است." },
+            { qw: "She showed great engagement in the meeting.", tt: "او در جلسه مشارکت زیادی نشان داد." }
+        ]
+    },
+    {
+        e: "Evaluation",
+        qq: "ارزیابی",
+        qe: [
+            { qw: "The evaluation of the project was positive.", tt: "ارزیابی پروژه مثبت بود." },
+            { qw: "She received a high score on the evaluation.", tt: "او نمره بالایی در ارزیابی گرفت." }
+        ]
+    },
+    {
+        e: "Expectation",
+        qq: "انتظار",
+        qe: [
+            { qw: "Their expectation was to finish the project on time.", tt: "انتظار آن‌ها این بود که پروژه را به موقع به پایان برسانند." },
+            { qw: "She had high expectations for the outcome.", tt: "او انتظارات بالایی از نتیجه داشت." }
+        ]
+    },
+    {
+        e: "Exploration",
+        qq: "اکتشاف",
+        qe: [
+            { qw: "Exploration of new ideas is encouraged.", tt: "اکتشاف ایده‌های جدید تشویق می‌شود." },
+            { qw: "They went on an exploration of the forest.", tt: "آن‌ها به اکتشاف جنگل رفتند." }
+        ]
+    },
+    {
+        e: "Foundation",
+        qq: "بنیاد",
+        qe: [
+            { qw: "Education is the foundation of a successful career.", tt: "آموزش بنیاد یک حرفه موفق است." },
+            { qw: "They laid the foundation for future projects.", tt: "آن‌ها بنیاد پروژه‌های آینده را بنا نهادند." }
+        ]
+    },
+    {
+        e: "Guidance",
+        qq: "راهنمایی",
+        qe: [
+            { qw: "She provided guidance to the new employees.", tt: "او به کارکنان جدید راهنمایی ارائه داد." },
+            { qw: "Guidance from a mentor can be invaluable.", tt: "راهنمایی از یک مربی می‌تواند بسیار ارزشمند باشد." }
+        ]
+    },
+    {
+        e: "Implementation",
+        qq: "پیاده‌سازی",
+        qe: [
+            { qw: "The implementation of the plan was successful.", tt: "پیاده‌سازی طرح موفق بود." },
+            { qw: "They focused on the implementation of new policies.", tt: "آن‌ها بر پیاده‌سازی سیاست‌های جدید تمرکز کردند." }
+        ]
+    },
+    {
+        e: "Independence",
+        qq: "استقلال",
+        qe: [
+            { qw: "Independence is important for personal growth.", tt: "استقلال برای رشد شخصی مهم است." },
+            { qw: "She values her independence.", tt: "او به استقلال خود ارزش می‌دهد." }
+        ]
+    },
+    {
+        e: "Influence",
+        qq: "تأثیر",
+        qe: [
+            { qw: "Her influence on the team was significant.", tt: "تأثیر او بر تیم قابل توجه بود." },
+            { qw: "The book had a great influence on his thinking.", tt: "کتاب تأثیر زیادی بر تفکر او داشت." }
+        ]
+    },
+    {
+        e: "Initiative",
+        qq: "ابتکار",
+        qe: [
+            { qw: "Taking initiative is encouraged in this company.", tt: "گرفتن ابتکار در این شرکت تشویق می‌شود." },
+            { qw: "She showed initiative in solving the problem.", tt: "او در حل مشکل ابتکار نشان داد." }
+        ]
+    },
+    {
+        e: "Integrity",
+        qq: "یکپارچگی",
+        qe: [
+            { qw: "Integrity is a key value in our organization.", tt: "یکپارچگی یک ارزش کلیدی در سازمان ما است." },
+            { qw: "He is known for his integrity.", tt: "او به خاطر یکپارچگی خود شناخته شده است." }
+        ]
+    },
+    {
+        e: "Investment",
+        qq: "سرمایه‌گذاری",
+        qe: [
+            { qw: "Investment in education is important.", tt: "سرمایه‌گذاری در آموزش مهم است." },
+            { qw: "She made a significant investment in the company.", tt: "او سرمایه‌گذاری قابل توجهی در شرکت انجام داد." }
+        ]
+    },
+    {
+        e: "Knowledge",
+        qq: "دانش",
+        qe: [
+            { qw: "Knowledge is power.", tt: "دانش قدرت است." },
+            { qw: "She has a wealth of knowledge in her field.", tt: "او دارای دانش زیادی در زمینه کاری خود است." }
+        ]
+    },
+    {
+        e: "Leadership",
+        qq: "رهبری",
+        qe: [
+            { qw: "Leadership is about inspiring others.", tt: "رهبری در مورد الهام‌ بخشیدن به دیگران است." },
+            { qw: "She has strong leadership skills.", tt: "او دارای مهارت‌های رهبری قوی است." }
+        ]
+    },
+    {
+        e: "Measurement",
+        qq: "اندازه‌گیری",
+        qe: [
+            { qw: "Accurate measurement is essential.", tt: "اندازه‌گیری دقیق ضروری است." },
+            { qw: "They took measurements of the room.", tt: "آن‌ها اندازه‌گیری‌های اتاق را انجام دادند." }
+        ]
+    },
+    {
+        e: "Motivation",
+        qq: "انگیزه",
+        qe: [
+            { qw: "Motivation is key to achieving goals.", tt: "انگیزه کلید دستیابی به اهداف است." },
+            { qw: "His speech provided a lot of motivation.", tt: "سخنرانی او انگیزه زیادی ایجاد کرد." }
+        ]
+    },
+    {
+        e: "Opportunity",
+        qq: "فرصت",
+        qe: [
+            { qw: "This is a great opportunity for growth.", tt: "این یک فرصت عالی برای رشد است." },
+            { qw: "She took advantage of the opportunity.", tt: "او از فرصت استفاده کرد." }
+        ]
+    },
+    {
+        e: "Accountability",
+        qq: "پاسخگویی",
+        qe: [
+            { qw: "Accountability is important in every job.", tt: "پاسخگویی در هر شغلی مهم است." },
+            { qw: "She takes accountability for her actions.", tt: "او برای اعمال خود پاسخگو است." }
+        ]
+    },
+    {
+        e: "Adaptability",
+        qq: "انطباق‌پذیری",
+        qe: [
+            { qw: "Adaptability is key in a changing environment.", tt: "انطباق‌پذیری در محیط‌های در حال تغییر کلیدی است." },
+            { qw: "He showed great adaptability in the new role.", tt: "او انطباق‌پذیری خوبی در نقش جدید نشان داد." }
+        ]
+    },
+    {
+        e: "Advancement",
+        qq: "پیشرفت",
+        qe: [
+            { qw: "Advancement in technology has been rapid.", tt: "پیشرفت در فناوری سریع بوده است." },
+            { qw: "She seeks career advancement.", tt: "او به دنبال پیشرفت شغلی است." }
+        ]
+    },
+    {
+        e: "Alignment",
+        qq: "هم‌راستایی",
+        qe: [
+            { qw: "Alignment of team goals is crucial.", tt: "هم‌راستایی اهداف تیمی حیاتی است." },
+            { qw: "They worked on alignment of their strategies.", tt: "آن‌ها بر هم‌راستایی استراتژی‌های خود کار کردند." }
+        ]
+    },
+    {
+        e: "Anticipation",
+        qq: "پیش‌بینی",
+        qe: [
+            { qw: "Anticipation of market trends is important.", tt: "پیش‌بینی روندهای بازار مهم است." },
+            { qw: "She waited in anticipation for the results.", tt: "او با پیش‌بینی نتایج منتظر ماند." }
+        ]
+    },
+    {
+        e: "Appreciation",
+        qq: "قدردانی",
+        qe: [
+            { qw: "She showed appreciation for their help.", tt: "او برای کمک آن‌ها قدردانی نشان داد." },
+            { qw: "Appreciation can boost morale.", tt: "قدردانی می‌تواند روحیه را تقویت کند." }
+        ]
+    },
+    {
+        e: "Authenticity",
+        qq: "اصالت",
+        qe: [
+            { qw: "Authenticity is valued in leadership.", tt: "اصالت در رهبری ارزشمند است." },
+            { qw: "He is known for his authenticity.", tt: "او به خاطر اصالت خود شناخته شده است." }
+        ]
+    },
+    {
+        e: "Awareness",
+        qq: "آگاهی",
+        qe: [
+            { qw: "Awareness of environmental issues is increasing.", tt: "آگاهی از مسائل محیط زیستی در حال افزایش است." },
+            { qw: "She raised awareness about the cause.", tt: "او آگاهی درباره موضوع را افزایش داد." }
+        ]
+    },
+    {
+        e: "Balance",
+        qq: "تعادل",
+        qe: [
+            { qw: "Maintaining work-life balance is important.", tt: "حفظ تعادل بین کار و زندگی مهم است." },
+            { qw: "She strives for balance in her life.", tt: "او برای تعادل در زندگی خود تلاش می‌کند." }
+        ]
+    },
+    {
+        e: "Cohesion",
+        qq: "انسجام",
+        qe: [
+            { qw: "Team cohesion is essential for success.", tt: "انسجام تیمی برای موفقیت ضروری است." },
+            { qw: "They worked on improving group cohesion.", tt: "آن‌ها بر بهبود انسجام گروهی کار کردند." }
+        ]
+    },
+    {
+        e: "Collaboration",
+        qq: "همکاری",
+        qe: [
+            { qw: "Collaboration between departments is necessary.", tt: "همکاری بین بخش‌ها ضروری است." },
+            { qw: "She values collaboration in projects.", tt: "او به همکاری در پروژه‌ها ارزش می‌دهد." }
+        ]
+    },
+    {
+        e: "Commitment",
+        qq: "تعهد",
+        qe: [
+            { qw: "Her commitment to the project was admirable.", tt: "تعهد او به پروژه قابل تحسین بود." },
+            { qw: "Commitment is essential for success.", tt: "تعهد برای موفقیت ضروری است." }
+        ]
+    },
+    {
+        e: "Compassion",
+        qq: "دلسوزی",
+        qe: [
+            { qw: "Compassion is important in healthcare.", tt: "دلسوزی در مراقبت‌های بهداشتی مهم است." },
+            { qw: "She showed compassion towards others.", tt: "او نسبت به دیگران دلسوزی نشان داد." }
+        ]
+    },
+    {
+        e: "Competence",
+        qq: "شایستگی",
+        qe: [
+            { qw: "Competence in the job is necessary.", tt: "شایستگی در شغل ضروری است." },
+            { qw: "He demonstrated competence in his tasks.", tt: "او در وظایف خود شایستگی نشان داد." }
+        ]
+    },
+    {
+        e: "Confidence",
+        qq: "اعتماد به نفس",
+        qe: [
+            { qw: "She has a lot of confidence in her abilities.", tt: "او به توانایی‌های خود اعتماد به نفس زیادی دارد." },
+            { qw: "Confidence can help you succeed.", tt: "اعتماد به نفس می‌تواند به شما در موفقیت کمک کند." }
+        ]
+    },
+    {
+        e: "Consistency",
+        qq: "پایداری",
+        qe: [
+            { qw: "Consistency in quality is important.", tt: "پایداری در کیفیت مهم است." },
+            { qw: "They maintained consistency in their work.", tt: "آن‌ها پایداری در کار خود را حفظ کردند." }
+        ]
+    },
+    {
+        e: "Creativity",
+        qq: "خلاقیت",
+        qe: [
+            { qw: "Creativity is essential for innovation.", tt: "خلاقیت برای نوآوری ضروری است." },
+            { qw: "She has a lot of creativity.", tt: "او خلاقیت زیادی دارد." }
+        ]
+    },
+    {
+        e: "Curiosity",
+        qq: "کنجکاوی",
+        qe: [
+            { qw: "Curiosity drives learning.", tt: "کنجکاوی باعث یادگیری می‌شود." },
+            { qw: "He has a natural curiosity about the world.", tt: "او کنجکاوی طبیعی نسبت به جهان دارد." }
+        ]
+    },
+    {
+        e: "Dedication",
+        qq: "تلاش",
+        qe: [
+            { qw: "Her dedication to her work is admirable.", tt: "تلاش او برای کارش قابل تحسین است." },
+            { qw: "Dedication is key to success.", tt: "تلاش کلید موفقیت است." }
+        ]
+    },
+    {
+        e: "Determination",
+        qq: "عزم",
+        qe: [
+            { qw: "His determination helped him overcome obstacles.", tt: "عزم او به او کمک کرد تا موانع را پشت سر بگذارد." },
+            { qw: "Determination is important in achieving goals.", tt: "عزم در دستیابی به اهداف مهم است." }
+        ]
+    },
+    {
+        e: "Diligence",
+        qq: "پشتکار",
+        qe: [
+            { qw: "Diligence leads to success.", tt: "پشتکار به موفقیت منجر می‌شود." },
+            { qw: "She worked with diligence on the project.", tt: "او با پشتکار بر روی پروژه کار کرد." }
+        ]
+    },
+    {
+        e: "Discipline",
+        qq: "نظم",
+        qe: [
+            { qw: "Discipline is necessary for achieving goals.", tt: "نظم برای دستیابی به اهداف ضروری است." },
+            { qw: "He showed discipline in his studies.", tt: "او در مطالعه‌های خود نظم نشان داد." }
+        ]
+    },
+    {
+        e: "Diversity",
+        qq: "تنوع",
+        qe: [
+            { qw: "Diversity in the workplace is important.", tt: "تنوع در محیط کار مهم است." },
+            { qw: "The city is known for its cultural diversity.", tt: "شهر به خاطر تنوع فرهنگی خود شناخته شده است." }
+        ]
+    },
+    {
+        e: "Education",
+        qq: "آموزش",
+        qe: [
+            { qw: "Education is essential for personal growth.", tt: "آموزش برای رشد شخصی ضروری است." },
+            { qw: "She is pursuing higher education.", tt: "او تحصیلات عالی را دنبال می‌کند." }
+        ]
+    },
+    {
+        e: "Efficiency",
+        qq: "کارآمدی",
+        qe: [
+            { qw: "Efficiency is important in the workplace.", tt: "کارآمدی در محیط کار مهم است." },
+            { qw: "They improved their efficiency by using new tools.", tt: "آن‌ها با استفاده از ابزارهای جدید کارآمدی خود را بهبود دادند." }
+        ]
+    },
+    {
+        e: "Empathy",
+        qq: "همدلی",
+        qe: [
+            { qw: "Empathy helps build strong relationships.", tt: "همدلی به ایجاد روابط قوی کمک می‌کند." },
+            { qw: "She showed great empathy towards her friend.", tt: "او همدلی زیادی نسبت به دوستش نشان داد." }
+        ]
+    },
+    {
+        e: "Engagement",
+        qq: "مشارکت",
+        qe: [
+            { qw: "Employee engagement is crucial for company success.", tt: "مشارکت کارکنان برای موفقیت شرکت حیاتی است." },
+            { qw: "She showed great engagement in the meeting.", tt: "او در جلسه مشارکت زیادی نشان داد." }
+        ]
+    },
+    {
+        e: "Enthusiasm",
+        qq: "اشتیاق",
+        qe: [
+            { qw: "Enthusiasm can be contagious.", tt: "اشتیاق می‌تواند مسری باشد." },
+            { qw: "She showed enthusiasm for the new project.", tt: "او اشتیاق زیادی برای پروژه جدید نشان داد." }
+        ]
+    },
+    {
+        e: "Ethics",
+        qq: "اخلاق",
+        qe: [
+            { qw: "Ethics are important in business.", tt: "اخلاق در تجارت مهم است." },
+            { qw: "He follows a strict code of ethics.", tt: "او از یک کد اخلاقی سخت پیروی می‌کند." }
+        ]
+    },
+    {
+        e: "Excellence",
+        qq: "برتری",
+        qe: [
+            { qw: "They strive for excellence in everything they do.", tt: "آن‌ها در هر کاری که انجام می‌دهند برای برتری تلاش می‌کنند." },
+            { qw: "Her work is a model of excellence.", tt: "کار او نمونه‌ای از برتری است." }
+        ]
+    },
+    {
+        e: "Fairness",
+        qq: "عدالت",
+        qe: [
+            { qw: "Fairness is essential in the workplace.", tt: "عدالت در محیط کار ضروری است." },
+            { qw: "They treated everyone with fairness.", tt: "آن‌ها با همه با عدالت رفتار کردند." }
+        ]
+    },
+    {
+        e: "Flexibility",
+        qq: "انعطاف‌پذیری",
+        qe: [
+            { qw: "Flexibility is important in the workplace.", tt: "انعطاف‌پذیری در محیط کار مهم است." },
+            { qw: "They showed flexibility in adapting to new situations.", tt: "آن‌ها در انطباق با شرایط جدید انعطاف‌پذیری نشان دادند." }
+        ]
+    },
+    {
+        e: "Focus",
+        qq: "تمرکز",
+        qe: [
+            { qw: "Focus is necessary for success.", tt: "تمرکز برای موفقیت ضروری است." },
+            { qw: "She maintained focus throughout the project.", tt: "او در طول پروژه تمرکز خود را حفظ کرد." }
+        ]
+    },
+    {
+        e: "Generosity",
+        qq: "سخاوت",
+        qe: [
+            { qw: "Generosity is a virtue.", tt: "سخاوت یک فضیلت است." },
+            { qw: "He showed great generosity towards others.", tt: "او نسبت به دیگران سخاوت زیادی نشان داد." }
+        ]
+    },
+    {
+        e: "Gratitude",
+        qq: "قدرشناسی",
+        qe: [
+            { qw: "Gratitude can improve your well-being.", tt: "قدرشناسی می‌تواند بهبود سلامت شما را افزایش دهد." },
+            { qw: "She expressed her gratitude for their help.", tt: "او قدرشناسی خود را برای کمک آن‌ها ابراز کرد." }
+        ]
+    },
+    {
+        e: "Growth",
+        qq: "رشد",
+        qe: [
+            { qw: "Personal growth is important.", tt: "رشد شخصی مهم است." },
+            { qw: "They focused on growth opportunities.", tt: "آن‌ها بر فرصت‌های رشد تمرکز کردند." }
+        ]
+    },
+    {
+        e: "Honesty",
+        qq: "صداقت",
+        qe: [
+            { qw: "Honesty is the best policy.", tt: "صداقت بهترین سیاست است." },
+            { qw: "She is known for her honesty.", tt: "او به خاطر صداقت خود شناخته شده است." }
+        ]
+    },
+    {
+        e: "Humility",
+        qq: "فروتنی",
+        qe: [
+            { qw: "Humility is a sign of strength.", tt: "فروتنی نشانه‌ای از قدرت است." },
+            { qw: "He accepted the award with humility.", tt: "او جایزه را با فروتنی پذیرفت." }
+        ]
+    },
+    {
+        e: "Imagination",
+        qq: "تخیل",
+        qe: [
+            { qw: "Imagination is important for creativity.", tt: "تخیل برای خلاقیت مهم است." },
+            { qw: "She has a vivid imagination.", tt: "او تخیل زنده‌ای دارد." }
+        ]
+    },
+    {
+        e: "Innovation",
+        qq: "نوآوری",
+        qe: [
+            { qw: "Innovation drives progress.", tt: "نوآوری باعث پیشرفت می‌شود." },
+            { qw: "She is known for her innovative ideas.", tt: "او به خاطر ایده‌های نوآورانه‌اش شناخته شده است." }
+        ]
+    },
+    {
+        e: "Insight",
+        qq: "بینش",
+        qe: [
+            { qw: "Insight can lead to better decisions.", tt: "بینش می‌تواند به تصمیم‌گیری‌های بهتر منجر شود." },
+            { qw: "He provided valuable insights.", tt: "او بینش‌های ارزشمندی ارائه داد." }
+        ]
+    },
+    {
+        e: "Integrity",
+        qq: "یکپارچگی",
+        qe: [
+            { qw: "Integrity is a key value in our organization.", tt: "یکپارچگی یک ارزش کلیدی در سازمان ما است." },
+            { qw: "He is known for his integrity.", tt: "او به خاطر یکپارچگی خود شناخته شده است." }
+        ]
+    },
+    {
+        e: "Intelligence",
+        qq: "هوش",
+        qe: [
+            { qw: "Intelligence is valued in the workplace.", tt: "هوش در محیط کار ارزشمند است." },
+            { qw: "She showed remarkable intelligence.", tt: "او هوش قابل توجهی نشان داد." }
+        ]
+    },
+    {
+        e: "Joy",
+        qq: "شادی",
+        qe: [
+            { qw: "Joy is found in simple things.", tt: "شادی در چیزهای ساده یافت می‌شود." },
+            { qw: "She brings joy to everyone around her.", tt: "او شادی را به همه اطرافیان خود می‌آورد." }
+        ]
+    },
+    {
+        e: "Justice",
+        qq: "عدالت",
+        qe: [
+            { qw: "Justice is crucial in society.", tt: "عدالت در جامعه حیاتی است." },
+            { qw: "They fought for justice.", tt: "آن‌ها برای عدالت مبارزه کردند." }
+        ]
+    },
+    {
+        e: "Kindness",
+        qq: "مهربانی",
+        qe: [
+            { qw: "Kindness can make a big difference.", tt: "مهربانی می‌تواند تفاوت بزرگی ایجاد کند." },
+            { qw: "She showed kindness to strangers.", tt: "او به غریبه‌ها مهربانی نشان داد." }
+        ]
+    },
+    {
+        e: "Knowledge",
+        qq: "دانش",
+        qe: [
+            { qw: "Knowledge is power.", tt: "دانش قدرت است." },
+            { qw: "She has a wealth of knowledge in her field.", tt: "او دارای دانش زیادی در زمینه کاری خود است." }
+        ]
+    },
+    {
+        e: "Leadership",
+        qq: "رهبری",
+        qe: [
+            { qw: "Leadership is about inspiring others.", tt: "رهبری در مورد الهام‌ بخشیدن به دیگران است." },
+            { qw: "She has strong leadership skills.", tt: "او دارای مهارت‌های رهبری قوی است." }
+        ]
+    },
+    {
+        e: "Learning",
+        qq: "یادگیری",
+        qe: [
+            { qw: "Learning is a lifelong process.", tt: "یادگیری یک فرآیند مادام‌العمر است." },
+            { qw: "He is passionate about learning new things.", tt: "او به یادگیری چیزهای جدید علاقه‌مند است." }
+        ]
+    },
+    {
+        e: "Accountability",
+        qq: "پاسخگویی",
+        qe: [
+            { qw: "Accountability is important in every job.", tt: "پاسخگویی در هر شغلی مهم است." },
+            { qw: "She takes accountability for her actions.", tt: "او برای اعمال خود پاسخگو است." }
+        ]
+    },
+    {
+        e: "Advocacy",
+        qq: "دفاع",
+        qe: [
+            { qw: "She is known for her advocacy of human rights.", tt: "او به خاطر دفاع از حقوق بشر شناخته شده است." },
+            { qw: "Advocacy can bring about social change.", tt: "دفاع می‌تواند تغییرات اجتماعی را به همراه داشته باشد." }
+        ]
+    },
+    {
+        e: "Alignment",
+        qq: "هم‌راستایی",
+        qe: [
+            { qw: "Alignment of team goals is crucial.", tt: "هم‌راستایی اهداف تیمی حیاتی است." }
+        ]
+    },
+    {
+        e: "Anticipation",
+        qq: "پیش‌بینی",
+        qe: [
+            { qw: "Anticipation of market trends is important.", tt: "پیش‌بینی روندهای بازار مهم است." }
+        ]
+    },
+    {
+        e: "Appreciation",
+        qq: "قدردانی",
+        qe: [
+            { qw: "She showed appreciation for their help.", tt: "او برای کمک آن‌ها قدردانی نشان داد." },
+            { qw: "Appreciation can boost morale.", tt: "قدردانی می‌تواند روحیه را تقویت کند." }
+        ]
+    },
+    {
+        e: "Authenticity",
+        qq: "اصالت",
+        qe: [
+            { qw: "Authenticity is valued in leadership.", tt: "اصالت در رهبری ارزشمند است." }
+        ]
+    },
+    {
+        e: "Awareness",
+        qq: "آگاهی",
+        qe: [
+            { qw: "Awareness of environmental issues is increasing.", tt: "آگاهی از مسائل محیط زیستی در حال افزایش است." }
+        ]
+    },
+    {
+        e: "Balance",
+        qq: "تعادل",
+        qe: [
+            { qw: "Maintaining work-life balance is important.", tt: "حفظ تعادل بین کار و زندگی مهم است." }
+        ]
+    },
+    {
+        e: "Cohesion",
+        qq: "انسجام",
+        qe: [
+            { qw: "Team cohesion is essential for success.", tt: "انسجام تیمی برای موفقیت ضروری است." }
+        ]
+    },
+    {
+        e: "Collaboration",
+        qq: "همکاری",
+        qe: [
+            { qw: "Collaboration between departments is necessary.", tt: "همکاری بین بخش‌ها ضروری است." }
+        ]
+    },
+    {
+        e: "Compromise",
+        qq: "سازش",
+        qe: [
+            { qw: "They reached a compromise on the issue.", tt: "آن‌ها در مورد مسئله به سازش رسیدند." }
+        ]
+    },
+    {
+        e: "Consequence",
+        qq: "نتیجه",
+        qe: [
+            { qw: "Every action has a consequence.", tt: "هر عملی نتیجه‌ای دارد." }
+        ]
+    },
+    {
+        e: "Continuous Improvement",
+        qq: "بهبود مستمر",
+        qe: [
+            { qw: "Continuous improvement is a key to success.", tt: "بهبود مستمر کلید موفقیت است." },
+            { qw: "She focused on continuous improvement in her work.", tt: "او بر بهبود مستمر در کار خود تمرکز کرد." }
+        ]
+    },
+    {
+        e: "Creativity",
+        qq: "خلاقیت",
+        qe: [
+            { qw: "Creativity is essential for innovation.", tt: "خلاقیت برای نوآوری ضروری است." }
+        ]
+    },
+    {
+        e: "Curiosity",
+        qq: "کنجکاوی",
+        qe: [
+            { qw: "Curiosity drives learning.", tt: "کنجکاوی باعث یادگیری می‌شود." }
+        ]
+    },
+    {
+        e: "Dedication",
+        qq: "تلاش",
+        qe: [
+            { qw: "Her dedication to her work is admirable.", tt: "تلاش او برای کارش قابل تحسین است." }
+        ]
+    },
+    {
+        e: "Determination",
+        qq: "عزم",
+        qe: [
+            { qw: "His determination helped him overcome obstacles.", tt: "عزم او به او کمک کرد تا موانع را پشت سر بگذارد." }
+        ]
+    },
+    {
+        e: "Diligence",
+        qq: "پشتکار",
+        qe: [
+            { qw: "Diligence leads to success.", tt: "پشتکار به موفقیت منجر می‌شود." }
+        ]
+    },
+    {
+        e: "Discipline",
+        qq: "نظم",
+        qe: [
+            { qw: "Discipline is necessary for achieving goals.", tt: "نظم برای دستیابی به اهداف ضروری است." }
+        ]
+    },
+    {
+        e: "Diversity",
+        qq: "تنوع",
+        qe: [
+            { qw: "Diversity in the workplace is important.", tt: "تنوع در محیط کار مهم است." }
+        ]
+    },
+    {
+        e: "Education",
+        qq: "آموزش",
+        qe: [
+            { qw: "Education is essential for personal growth.", tt: "آموزش برای رشد شخصی ضروری است." }
+        ]
+    },
+    {
+        e: "Efficiency",
+        qq: "کارآمدی",
+        qe: [
+            { qw: "Efficiency is important in the workplace.", tt: "کارآمدی در محیط کار مهم است." }
+        ]
+    },
+    {
+        e: "Empathy",
+        qq: "همدلی",
+        qe: [
+            { qw: "Empathy helps build strong relationships.", tt: "همدلی به ایجاد روابط قوی کمک می‌کند." }
+        ]
+    },
+    {
+        e: "Engagement",
+        qq: "مشارکت",
+        qe: [
+            { qw: "Employee engagement is crucial for company success.", tt: "مشارکت کارکنان برای موفقیت شرکت حیاتی است." }
+        ]
+    },
+    {
+        e: "Enthusiasm",
+        qq: "اشتیاق",
+        qe: [
+            { qw: "Enthusiasm can be contagious.", tt: "اشتیاق می‌تواند مسری باشد." }
+        ]
+    },
+    {
+        e: "Ethics",
+        qq: "اخلاق",
+        qe: [
+            { qw: "Ethics are important in business.", tt: "اخلاق در تجارت مهم است." }
+        ]
+    },
+    {
+        e: "Excellence",
+        qq: "برتری",
+        qe: [
+            { qw: "They strive for excellence in everything they do.", tt: "آن‌ها در هر کاری که انجام می‌دهند برای برتری تلاش می‌کنند." }
+        ]
+    },
+    {
+        e: "Fairness",
+        qq: "عدالت",
+        qe: [
+            { qw: "Fairness is essential in the workplace.", tt: "عدالت در محیط کار ضروری است." }
+        ]
+    },
+    {
+        e: "Flexibility",
+        qq: "انعطاف‌پذیری",
+        qe: [
+            { qw: "Flexibility is important in the workplace.", tt: "انعطاف‌پذیری در محیط کار مهم است." }
+        ]
+    },
+    {
+        e: "Focus",
+        qq: "تمرکز",
+        qe: [
+            { qw: "Focus is necessary for success.", tt: "تمرکز برای موفقیت ضروری است." }
+        ]
+    },
+    {
+        e: "Generosity",
+        qq: "سخاوت",
+        qe: [
+            { qw: "Generosity is a virtue.", tt: "سخاوت یک فضیلت است." }
+        ]
+    },
+    {
+        e: "Gratitude",
+        qq: "قدرشناسی",
+        qe: [
+            { qw: "Gratitude can improve your well-being.", tt: "قدرشناسی می‌تواند بهبود سلامت شما را افزایش دهد." }
+        ]
+    },
+    {
+        e: "Growth",
+        qq: "رشد",
+        qe: [
+            { qw: "Personal growth is important.", tt: "رشد شخصی مهم است." }
+        ]
+    },
+    {
+        e: "Honesty",
+        qq: "صداقت",
+        qe: [
+            { qw: "Honesty is the best policy.", tt: "صداقت بهترین سیاست است." }
+        ]
+    },
+    {
+        e: "Humility",
+        qq: "فروتنی",
+        qe: [
+            { qw: "Humility is a sign of strength.", tt: "فروتنی نشانه‌ای از قدرت است." }
+        ]
+    },
+    {
+        e: "Imagination",
+        qq: "تخیل",
+        qe: [
+            { qw: "Imagination is important for creativity.", tt: "تخیل برای خلاقیت مهم است." }
+        ]
+    },
+    {
+        e: "Insight",
+        qq: "بینش",
+        qe: [
+            { qw: "Insight can lead to better decisions.", tt: "بینش می‌تواند به تصمیم‌گیری‌های بهتر منجر شود." }
+        ]
+    },
+    {
+        e: "Intelligence",
+        qq: "هوش",
+        qe: [
+            { qw: "Intelligence is valued in the workplace.", tt: "هوش در محیط کار ارزشمند است." }
+        ]
+    },
+    {
+        e: "Joy",
+        qq: "شادی",
+        qe: [
+            { qw: "Joy is found in simple things.", tt: "شادی در چیزهای ساده یافت می‌شود." }
+        ]
+    },
+    {
+        e: "Justice",
+        qq: "عدالت",
+        qe: [
+            { qw: "Justice is crucial in society.", tt: "عدالت در جامعه حیاتی است." }
+        ]
+    },
+    {
+        e: "Kindness",
+        qq: "مهربانی",
+        qe: [
+            { qw: "Kindness can make a big difference.", tt: "مهربانی می‌تواند تفاوت بزرگی ایجاد کند." }
+        ]
+    },
+    {
+        e: "Learning",
+        qq: "یادگیری",
+        qe: [
+            { qw: "Learning is a lifelong process.", tt: "یادگیری یک فرآیند مادام‌العمر است." }
+        ]
+    },
+    {
+        e: "Listening",
+        qq: "گوش دادن",
+        qe: [
+            { qw: "Listening is an important communication skill.", tt: "گوش دادن یک مهارت ارتباطی مهم است." }
+        ]
+    },
+    {
+        e: "Mindfulness",
+        qq: "آگاهی ذهنی",
+        qe: [
+            { qw: "Mindfulness can reduce stress.", tt: "آگاهی ذهنی می‌تواند استرس را کاهش دهد." }
+        ]
+    },
+    {
+        e: "Patience",
+        qq: "صبر",
+        qe: [
+            { qw: "Patience is a virtue.", tt: "صبر یک فضیلت است." },
+            { qw: "He showed great patience during the process.", tt: "او در طول فرآیند صبر زیادی نشان داد." }
+        ]
+    },
+    {
+        e: "Perseverance",
+        qq: "استقامت",
+        qe: [
+            { qw: "Perseverance is key to overcoming obstacles.", tt: "استقامت کلید غلبه بر موانع است." },
+            { qw: "She has shown great perseverance in her studies.", tt: "او در مطالعه‌های خود استقامت زیادی نشان داده است." }
+        ]
+    },
+    {
+        e: "Prudence",
+        qq: "احتیاط",
+        qe: [
+            { qw: "Prudence is important in decision making.", tt: "احتیاط در تصمیم‌گیری مهم است." },
+            { qw: "He acted with prudence in the situation.", tt: "او با احتیاط در موقعیت عمل کرد." }
+        ]
+    },
+    {
+        e: "Resilience",
+        qq: "تاب‌آوری",
+        qe: [
+            { qw: "Resilience helps you recover from setbacks.", tt: "تاب‌آوری به شما کمک می‌کند تا از شکست‌ها بهبود یابید." }
+        ]
+    },
+    {
+        e: "Respect",
+        qq: "احترام",
+        qe: [
+            { qw: "Respect is crucial in relationships.", tt: "احترام در روابط حیاتی است." },
+            { qw: "They showed respect for each other's opinions.", tt: "آن‌ها نسبت به نظرات یکدیگر احترام نشان دادند." }
+        ]
+    },
+    {
+        e: "Responsibility",
+        qq: "مسئولیت",
+        qe: [
+            { qw: "Taking responsibility is important.", tt: "پذیرفتن مسئولیت مهم است." },
+            { qw: "She showed responsibility in her actions.", tt: "او در اقدامات خود مسئولیت نشان داد." }
+        ]
+    },
+    {
+        e: "Self-awareness",
+        qq: "خودآگاهی",
+        qe: [
+            { qw: "Self-awareness is crucial for personal growth.", tt: "خودآگاهی برای رشد شخصی حیاتی است." },
+            { qw: "He has a high level of self-awareness.", tt: "او دارای سطح بالایی از خودآگاهی است." }
+        ]
+    },
+    {
+        e: "Self-discipline",
+        qq: "خود انضباطی",
+        qe: [
+            { qw: "Self-discipline is necessary for achieving goals.", tt: "خود انضباطی برای دستیابی به اهداف ضروری است." },
+            { qw: "She showed great self-discipline in her studies.", tt: "او در مطالعه‌های خود خود انضباطی زیادی نشان داد." }
+        ]
+    },
+    {
+        e: "Self-esteem",
+        qq: "اعتماد به نفس",
+        qe: [
+            { qw: "Self-esteem is important for mental health.", tt: "اعتماد به نفس برای سلامت روان مهم است." },
+            { qw: "He has high self-esteem.", tt: "او اعتماد به نفس بالایی دارد." }
+        ]
+    },
+    {
+        e: "Teamwork",
+        qq: "کار تیمی",
+        qe: [
+            { qw: "Teamwork is essential for success.", tt: "کار تیمی برای موفقیت ضروری است." },
+            { qw: "They showed great teamwork on the project.", tt: "آن‌ها در پروژه کار تیمی بزرگی نشان دادند." }
+        ]
+    },
+    {
+        e: "Tolerance",
+        qq: "مدارا",
+        qe: [
+            { qw: "Tolerance is important in a diverse society.", tt: "مدارا در یک جامعه متنوع مهم است." }
+        ]
+    },
+    {
+        e: "Transparency",
+        qq: "شفافیت",
+        qe: [
+            { qw: "Transparency builds trust.", tt: "شفافیت اعتماد ایجاد می‌کند." }
+        ]
+    },
+    {
+        e: "Trustworthiness",
+        qq: "قابل اعتماد بودن",
+        qe: [
+            { qw: "Trustworthiness is important in relationships.", tt: "قابل اعتماد بودن در روابط مهم است." },
+            { qw: "She is known for her trustworthiness.", tt: "او به خاطر قابل اعتماد بودنش شناخته شده است." }
+        ]
+    },
+    {
+        e: "Wisdom",
+        qq: "حکمت",
+        qe: [
+            { qw: "Wisdom comes with experience.", tt: "حکمت با تجربه می‌آید." }
+        ]
+    },
+    {
+        e: "Zeal",
+        qq: "اشتیاق",
+        qe: [
+            { qw: "He approached the task with zeal.", tt: "او با اشتیاق به کار نزدیک شد." },
+            { qw: "Her zeal for learning is remarkable.", tt: "اشتیاق او برای یادگیری قابل توجه است." }
+        ]
+    },
+    {
+        e: "Acclaim",
+        qq: "تحسین",
+        qe: [
+            { qw: "The artist received acclaim for her latest work.", tt: "هنرمند به خاطر آخرین اثرش تحسین شد." }
+        ]
+    },
+    {
+        e: "Adversity",
+        qq: "سختی",
+        qe: [
+            { qw: "She showed resilience in the face of adversity.", tt: "او در مواجهه با سختی‌ها تاب‌آوری نشان داد." },
+            { qw: "Adversity can strengthen character.", tt: "سختی‌ها می‌توانند شخصیت را تقویت کنند." }
+        ]
+    },
+    {
+        e: "Advocate",
+        qq: "طرفداری کردن",
+        qe: [
+            { qw: "He is an advocate for environmental conservation.", tt: "او طرفدار حفظ محیط زیست است." },
+            { qw: "She advocated for better working conditions.", tt: "او برای شرایط کاری بهتر طرفداری کرد." },
+            { qw: "Advocates play a crucial role in social change.", tt: "طرفداران نقش کلیدی در تغییرات اجتماعی ایفا می‌کنند." }
+        ]
+    },
+    {
+        e: "Aesthetic",
+        qq: "زیبایی‌شناسی",
+        qe: [
+            { qw: "The aesthetic design of the building is impressive.", tt: "طراحی زیبایی‌شناسی ساختمان چشمگیر است." },
+            { qw: "Aesthetics are important in art and design.", tt: "زیبایی‌شناسی در هنر و طراحی مهم است." }
+        ]
+    },
+    {
+        e: "Allegiance",
+        qq: "وفاداری",
+        qe: [
+            { qw: "He pledged allegiance to his country.", tt: "او به کشورش وفاداری سوگند خورد." }
+        ]
+    },
+    {
+        e: "Amiable",
+        qq: "دوستانه",
+        qe: [
+            { qw: "She is known for her amiable personality.", tt: "او به خاطر شخصیت دوستانه‌اش شناخته شده است." }
+        ]
+    },
+    {
+        e: "Antagonist",
+        qq: "ضد قهرمان",
+        qe: [
+            { qw: "The antagonist in the story is very cunning.", tt: "ضد قهرمان داستان بسیار حیله‌گر است." },
+            { qw: "Antagonists often challenge the protagonist.", tt: "ضد قهرمان‌ها اغلب قهرمان داستان را به چالش می‌کشند." }
+        ]
+    },
+    {
+        e: "Apathy",
+        qq: "بی‌تفاوتی",
+        qe: [
+            { qw: "There was widespread apathy among the voters.", tt: "بی‌تفاوتی گسترده‌ای در میان رای‌دهندگان وجود داشت." },
+            { qw: "Apathy can lead to low engagement.", tt: "بی‌تفاوتی می‌تواند به مشارکت کم منجر شود." }
+        ]
+    },
+    {
+        e: "Arbitrary",
+        qq: "دلخواه",
+        qe: [
+            { qw: "The decision seemed arbitrary and unfair.", tt: "تصمیم به نظر دلخواه و ناعادلانه می‌آمد." },
+            { qw: "Arbitrary rules can cause confusion.", tt: "قوانین دلخواه می‌توانند باعث سردرگمی شوند." }
+        ]
+    },
+    {
+        e: "Articulate",
+        qq: "روشن بیان کردن",
+        qe: [
+            { qw: "She is able to articulate her thoughts clearly.", tt: "او قادر است افکار خود را به وضوح بیان کند." },
+            { qw: "Articulate speakers are often more persuasive.", tt: "سخنرانان روشن بیان اغلب متقاعدکننده‌تر هستند." }
+        ]
+    },
+    {
+        e: "Aspire",
+        qq: "آرزو داشتن",
+        qe: [
+            { qw: "He aspires to become a successful entrepreneur.", tt: "او آرزو دارد که یک کارآفرین موفق شود." }
+        ]
+    },
+    {
+        e: "Authentic",
+        qq: "اصیل",
+        qe: [
+            { qw: "The restaurant serves authentic Italian food.", tt: "رستوران غذای اصیل ایتالیایی سرو می‌کند." },
+            { qw: "Authenticity is valued in personal relationships.", tt: "اصالت در روابط شخصی ارزشمند است." }
+        ]
+    },
+    {
+        e: "Benevolent",
+        qq: "خیرخواهانه",
+        qe: [
+            { qw: "She made a benevolent donation to the charity.", tt: "او یک کمک خیرخواهانه به موسسه خیریه کرد." }
+        ]
+    },
+    {
+        e: "Bias",
+        qq: "تعصب",
+        qe: [
+            { qw: "They tried to avoid bias in their research.", tt: "آن‌ها سعی کردند در تحقیقات خود از تعصب دوری کنند." },
+            { qw: "Bias can affect decision-making.", tt: "تعصب می‌تواند بر تصمیم‌گیری تأثیر بگذارد." }
+        ]
+    },
+    {
+        e: "Blatant",
+        qq: "آشکار",
+        qe: [
+            { qw: "His blatant disregard for the rules was surprising.", tt: "بی‌تفاوتی آشکار او نسبت به قوانین تعجب‌آور بود." },
+            { qw: "Blatant lies can damage trust.", tt: "دروغ‌های آشکار می‌توانند اعتماد را از بین ببرند." }
+        ]
+    },
+    {
+        e: "Brevity",
+        qq: "اختصار",
+        qe: [
+            { qw: "The brevity of his speech was appreciated.", tt: "اختصار سخنرانی او مورد قدردانی قرار گرفت." }
+        ]
+    },
+    {
+        e: "Candid",
+        qq: "صریح",
+        qe: [
+            { qw: "She gave a candid response to the question.", tt: "او پاسخ صریحی به سوال داد." },
+            { qw: "Candid discussions can lead to better understanding.", tt: "بحث‌های صریح می‌توانند به درک بهتر منجر شوند." }
+        ]
+    },
+    {
+        e: "Capitulate",
+        qq: "تسلیم شدن",
+        qe: [
+            { qw: "The enemy finally capitulated after a long siege.", tt: "دشمن بالاخره پس از محاصره طولانی تسلیم شد." }
+        ]
+    },
+    {
+        e: "Catalyst",
+        qq: "کاتالیزور",
+        qe: [
+            { qw: "The new policy acted as a catalyst for change.", tt: "سیاست جدید به عنوان کاتالیزور برای تغییر عمل کرد." }
+        ]
+    },
+    {
+        e: "Censure",
+        qq: "انتقاد",
+        qe: [
+            { qw: "He faced censure from his colleagues.", tt: "او با انتقاد همکارانش مواجه شد." },
+            { qw: "Censure can be a form of disciplinary action.", tt: "انتقاد می‌تواند نوعی اقدام انضباطی باشد." }
+        ]
+    },
+    {
+        e: "Cognizant",
+        qq: "آگاه",
+        qe: [
+            { qw: "She is cognizant of the challenges ahead.", tt: "او از چالش‌های پیش رو آگاه است." }
+        ]
+    },
+    {
+        e: "Compassionate",
+        qq: "دلسوز",
+        qe: [
+            { qw: "He is known for his compassionate nature.", tt: "او به خاطر طبیعت دلسوزانه‌اش شناخته شده است." },
+            { qw: "Compassionate leaders often inspire loyalty.", tt: "رهبران دلسوز اغلب الهام‌بخش وفاداری هستند." }
+        ]
+    },
+    {
+        e: "Comprehensive",
+        qq: "جامع",
+        qe: [
+            { qw: "The report provides a comprehensive overview.", tt: "گزارش یک نمای کلی جامع ارائه می‌دهد." }
+        ]
+    },
+    {
+        e: "Concur",
+        qq: "موافقت کردن",
+        qe: [
+            { qw: "They concurred with the decision.", tt: "آن‌ها با تصمیم موافقت کردند." },
+            { qw: "Experts concur on the importance of the findings.", tt: "کارشناسان در مورد اهمیت یافته‌ها توافق دارند." }
+        ]
+    },
+    {
+        e: "Conspicuous",
+        qq: "مشهود",
+        qe: [
+            { qw: "Her conspicuous talent was recognized by everyone.", tt: "استعداد مشهود او توسط همه شناخته شد." }
+        ]
+    },
+    {
+        e: "Consensus",
+        qq: "اجماع",
+        qe: [
+            { qw: "They reached a consensus after lengthy discussions.", tt: "آن‌ها پس از بحث‌های طولانی به یک اجماع رسیدند." }
+        ]
+    },
+    {
+        e: "Constitute",
+        qq: "تشکیل دادن",
+        qe: [
+            { qw: "These elements constitute a complete system.", tt: "این عناصر یک سیستم کامل را تشکیل می‌دهند." }
+        ]
+    },
+    {
+        e: "Convey",
+        qq: "انتقال دادن",
+        qe: [
+            { qw: "He conveyed his message clearly.", tt: "او پیامش را به وضوح انتقال داد." }
+        ]
+    },
+    {
+        e: "Culminate",
+        qq: "به اوج رسیدن",
+        qe: [
+            { qw: "The events culminated in a grand celebration.", tt: "رویدادها به یک جشن بزرگ رسیدند." }
+        ]
+    },
+    {
+        e: "Cynical",
+        qq: "بدبین",
+        qe: [
+            { qw: "He has a cynical view of politics.", tt: "او دیدگاه بدبینانه‌ای نسبت به سیاست دارد." },
+            { qw: "Cynical attitudes can hinder progress.", tt: "نگرش‌های بدبینانه می‌توانند پیشرفت را مختل کنند." }
+        ]
+    },
+    {
+        e: "Debilitating",
+        qq: "تضعیف کننده",
+        qe: [
+            { qw: "The illness had a debilitating effect on her.", tt: "بیماری تأثیر تضعیف کننده‌ای روی او داشت." }
+        ]
+    },
+    {
+        e: "Deference",
+        qq: "احترام",
+        qe: [
+            { qw: "They showed deference to their elders.", tt: "آن‌ها به بزرگترهای خود احترام نشان دادند." }
+        ]
+    },
+    {
+        e: "Demeanor",
+        qq: "رفتار",
+        qe: [
+            { qw: "Her calm demeanor was reassuring.", tt: "رفتار آرام او اطمینان‌بخش بود." }
+        ]
+    },
+    {
+        e: "Diligent",
+        qq: "سخت‌کوش",
+        qe: [
+            { qw: "She is a diligent student.", tt: "او دانش‌آموز سخت‌کوشی است." },
+            { qw: "Diligent workers are often rewarded.", tt: "کارگران سخت‌کوش اغلب پاداش می‌گیرند." }
+        ]
+    },
+    {
+        e: "Discreet",
+        qq: "محتاط",
+        qe: [
+            { qw: "He made a discreet inquiry about the job.", tt: "او یک پرس‌وجوی محتاطانه در مورد شغل انجام داد." }
+        ]
+    },
+    {
+        e: "Eclectic",
+        qq: "منتخب",
+        qe: [
+            { qw: "She has an eclectic taste in music.", tt: "او سلیقه منتخبی در موسیقی دارد." }
+        ]
+    },
+    {
+        e: "Eloquent",
+        qq: "فصیح",
+        qe: [
+            { qw: "He gave an eloquent speech.", tt: "او سخنرانی فصیحی انجام داد." },
+            { qw: "Eloquent speakers can captivate their audience.", tt: "سخنرانان فصیح می‌توانند مخاطبان خود را مجذوب کنند." }
+        ]
+    },
+    {
+        e: "Empathy",
+        qq: "همدلی",
+        qe: [
+            { qw: "Empathy helps build strong relationships.", tt: "همدلی به ایجاد روابط قوی کمک می‌کند." }
+        ]
+    },
+    {
+        e: "Enigma",
+        qq: "راز",
+        qe: [
+            { qw: "The mystery remains an enigma.", tt: "راز همچنان یک معما باقی مانده است." }
+        ]
+    },
+    {
+        e: "Ephemeral",
+        qq: "گذرا",
+        qe: [
+            { qw: "The beauty of the sunset was ephemeral.", tt: "زیبایی غروب آفتاب گذرا بود." }
+        ]
+    },
+    {
+        e: "Equivocal",
+        qq: "دوپهلو",
+        qe: [
+            { qw: "His answer was equivocal and unclear.", tt: "پاسخ او دوپهلو و نامشخص بود." }
+        ]
+    },
+    {
+        e: "Erudite",
+        qq: "دانشمند",
+        qe: [
+            { qw: "She is known for her erudite lectures.", tt: "او به خاطر سخنرانی‌های دانشمندانه‌اش شناخته شده است." }
+        ]
+    },
+    {
+        e: "Euphoria",
+        qq: "شادی زیاد",
+        qe: [
+            { qw: "The victory brought a sense of euphoria.", tt: "پیروزی حس شادی زیادی به همراه داشت." }
+        ]
+    }
+];
+class LanguageLearningApp {
+    constructor() {
+        this.currentIndex = 0;
+        this.currentTheme = 1;
+        this.isLoading = false;
+        this.initialize();
+    }
+
+    initialize() {
+        this.attachEventListeners();
+        this.loadLastState();
+        this.renderContent();
+        this.startAutoUpdate();
+        this.showLoadingEffect();
+    }
+
+    showLoadingEffect() {
+        const overlay = document.querySelector('.loading-overlay');
+        overlay.style.opacity = '1';
+        overlay.style.pointerEvents = 'all';
+        
+        setTimeout(() => {
+            overlay.style.opacity = '0';
+            overlay.style.pointerEvents = 'none';
+        }, 1500);
+    }
+
+    attachEventListeners() {
+        document.getElementById('prevBtn').addEventListener('click', () => this.navigate(-1));
+        document.getElementById('nextBtn').addEventListener('click', () => this.navigate(1));
+        document.getElementById('themeBtn').addEventListener('click', () => this.cycleTheme());
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') this.navigate(-1);
+            if (e.key === 'ArrowRight') this.navigate(1);
+        });
+
+        window.addEventListener('resize', () => this.updateLayout());
+    }
+
+    navigate(direction) {
+        this.currentIndex = (this.currentIndex + direction + words.length) % words.length;
+        this.saveState();
+        this.renderContent(true);
+    }
+
+    cycleTheme() {
+        this.currentTheme = (this.currentTheme % 7) + 1;
+        document.body.className = `theme-${this.currentTheme}`;
+        this.saveState();
+    }
+
+    createWordCard(word) {
+        const card = document.createElement('div');
+        card.className = 'card interactive-element glow-effect';
+        const qeHtml = word.qe.map(ex => `
+            <div class="qw-section">
+                <div class="qw-e">${ex.qw}</div>
+                <div class="qw-qq">${ex.tt}</div>
+            </div>
+        `).join('');
+        
+        card.innerHTML = `
+            <div class="card-content">
+                <div class="word-section">
+                    <div class="word-e">${word.e}</div>
+                    <div class="word-qq">${word.qq}</div>
+                </div>
+                ${qeHtml}
+            </div>
+        `;
+        return card;
+    }
+
+    renderContent(animate = false) {
+        const container = document.getElementById('mainContainer');
+        container.innerHTML = '';
+        
+        const card = this.createWordCard(words[this.currentIndex]);
+        if (animate) {
+            card.style.animation = 'floatAnimation 0.5s ease-out';
+        }
+        container.appendChild(card);
+        
+        this.updateProgressBar();
+    }
+
+    updateProgressBar() {
+        const progress = ((this.currentIndex + 1) / words.length) * 100;
+        document.getElementById('progressBar').style.width = `${progress}%`;
+    }
+
+    updateDateTime() {
+        const now = new Date();
+        const formatted = now.toISOString().replace('T', ' ').substr(0, 19);
+        document.getElementById('datetime').textContent = formatted;
+    }
+
+    startAutoUpdate() {
+        setInterval(() => this.updateDateTime(), 1000);
+    }
+
+    loadLastState() {
+        const savedState = localStorage.getItem('languageLearningState_v2');
+        if (savedState) {
+            const state = JSON.parse(savedState);
+            this.currentIndex = state.index || 0;
+            this.currentTheme = state.theme || 1;
+            document.body.className = `theme-${this.currentTheme}`;
+        }
+    }
+
+    saveState() {
+        localStorage.setItem('languageLearningState_v2', JSON.stringify({
+            index: this.currentIndex,
+            theme: this.currentTheme
+        }));
+    }
+
+    updateLayout() {
+        const isMobile = window.innerWidth <= 768;
+        document.body.classList.toggle('mobile-view', isMobile);
+    }
+}
+window.addEventListener('DOMContentLoaded', () => {
+    const app = new LanguageLearningApp();
+});
+
+</script>
+</body>
+</html>
